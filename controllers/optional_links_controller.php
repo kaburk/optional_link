@@ -70,37 +70,8 @@ class OptionalLinksController extends OptionalLinkAppController {
  * @return void
  */
 	public function admin_edit($id = null) {
-		if (!$id) {
-			$this->setMessage('無効な処理です。', true);
-			$this->redirect(array('action' => 'index'));			
-		}
-		if (empty($this->data)) {
-			$this->{$this->modelClass}->id = $id;
-			$this->data = $this->{$this->modelClass}->read();
-			$configData = $this->OptionalLinkConfig->find('first', array(
-				'conditions' => array(
-					'OptionalLinkConfig.blog_content_id' => $this->data[$this->modelClass]['blog_content_id']
-				)));
-			$this->data['OptionalLinkConfig'] = $configData['OptionalLinkConfig'];
-		} else {
-			$configData = $this->{$this->modelClass}->find('first', array(
-				'conditions' => array(
-					$this->modelClass .'.blog_content_id' => $this->data[$this->modelClass]['blog_content_id']
-				)));
-			$this->data[$this->modelClass] = $configData[$this->modelClass];
-			
-			$this->{$this->modelClass}->set($this->data);
-			if ($this->{$this->modelClass}->save($this->data)) {
-				$this->setMessage('更新が完了しました。');
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->setMessage('入力エラーです。内容を修正して下さい。', true);
-			}
-		}
-		
-		$this->set('blogContentDatas', array('0' => '指定しない') + $this->blogContentDatas);
 		$this->pageTitle = $this->adminTitle . '編集';
-		$this->render('form');
+		parent::admin_edit($id);
 	}
 	
 /**
