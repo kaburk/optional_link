@@ -1,6 +1,6 @@
 <?php 
 /* SVN FILE: $Id$ */
-/* OptionalLinkConfigs schema generated on: 2013-11-21 02:11:24 : 1384968444*/
+/* OptionalLinkConfigs schema generated on: 2013-11-24 01:11:43 : 1385223523*/
 class OptionalLinkConfigsSchema extends CakeSchema {
 	var $name = 'OptionalLinkConfigs';
 
