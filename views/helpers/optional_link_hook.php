@@ -53,9 +53,6 @@ class OptionalLinkHookHelper extends AppHelper {
  */
 	public function beforeRender() {
 		parent::beforeRender();
-		
-		$this->View->helpers[] = 'OptionalLink.OptionalLink';
-		
 		// ブログページ表示の際に実行
 		if (empty($this->params['admin'])) {
 			if (!empty($this->params['plugin'])) {

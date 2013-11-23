@@ -7,10 +7,6 @@
  * @license			MIT
  */
 ?>
-<?php if($this->params['controller'] == 'blog_contents'): ?>
-<h3 id="textOptionalLinkConfigConfigTable">オプショナルリンク設定</h3>
-<?php endif ?>
-
 <?php if($this->action != 'admin_add'): ?>
 	<?php echo $bcForm->input('OptionalLinkConfig.id', array('type' => 'hidden')) ?>
 <?php endif ?>

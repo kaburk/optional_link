@@ -70,18 +70,18 @@ class OptionalLinksController extends OptionalLinkAppController {
  * @return void
  */
 	public function admin_edit($id = null) {
-		if(!$id) {
+		if (!$id) {
 			$this->setMessage('無効な処理です。', true);
 			$this->redirect(array('action' => 'index'));			
 		}
-		if(empty($this->data)) {
+		if (empty($this->data)) {
 			$this->{$this->modelClass}->id = $id;
 			$this->data = $this->{$this->modelClass}->read();
 			$configData = $this->OptionalLinkConfig->find('first', array(
 				'conditions' => array(
 					'OptionalLinkConfig.blog_content_id' => $this->data[$this->modelClass]['blog_content_id']
 				)));
-			$this->data[$this->modelClass] = $configData[$this->modelClass];
+			$this->data['OptionalLinkConfig'] = $configData['OptionalLinkConfig'];
 		} else {
 			$configData = $this->{$this->modelClass}->find('first', array(
 				'conditions' => array(
@@ -114,15 +114,14 @@ class OptionalLinksController extends OptionalLinkAppController {
 	}
 	
 /**
- * ブログ記事のオプショナルリンクを、ブログ別に一括で登録する
+ * [ADMIN] ブログ記事のオプショナルリンクを、ブログ別に一括で登録する
  *   ・オプショナルリンクの登録がないブログ記事に登録する
  * 
  * @return void
  */
 	public function admin_batch() {
 		
-		if($this->data) {
-			
+		if ($this->data) {
 			// 既にオプショナルリンク登録のあるブログ記事は除外する
 			// 登録済のオプショナルリンクを取得する
 			$optionalLinks = $this->{$this->modelClass}->find('list', array(
@@ -131,7 +130,7 @@ class OptionalLinksController extends OptionalLinkAppController {
 				'recursive' => -1));
 			// オプショナルリンクの登録がないブログ記事を取得する
 			$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-			if($optionalLinks) {
+			if ($optionalLinks) {
 				$datas = $BlogPostModel->find('all', array(
 					'conditions' => array(
 						'NOT' => array('BlogPost.id' => $optionalLinks),
@@ -148,22 +147,19 @@ class OptionalLinksController extends OptionalLinkAppController {
 			
 			// オプショナルリンクを保存した数を初期化
 			$count = 0;
-			if($datas) {
+			if ($datas) {
 				foreach ($datas as $data) {
-					
 					$this->data[$this->modelClass]['blog_post_id'] = $data['BlogPost']['id'];
 					$this->{$this->modelClass}->create($this->data);
-					if($this->{$this->modelClass}->save($this->data, false)) {
+					if ($this->{$this->modelClass}->save($this->data, false)) {
 						$count++;
 					} else {
 						$this->log('ID:'. $data['BlogPost']['id'] .'のブログ記事の'. $this->adminTitle .'登録に失敗');
 					}
-					
 				}
 			}
 			
 			$this->setMessage($count .'件の'. $this->adminTitle .'を登録しました。', false, true);
-			
 		}
 		unset($optionalLinks);
 		unset($datas);
@@ -179,7 +175,7 @@ class OptionalLinksController extends OptionalLinkAppController {
 				'recursive' => -1));
 			// オプショナルリンクの登録がないブログ記事を取得する
 			$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-			if($optionalLinks) {
+			if ($optionalLinks) {
 				$datas = $BlogPostModel->find('all', array(
 					'conditions' => array(
 						'NOT' => array('BlogPost.id' => $optionalLinks),
@@ -211,21 +207,20 @@ class OptionalLinksController extends OptionalLinkAppController {
  *
  * @param array $data
  * @return array $conditions
- * @access protected
  */
-	function _createAdminIndexConditions($data) {
+	public function _createAdminIndexConditions($data) {
 		
 		$conditions = array();
 		$name = '';
 		$blogContentId = '';
 		
-		if(isset($data[$this->modelClass]['name'])) {
+		if (isset($data[$this->modelClass]['name'])) {
 			$name = $data[$this->modelClass]['name'];
 		}
-		if(isset($data[$this->modelClass]['blog_content_id'])) {
+		if (isset($data[$this->modelClass]['blog_content_id'])) {
 			$blogContentId = $data[$this->modelClass]['blog_content_id'];
 		}
-		if(isset($data[$this->modelClass]['status']) && $data[$this->modelClass]['status'] === '') {
+		if (isset($data[$this->modelClass]['status']) && $data[$this->modelClass]['status'] === '') {
 			unset($data[$this->modelClass]['status']);
 		}
 		
@@ -235,28 +230,28 @@ class OptionalLinksController extends OptionalLinkAppController {
 		
 		// 条件指定のないフィールドを解除
 		foreach($data[$this->modelClass] as $key => $value) {
-			if($value === '') {
+			if ($value === '') {
 				unset($data[$this->modelClass][$key]);
 			}
 		}
 		
-		if($data[$this->modelClass]) {
+		if ($data[$this->modelClass]) {
 			$conditions = $this->postConditions($data);
 		}
 		
 		// １つの入力指定から複数フィールド検索指定
-		if($name) {
+		if ($name) {
 			$conditions[] = array(
 				$this->modelClass .'.name LIKE' => '%'.$name.'%'
 			);
 		}
-		if($blogContentId) {
+		if ($blogContentId) {
 			$conditions['and'] = array(
 				$this->modelClass .'.blog_content_id' => $blogContentId
 			);
 		}
 		
-		if($conditions) {
+		if ($conditions) {
 			return $conditions;
 		} else {
 			return array();

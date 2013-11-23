@@ -20,6 +20,20 @@ class OptionalLinkConfig extends BaserPluginAppModel {
  * @var string
  */
 	public $plugin = 'OptionalLink';
+		
+/**
+ * Validation
+ *
+ * @var array
+ */
+	public $validate = array(
+		'blog_content_id' => array(
+			'notEmpty' => array(
+				'rule'		=> array('notEmpty'),
+				'message'	=> '必須入力です。'
+			)
+		)
+	);
 	
 /**
  * 初期値を取得する

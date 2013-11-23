@@ -6,10 +6,8 @@
  * @author			arata
  * @license			MIT
  */
-$style = '';
 ?>
-<?php if($this->params['controller'] == 'blog_posts'): ?>
-<?php else: ?>
+<?php if($this->params['controller'] != 'blog_posts'): ?>
 <script type="text/javascript">
 $(window).load(function() {
 	$("#OptionalLinkName").focus();

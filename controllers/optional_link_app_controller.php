@@ -61,7 +61,7 @@ class OptionalLinkAppController extends BaserPluginAppController {
 		parent::beforeFilter();
 		$judgeOptionalLinkConfigUse = false;
 		$datas = $this->OptionalLinkConfig->find('all', array('recursive' => -1));
-		if($datas) {
+		if ($datas) {
 			$judgeOptionalLinkConfigUse = true;
 		} else {
 			$message = '「OptionalLink設定データ」にてOptionalLink設定用のデータを作成して下さい。';
@@ -112,11 +112,11 @@ class OptionalLinkAppController extends BaserPluginAppController {
  * @return void
  */
 	public function admin_edit($id = null) {
-		if(!$id) {
+		if (!$id) {
 			$this->setMessage('無効な処理です。', true);
 			$this->redirect(array('action' => 'index'));			
 		}
-		if(empty($this->data)) {
+		if (empty($this->data)) {
 			$this->{$this->modelClass}->id = $id;
 			$this->data = $this->{$this->modelClass}->read();
 		} else {
@@ -139,11 +139,11 @@ class OptionalLinkAppController extends BaserPluginAppController {
  * @return void
  */
 	public function admin_delete($id = null) {
-		if(!$id) {
+		if (!$id) {
 			$this->setMessage('無効な処理です。', true);
 			$this->redirect(array('action' => 'index'));
 		}
-		if($this->{$this->modelClass}->delete($id)) {
+		if ($this->{$this->modelClass}->delete($id)) {
 			$message = 'NO.' . $id . 'のデータを削除しました。';
 			$this->setMessage($message);
 			$this->redirect(array('action' => 'index'));
@@ -196,11 +196,11 @@ class OptionalLinkAppController extends BaserPluginAppController {
  * @return void
  */
 	public function admin_unpublish($id) {
-		if(!$id) {
+		if (!$id) {
 			$this->setMessage('この処理は無効です。', true);
 			$this->redirect(array('action' => 'index'));
 		}
-		if($this->_changeStatus($id, false)) {
+		if ($this->_changeStatus($id, false)) {
 			$this->setMessage('「無効」状態に変更しました。');
 			$this->redirect(array('action' => 'index'));
 		}
@@ -215,11 +215,11 @@ class OptionalLinkAppController extends BaserPluginAppController {
  * @return void
  */
 	public function admin_publish($id) {
-		if(!$id) {
+		if (!$id) {
 			$this->setMessage('この処理は無効です。', true);
 			$this->redirect(array('action' => 'index'));
 		}
-		if($this->_changeStatus($id, true)) {
+		if ($this->_changeStatus($id, true)) {
 			$this->setMessage('「有効」状態に変更しました。');
 			$this->redirect(array('action' => 'index'));
 		}

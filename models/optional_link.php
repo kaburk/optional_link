@@ -55,6 +55,7 @@ class OptionalLink extends BaserPluginAppModel {
 	public function getDefaultValue() {
 		$data = array(
 			'OptionalLink' => array(
+				'status' => false
 			)
 		);
 		return $data;

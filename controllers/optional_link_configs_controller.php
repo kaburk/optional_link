@@ -85,38 +85,33 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 	}
 	
 /**
- * 各ブログ別のオプショナル設定データを作成する
+ * [ADMIN] 各ブログ別のオプショナル設定データを作成する
  *   ・オプショナル設定データがないブログ用のデータのみ作成する
  * 
  * @return void
  */
 	public function admin_first() {
-		
-		if($this->data) {
-			
+		if ($this->data) {
 			$count = 0;
-			if($this->blogContentDatas) {
-				foreach ($this->blogContentDatas as $key => $blog) {
-					
+			if ($this->blogContentDatas) {
+				foreach ($this->blogContentDatas as $key => $blog) {	
 					$configData = $this->OptionalLinkConfig->findByBlogContentId($key);
-					if(!$configData) {
+					if (!$configData) {
 						$this->data['OptionalLinkConfig']['blog_content_id'] = $key;
 						$this->data['OptionalLinkConfig']['status'] = true;
 						$this->OptionalLinkConfig->create($this->data);
-						if(!$this->OptionalLinkConfig->save($this->data, false)) {
+						if (!$this->OptionalLinkConfig->save($this->data, false)) {
 							$this->log(sprintf('ブログID：%s の登録に失敗しました。', $key));
 						} else {
 							$count++;
 						}
 					}
-					
 				}
 			}
 			
 			$message = sprintf('%s 件のオプショナル設定を登録しました。', $count);
 			$this->setMessage($message);
 			$this->redirect(array('controller' => 'optional_link_configs', 'action' => 'index'));
-			
 		}
 		
 		$this->pageTitle = $this->adminTitle . 'データ作成';
@@ -133,10 +128,10 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 		$conditions = array();
 		$blogContentId = '';
 		
-		if(isset($data[$this->modelClass]['blog_content_id'])) {
+		if (isset($data[$this->modelClass]['blog_content_id'])) {
 			$blogContentId = $data[$this->modelClass]['blog_content_id'];
 		}
-		if(isset($data[$this->modelClass]['status']) && $data[$this->modelClass]['status'] === '') {
+		if (isset($data[$this->modelClass]['status']) && $data[$this->modelClass]['status'] === '') {
 			unset($data[$this->modelClass]['status']);
 		}
 		
@@ -145,16 +140,16 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 		
 		// 条件指定のないフィールドを解除
 		foreach($data[$this->modelClass] as $key => $value) {
-			if($value === '') {
+			if ($value === '') {
 				unset($data[$this->modelClass][$key]);
 			}
 		}
 		
-		if($data[$this->modelClass]) {
+		if ($data[$this->modelClass]) {
 			$conditions = $this->postConditions($data);
 		}
 		
-		if($blogContentId) {
+		if ($blogContentId) {
 			$conditions = array(
 				$this->modelClass .'.blog_content_id' => $blogContentId
 			);
