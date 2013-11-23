@@ -154,10 +154,16 @@ class OptionalLinkHookBehavior extends ModelBehavior {
 				)));
 			}
 			if ($params['action'] != 'admin_ajax_copy') {
-				$data['OptionalLink']['blog_post_id'] = $contentId;
-				$data['OptionalLink']['name'] = $OptionalLinkModel->data['OptionalLink']['name'];
-				$data['OptionalLink']['blank'] = $OptionalLinkModel->data['OptionalLink']['blank'];
-				$data['OptionalLink']['status'] = $OptionalLinkModel->data['OptionalLink']['status'];
+				if(!empty($OptionalLinkModel->data['OptionalLink'])) {
+					$data['OptionalLink']['blog_post_id'] = $contentId;
+					$data['OptionalLink']['name'] = $OptionalLinkModel->data['OptionalLink']['name'];
+					$data['OptionalLink']['blank'] = $OptionalLinkModel->data['OptionalLink']['blank'];
+					$data['OptionalLink']['status'] = $OptionalLinkModel->data['OptionalLink']['status'];
+				} else {
+					// ブログ記事追加の場合
+					$data['OptionalLink']['blog_post_id'] = $contentId;
+					$data['OptionalLink']['blog_content_id'] = $model->BlogContent->id;
+				}
 			} else {
 				// Ajaxコピー処理時に実行
 				// ブログコピー保存時にエラーがなければ保存処理を実行
@@ -171,15 +177,12 @@ class OptionalLinkHookBehavior extends ModelBehavior {
 					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
 					if ($_data) {
 						$data['OptionalLink']['blog_post_id'] = $contentId;
+						$data['OptionalLink']['blog_content_id'] = $_data['OptionalLink']['blog_content_id'];
 						$data['OptionalLink']['name'] = $_data['OptionalLink']['name'];
 						$data['OptionalLink']['blank'] = $_data['OptionalLink']['blank'];
 						$data['OptionalLink']['status'] = $_data['OptionalLink']['status'];
-						$data['OptionalLink']['blog_content_id'] = $_data['OptionalLink']['blog_content_id'];
 					} else {
-						$data['OptionalLink']['blog_content_id'] = $contentId;
-						$data['OptionalLink']['name'] = '';
-						$data['OptionalLink']['blank'] = false;
-						$data['OptionalLink']['status'] = false;
+						$data['OptionalLink']['blog_post_id'] = $contentId;
 						$data['OptionalLink']['blog_content_id'] = $params['pass'][0];
 					}
 				}
