@@ -12,15 +12,8 @@ class OptionalLinkHookHelper extends AppHelper {
  *
  * @var array
  */
-	public $registerHooks = array('beforeRender', 'afterFormCreate', 'afterBaserGetLink');
+	public $registerHooks = array('afterFormCreate', 'afterBaserGetLink');
 	
-/**
- * ブログデータ
- * 
- * @var array
- */
-	public $blogContents = array();
-		
 /**
  * ビュー
  * 
@@ -29,11 +22,18 @@ class OptionalLinkHookHelper extends AppHelper {
 	public $View = null;
 	
 /**
- * 設定情報
+ * 管理システム側かの判定値
+ * 
+ * @var boolean
+ */
+	public $judgeAdmin = false;
+	
+/**
+ * ブログデータ
  * 
  * @var array
  */
-	public $optionalLinkConfigs = array();
+	public $blogContents = array();
 	
 /**
  * Construct 
@@ -42,34 +42,10 @@ class OptionalLinkHookHelper extends AppHelper {
 	public function __construct() {
 		parent::__construct();
 		$this->View = ClassRegistry::getObject('view');
-		$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
-		$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
-	}
-	
-/**
- * beforeRender
- * 
- * @return void 
- */
-	public function beforeRender() {
-		parent::beforeRender();
-		// ブログページ表示の際に実行
-		if (empty($this->params['admin'])) {
-			if (!empty($this->params['plugin'])) {
-				if ($this->params['plugin'] == 'blog') {
-					if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
-						$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
-					} else {
-						$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
-					}
-					// 404に遷移した場合などで undifined が出るため判定する
-					if (!empty($this->View->viewVars['blogContent']['BlogContent']['id'])) {
-						$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $this->View->viewVars['blogContent']['BlogContent']['id']);
-					}
-				}
-			}
+		if (empty($this->View->params['prefix']) || $this->View->params['prefix'] != 'admin') {
+			$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
+			$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
 		}
-		
 	}
 	
 /**
@@ -82,16 +58,10 @@ class OptionalLinkHookHelper extends AppHelper {
  */
 	public function afterFormCreate($form, $id, $out) {
 		
-		if ($form->params['controller'] == 'blog_posts'){
+		if ($form->params['controller'] == 'blog_posts') {
 			if (!empty($form->data['OptionalLinkConfig']['status'])) {
 				// ブログ記事追加画面に編集欄を追加する
-				if ($this->action == 'admin_add'){
-					if ($id == 'BlogPostForm') {
-						$out = $out . $this->View->element('admin/optional_link_form', array('plugin' => 'optional_link'));
-					}
-				}
-				// ブログ記事編集画面に編集欄を追加する
-				if ($this->action == 'admin_edit'){
+				if ($this->action == 'admin_add' || $this->action == 'admin_edit') {
 					if ($id == 'BlogPostForm') {
 						$out = $out . $this->View->element('admin/optional_link_form', array('plugin' => 'optional_link'));
 					}
@@ -101,14 +71,8 @@ class OptionalLinkHookHelper extends AppHelper {
 		
 		if ($form->params['controller'] == 'blog_contents'){
 			// ブログ設定編集画面に設定欄を表示する
-			if ($this->action == 'admin_edit'){
+			if ($this->action == 'admin_edit' || $this->action == 'admin_edit') {
 				if ($id == 'BlogContentEditForm') {
-					$out = $out . $this->View->element('admin/optional_link_config_form', array('plugin' => 'optional_link'));
-				}
-			}
-			// ブログ追加画面に設定欄を表示する
-			if ($this->action == 'admin_add'){
-				if ($id == 'BlogContentAddForm') {
 					$out = $out . $this->View->element('admin/optional_link_config_form', array('plugin' => 'optional_link'));
 				}
 			}
@@ -128,88 +92,94 @@ class OptionalLinkHookHelper extends AppHelper {
  */
 	public function afterBaserGetLink($html, $link, $out) {
 		
-		$params = Router::parse($link);
-		$judge = false;
-		
-		// blogPost での判定を作成する
-		if (!$judge) {
-			if (empty($params['admin']) || $params['prefix'] != 'admin') {
-				if (isset($params['controller']) && $params['action'] == 'archives') {
-					foreach ($this->blogContents as $key => $value) {
-						if ($params['controller'] == $value['BlogContent']['name']) {
-							$judge = true;
-							break;
-						}
-					}
-				}
-			}
+		// 管理システム側でのアクセスではURL変換を行わない
+		if (!empty($this->params['prefix']) && $this->params['prefix'] == 'admin') {
+			$this->judgeAdmin = true;
 		}
 		
-		if (!$judge) {
-			if (empty($params['admin']) || $params['prefix'] != 'admin') {
-				if (isset($params['plugin']) && $params['plugin'] == 'blog') {
-					if (isset($params['controller']) && $params['controller'] == 'blog') {
-						if (isset($params['action']) && $params['action'] == 'archives') {
-							if (count($params['pass']) == 1) {
-								$judge = true;
-							}
-						}
+		if (!$this->judgeAdmin) {
+			$params = Router::parse($link);
+			$judge = false;
 
+			// blogPost での判定を作成する
+			if (!$judge) {
+				if (empty($params['admin']) || $params['prefix'] != 'admin') {
+					if (isset($params['controller']) && $params['action'] == 'archives') {
+						foreach ($this->blogContents as $key => $value) {
+							if ($params['controller'] == $value['BlogContent']['name']) {
+								$judge = true;
+								break;
+							}
+						}
 					}
 				}
 			}
-		}
-		
-		if ($judge) {
-			if (isset($params['action']) && $params['action'] == 'archives') {
-				if (count($params['pass']) == 1) {
-					
-					$urls = explode('/', $link);
-					if (is_array($urls)) {
-						foreach ($this->blogContents as $key => $value) {
-							if ($urls[1] == $value['BlogContent']['name']) {
-							
-								if (ClassRegistry::isKeySet('Blog.BlogPost')) {
-									$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
-								} else {
-									$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+			
+			if (!$judge) {
+				if (empty($params['admin']) || $params['prefix'] != 'admin') {
+					if (isset($params['plugin']) && $params['plugin'] == 'blog') {
+						if (isset($params['controller']) && $params['controller'] == 'blog') {
+							if (isset($params['action']) && $params['action'] == 'archives') {
+								if (count($params['pass']) == 1) {
+									$judge = true;
 								}
-								$post = $BlogPostModel->find('first', array(
-									'conditions' => array(
-										'BlogPost.blog_content_id' => $value['BlogContent']['id'],
-										'BlogPost.no' => $urls[3]
-									),
-									// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
-									'recursive' => 1
-								));
-								if ($post && !empty($post['OptionalLink'])) {
-									$link = '';
-									if ($post['OptionalLink']['status']) {
-										$link = $post['OptionalLink']['name'];
+							}
+
+						}
+					}
+				}
+			}
+			
+			if ($judge) {
+				if (isset($params['action']) && $params['action'] == 'archives') {
+					if (count($params['pass']) == 1) {
+
+						$urls = explode('/', $link);
+						if (is_array($urls)) {
+							foreach ($this->blogContents as $key => $value) {
+								if ($urls[1] == $value['BlogContent']['name']) {
+
+									if (ClassRegistry::isKeySet('Blog.BlogPost')) {
+										$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
+									} else {
+										$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
 									}
-									$strBlank = '';
-									if ($post['OptionalLink']['blank']) {
-										$strBlank = ' target="_blank"';
-									}
-									if ($link) {
-										// <a href="/URL">TEXT</a>
-										//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-										$regex = '/href=\"(.+)\"/';
-										$replacement = 'href="'. $link .'"';
-										if ($strBlank) {
-											$replacement = $replacement . $strBlank;
+									$post = $BlogPostModel->find('first', array(
+										'conditions' => array(
+											'BlogPost.blog_content_id' => $value['BlogContent']['id'],
+											'BlogPost.no' => $urls[3]
+										),
+										// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
+										'recursive' => 1
+									));
+									if ($post && !empty($post['OptionalLink'])) {
+										$link = '';
+										if ($post['OptionalLink']['status']) {
+											$link = $post['OptionalLink']['name'];
 										}
-										$out = preg_replace($regex, $replacement, $out);
+										$strBlank = '';
+										if ($post['OptionalLink']['blank']) {
+											$strBlank = ' target="_blank"';
+										}
+										if ($link) {
+											// <a href="/URL">TEXT</a>
+											//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+											$regex = '/href=\"(.+)\"/';
+											$replacement = 'href="'. $link .'"';
+											if ($strBlank) {
+												$replacement = $replacement . $strBlank;
+											}
+											$out = preg_replace($regex, $replacement, $out);
+										}
 									}
+									
 								}
-								
 							}
 						}
 					}
 				}
 			}
 		}
-		
 		return $out;
 	}
 	
