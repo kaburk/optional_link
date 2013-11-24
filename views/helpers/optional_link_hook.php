@@ -136,6 +136,12 @@ class OptionalLinkHookHelper extends AppHelper {
 
 						$urls = explode('/', $link);
 						if (is_array($urls)) {
+							// SP、FPでは判定構造を１つ繰り上げる
+							if (!empty($this->params['prefix'])) {
+								$urls[1] = $urls[2];
+								$urls[3] = $urls[4];
+							}
+							
 							foreach ($this->blogContents as $key => $value) {
 								if ($urls[1] == $value['BlogContent']['name']) {
 
