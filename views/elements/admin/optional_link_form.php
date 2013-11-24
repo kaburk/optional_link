@@ -61,6 +61,12 @@ $(window).load(function() {
 			<br />
 			<?php echo $bcForm->input('OptionalLink.blank', array('type' => 'checkbox', 'label' => '別窓で開く')) ?>
 			<?php echo $bcForm->error('OptionalLink.blank') ?>
+			<?php echo $bcBaser->img('admin/icn_help.png', array('id' => 'helpOptionalLinkName', 'class' => 'btn help', 'alt' => 'ヘルプ')) ?>
+			<div id="helptextOptionalLinkName" class="helptext">
+				<ul>
+					<li>サイト内へのリンクを利用する際は「/」から始まる絶対パスで指定してください。</li>
+				</ul>
+			</div>
 		</td>
 	</tr>
 </table>
