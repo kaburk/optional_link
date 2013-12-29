@@ -1,6 +1,6 @@
 <?php
 /**
- * [Controller] optional_link
+ * [Controller] Optional_link
  *
  * @link			http://www.materializing.net/
  * @author			arata

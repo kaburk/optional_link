@@ -1,12 +1,12 @@
 <?php
 /**
- * optional_link 基底コントローラ
+ * Optional_link 基底コントローラ
  *
  * @link			http://www.materializing.net/
  * @author			arata
  * @license			MIT
  */
-class OptionalLinkAppController extends BaserPluginAppController {
+class OptionalLinkAppController extends BcPluginAppController {
 /**
  * ヘルパー
  *

@@ -6,7 +6,7 @@
  * @author			arata
  * @license			MIT
  */
-class OptionalLinkConfig extends BaserPluginAppModel {
+class OptionalLinkConfig extends BcPluginAppModel {
 /**
  * ModelName
  * 
