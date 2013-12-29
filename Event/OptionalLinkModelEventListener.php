@@ -1,6 +1,6 @@
 <?php
 /**
- * [ModelEventListener] Optional_link
+ * [ModelEventListener] OptionalLink
  *
  * @link			http://www.materializing.net/
  * @author			arata

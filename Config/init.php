@@ -1,9 +1,9 @@
 <?php
 /**
- * Optional_link プラグイン用
+ * OptionalLink プラグイン用
  * データベース初期化
  */
-$this->Plugin->initDb('plugin', 'Optional_link');
+$this->Plugin->initDb('plugin', 'OptionalLink');
 /**
  * ブログ情報を元にデータを作成する
  *   ・設定データがないブログ用のデータのみ作成する

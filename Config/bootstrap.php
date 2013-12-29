@@ -1,9 +1,9 @@
 <?php
 /**
- * [ADMIN] Optional_link
+ * [ADMIN] OptionalLink
  *
  * @link			http://www.materializing.net/
  * @author			arata
  * @license			MIT
  */
-loadPluginConfig('Optional_link.optional_link');
+loadPluginConfig('OptionalLink.optional_link');

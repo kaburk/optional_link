@@ -1,6 +1,6 @@
 <?php
 /**
- * [HelperEventListener] Optional_link
+ * [HelperEventListener] OptionalLink
  *
  * @link			http://www.materializing.net/
  * @author			arata

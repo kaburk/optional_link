@@ -1,6 +1,6 @@
 <?php
 /**
- * Optional_link 基底コントローラ
+ * OptionalLink 基底コントローラ
  *
  * @link			http://www.materializing.net/
  * @author			arata
