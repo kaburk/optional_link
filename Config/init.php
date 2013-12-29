@@ -13,7 +13,9 @@ $this->Plugin->initDb('plugin', 'OptionalLink');
 	$BlogContentModel = new BlogContent();
 	$blogContentDatas = $BlogContentModel->find('list', array('recursive' => -1));
 	if ($blogContentDatas) {
+		CakePlugin::load('OptionalLink');
 		App::uses('Model', 'OptionalLink.OptionalLinkConfig');
+		$this->loadModel('OptionalLink.OptionalLinkConfig');
 		$OptionalLinkConfigModel = new OptionalLinkConfig();
 		foreach ($blogContentDatas as $key => $blog) {
 			$optionalLinkConfigData = $OptionalLinkConfigModel->findByBlogContentId($key);
@@ -35,7 +37,9 @@ $this->Plugin->initDb('plugin', 'OptionalLink');
 	$BlogPostModel = new BlogPost();
 	$posts = $BlogPostModel->find('all', array('recursive' => -1));
 	if ($posts) {
+		CakePlugin::load('OptionalLink');
 		App::uses('Model', 'OptionalLink.OptionalLink');
+		$this->loadModel('OptionalLink.OptionalLink');
 		$OptionalLinkModel = new OptionalLink();
 		foreach ($posts as $key => $post) {
 			$optionalLinkData = $OptionalLinkModel->findByBlogPostId($post['BlogPost']['id']);
