@@ -1,6 +1,6 @@
 <?php
 /**
- * [ADMIN] optional_link
+ * [ADMIN] OptionalLink
  *
  * @link			http://www.materializing.net/
  * @author			arata
@@ -8,30 +8,30 @@
  */
 ?>
 <!-- pagination -->
-<?php $bcBaser->element('pagination') ?>
+<?php $this->BcBaser->element('pagination') ?>
 
 <table cellpadding="0" cellspacing="0" class="list-table sort-table" id="ListTable">
 	<thead>
 		<tr><th style="width: 50px;">操作</th>
-			<th><?php echo $paginator->sort(array(
-					'asc' => $bcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' NO',
-					'desc' => $bcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' NO'),
+			<th><?php echo $this->Paginator->sort(array(
+					'asc' => $this->BcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' NO',
+					'desc' => $this->BcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' NO'),
 					'id', array('escape' => false, 'class' => 'btn-direction')) ?>
 			</th>
 			<th>
-				<?php echo $paginator->sort(array(
-					'asc' => $bcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' ブログ名',
-					'desc' => $bcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' ブログ名'),
+				<?php echo $this->Paginator->sort(array(
+					'asc' => $this->BcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' ブログ名',
+					'desc' => $this->BcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' ブログ名'),
 					'blog_content_id', array('escape' => false, 'class' => 'btn-direction')) ?>
 			</th>
-			<th><?php echo $paginator->sort(array(
-					'asc' => $bcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' 登録日',
-					'desc' => $bcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' 登録日'),
+			<th><?php echo $this->Paginator->sort(array(
+					'asc' => $this->BcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' 登録日',
+					'desc' => $this->BcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' 登録日'),
 					'created', array('escape' => false, 'class' => 'btn-direction')) ?>
 				<br />
-				<?php echo $paginator->sort(array(
-					'asc' => $bcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' 更新日',
-					'desc' => $bcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' 更新日'),
+				<?php echo $this->Paginator->sort(array(
+					'asc' => $this->BcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' 更新日',
+					'desc' => $this->BcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' 更新日'),
 					'modified', array('escape' => false, 'class' => 'btn-direction')) ?>
 			</th>
 		</tr>
@@ -39,7 +39,7 @@
 	<tbody>
 <?php if(!empty($datas)): ?>
 	<?php foreach($datas as $data): ?>
-		<?php $bcBaser->element('optional_link_configs/index_row', array('data' => $data)) ?>
+		<?php $this->BcBaser->element('optional_link_configs/index_row', array('data' => $data)) ?>
 	<?php endforeach; ?>
 <?php else: ?>
 		<tr>
@@ -50,4 +50,4 @@
 </table>
 
 <!-- list-num -->
-<?php $bcBaser->element('list_num') ?>
+<?php $this->BcBaser->element('list_num') ?>
