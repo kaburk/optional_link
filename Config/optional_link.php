@@ -1,6 +1,6 @@
 <?php
 /**
- * [ADMIN] optional_link
+ * [ADMIN] Optional_link
  *
  * @link			http://www.materializing.net/
  * @author			arata
