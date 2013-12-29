@@ -87,7 +87,7 @@ class OptionalLinkAppController extends BcPluginAppController {
 		);
 		$this->setViewConditions($this->modelClass, array('default' => $default));
 		
-		$conditions = $this->_createAdminIndexConditions($this->data);
+		$conditions = $this->_createAdminIndexConditions($this->request->data);
 		$this->paginate = array(
 			'conditions'	=> $conditions,
 			'fields'		=> array(),
@@ -97,7 +97,7 @@ class OptionalLinkAppController extends BcPluginAppController {
 		$this->set('datas', $this->paginate($this->modelClass));
 		$this->set('blogContentDatas', array('0' => '指定しない') + $this->blogContentDatas);
 		
-		if($this->RequestHandler->isAjax() || !empty($this->params['url']['ajax'])) {
+		if($this->RequestHandler->isAjax() || !empty($this->request->query['ajax'])) {
 			Configure::write('debug', 0);
 			$this->render('ajax_index');
 			return;
@@ -116,12 +116,12 @@ class OptionalLinkAppController extends BcPluginAppController {
 			$this->setMessage('無効な処理です。', true);
 			$this->redirect(array('action' => 'index'));			
 		}
-		if (empty($this->data)) {
+		if (empty($this->request->data)) {
 			$this->{$this->modelClass}->id = $id;
-			$this->data = $this->{$this->modelClass}->read();
+			$this->request->data = $this->{$this->modelClass}->read();
 		} else {
-			$this->{$this->modelClass}->set($this->data);
-			if ($this->{$this->modelClass}->save($this->data)) {
+			$this->{$this->modelClass}->set($this->request->data);
+			if ($this->{$this->modelClass}->save($this->request->data)) {
 				$this->setMessage('更新が完了しました。');
 				$this->redirect(array('action' => 'index'));
 			} else {

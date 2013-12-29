@@ -91,16 +91,16 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
  * @return void
  */
 	public function admin_first() {
-		if ($this->data) {
+		if ($this->request->data) {
 			$count = 0;
 			if ($this->blogContentDatas) {
 				foreach ($this->blogContentDatas as $key => $blog) {	
 					$configData = $this->OptionalLinkConfig->findByBlogContentId($key);
 					if (!$configData) {
-						$this->data['OptionalLinkConfig']['blog_content_id'] = $key;
-						$this->data['OptionalLinkConfig']['status'] = true;
-						$this->OptionalLinkConfig->create($this->data);
-						if (!$this->OptionalLinkConfig->save($this->data, false)) {
+						$this->request->data['OptionalLinkConfig']['blog_content_id'] = $key;
+						$this->request->data['OptionalLinkConfig']['status'] = true;
+						$this->OptionalLinkConfig->create($this->request->data);
+						if (!$this->OptionalLinkConfig->save($this->request->data, false)) {
 							$this->log(sprintf('ブログID：%s の登録に失敗しました。', $key));
 						} else {
 							$count++;

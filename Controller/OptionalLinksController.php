@@ -92,11 +92,11 @@ class OptionalLinksController extends OptionalLinkAppController {
  */
 	public function admin_batch() {
 		
-		if ($this->data) {
+		if ($this->request->data) {
 			// 既にオプショナルリンク登録のあるブログ記事は除外する
 			// 登録済のオプショナルリンクを取得する
 			$optionalLinks = $this->{$this->modelClass}->find('list', array(
-				'conditions' => array($this->modelClass .'.blog_content_id' => $this->data[$this->modelClass]['blog_content_id']),
+				'conditions' => array($this->modelClass .'.blog_content_id' => $this->request->data[$this->modelClass]['blog_content_id']),
 				'fields' => 'blog_post_id',
 				'recursive' => -1));
 			// オプショナルリンクの登録がないブログ記事を取得する
@@ -105,13 +105,13 @@ class OptionalLinksController extends OptionalLinkAppController {
 				$datas = $BlogPostModel->find('all', array(
 					'conditions' => array(
 						'NOT' => array('BlogPost.id' => $optionalLinks),
-						'BlogPost.blog_content_id' => $this->data[$this->modelClass]['blog_content_id']),
+						'BlogPost.blog_content_id' => $this->request->data[$this->modelClass]['blog_content_id']),
 					'fields' => array('id', 'no', 'name'),
 					'recursive' => -1));
 			} else {
 				$datas = $BlogPostModel->find('all', array(
 					'conditions' => array(
-						'BlogPost.blog_content_id' => $this->data[$this->modelClass]['blog_content_id']),
+						'BlogPost.blog_content_id' => $this->request->data[$this->modelClass]['blog_content_id']),
 					'fields' => array('id', 'no', 'name'),
 					'recursive' => -1));
 			}
@@ -120,9 +120,9 @@ class OptionalLinksController extends OptionalLinkAppController {
 			$count = 0;
 			if ($datas) {
 				foreach ($datas as $data) {
-					$this->data[$this->modelClass]['blog_post_id'] = $data['BlogPost']['id'];
-					$this->{$this->modelClass}->create($this->data);
-					if ($this->{$this->modelClass}->save($this->data, false)) {
+					$this->request->data[$this->modelClass]['blog_post_id'] = $data['BlogPost']['id'];
+					$this->{$this->modelClass}->create($this->request->data);
+					if ($this->{$this->modelClass}->save($this->request->data, false)) {
 						$count++;
 					} else {
 						$this->log('ID:'. $data['BlogPost']['id'] .'のブログ記事の'. $this->adminTitle .'登録に失敗');

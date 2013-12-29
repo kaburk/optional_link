@@ -15,7 +15,7 @@
 <?php endif ?>
 
 <h2><?php echo $blogContentDatas[$this->data['OptionalLinkConfig']['blog_content_id']] ?></h2>
-<?php $bcBaser->element('optional_link_config_form') ?>
+<?php $this->BcBaser->element('optional_link_config_form') ?>
 
 <div class="submit">
 	<?php echo $this->BcForm->submit('保　存', array('div' => false, 'class' => 'btn-red button')) ?>

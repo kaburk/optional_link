@@ -20,7 +20,7 @@
 	</span>
 	<span>
 		<?php echo $this->BcForm->label('OptionalLink.status', '利用状態') ?>
-		&nbsp;<?php echo $this->BcForm->input('OptionalLink.status', array('type' => 'select', 'options' => $bcText->booleanMarkList(), 'empty' => '指定なし')) ?>
+		&nbsp;<?php echo $this->BcForm->input('OptionalLink.status', array('type' => 'select', 'options' => $this->BcText->booleanMarkList(), 'empty' => '指定なし')) ?>
 	</span>
 </p>
 <div class="button">
