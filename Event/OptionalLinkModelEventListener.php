@@ -70,7 +70,6 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 			)
 		);
 		$model->bindModel(array('hasOne' => $association));
-		return $event->data['query'];
 	}
 	
 /**

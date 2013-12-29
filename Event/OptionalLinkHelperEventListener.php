@@ -91,7 +91,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public function htmlAfterGetLink(CakeEvent $event) {
 		$html = $event->subject();
-		$link = $event->data['link'];
+		$link = $event->data['url'];
 		$out = $event->data['out'];
 		
 		// 管理システム側でのアクセスではURL変換を行わない
