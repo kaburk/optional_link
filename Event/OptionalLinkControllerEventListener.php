@@ -1,18 +1,24 @@
 <?php
 /**
- * [Component] optional_link
+ * [ControllerEventListener] Optional_link
  *
  * @link			http://www.materializing.net/
  * @author			arata
  * @license			MIT
  */
-class OptionalLinkHookComponent extends Object {
+class OptionalLinkControllerEventListener extends BcControllerEventListener {
 /**
- * 登録フック
+ * 登録イベント
  *
  * @var array
  */
-	public $registerHooks = array('initialize', 'startup', 'beforeRender');
+	public $events = array(
+		'initialize',
+		'Blog.Blog.startup',
+		'Blog.Blog.beforeRender',
+		'Blog.BlogPosts.beforeRender',
+		'Blog.BlogContents.beforeRender'
+	);
 	
 /**
  * optional_link設定情報
@@ -38,43 +44,40 @@ class OptionalLinkHookComponent extends Object {
 /**
  * initialize
  * 
- * @param Controller $controller 
+ * @param CakeEvent $event
  */
-	function initialize($controller) {
+	function initialize(CakeEvent $event) {
+		$controller = $event->subject();
 		$controller->helpers[] = 'OptionalLink.OptionalLink';
 	}
 	
 /**
- * startup
+ * blogBlogStartup
  * 
- * @param Controller $controller 
- * @return void
+ * @param CakeEvent $event
  */
-	public function startup($controller) {
+	public function blogBlogStartup(CakeEvent $event) {
+		$controller = $event->subject();
 		// ブログページ表示の際に実行
-		if (!empty($controller->params['plugin'])) {
-			if ($controller->params['plugin'] == 'blog') {
-				if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
-					$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
-				} else {
-					$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
-				}
-				// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
-				if (!empty($controller->BlogContent->id)) {
-					$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
-					$this->OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
-				}
-			}
+		if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
+			$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
+		} else {
+			$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
+		}
+		// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
+		if (!empty($controller->BlogContent->id)) {
+			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
+			$this->OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
 		}
 	}
 	
 /**
- * beforeRender
+ * blogBlogBeforeRender
  * 
- * @param Controller $controller 
- * @return void
+ * @param CakeEvent $event
  */
-	public function beforeRender($controller) {
+	public function blogBlogBeforeRender(CakeEvent $event) {
+		$controller = $event->subject();
 		// プレビューの際は編集欄の内容を送る
 		if ($controller->name == 'Blog') {			
 			if ($controller->preview) {
@@ -83,26 +86,37 @@ class OptionalLinkHookComponent extends Object {
 				}
 			}
 		}
-		
-		if ($controller->name == 'BlogPosts') {
-			// ブログ記事編集・追加画面で実行
-			// - startup で処理したかったが $controller->data に入れるとそれを全て上書きしてしまうのでダメだった
-			if ($controller->action == 'admin_edit') {
-				$controller->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
-			}
-			if ($controller->action == 'admin_add') {
-				$defalut = $this->OptionalLinkModel->getDefaultValue();
-				$controller->data['OptionalLink'] = $defalut['OptionalLink'];
-				$controller->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
-			}			
+	}
+	
+/**
+ * blogBlogPostsBeforeRender
+ * 
+ * @param CakeEvent $event
+ */
+	public function blogBlogPostsBeforeRender(CakeEvent $event) {
+		$controller = $event->subject();
+		// ブログ記事編集・追加画面で実行
+		if ($controller->action == 'admin_edit') {
+			$controller->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
 		}
-		
-		if ($controller->name == 'BlogContents') {
-			// ブログ追加画面に設定情報を送る
-			if ($controller->action == 'admin_add') {
-				$defalut = $this->OptionalLinkConfigModel->getDefaultValue();
-				$controller->data['OptionalLinkConfig'] = $defalut['OptionalLinkConfig'];
-			}			
+		if ($controller->action == 'admin_add') {
+			$defalut = $this->OptionalLinkModel->getDefaultValue();
+			$controller->data['OptionalLink'] = $defalut['OptionalLink'];
+			$controller->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
+		}
+	}
+	
+/**
+ * blogBlogContentsBeforeRender
+ * 
+ * @param CakeEvent $event
+ */
+	public function blogBlogContentsBeforeRender(CakeEvent $event) {
+		$controller = $event->subject();
+		// ブログ追加画面に設定情報を送る
+		if ($controller->action == 'admin_add') {
+			$defalut = $this->OptionalLinkConfigModel->getDefaultValue();
+			$controller->data['OptionalLinkConfig'] = $defalut['OptionalLinkConfig'];
 		}
 	}
 	

@@ -1,18 +1,21 @@
 <?php
 /**
- * [HookHelper] optional_link
+ * [HelperEventListener] Optional_link
  *
  * @link			http://www.materializing.net/
  * @author			arata
  * @license			MIT
  */
-class OptionalLinkHookHelper extends AppHelper {
+class OptionalLinkHelperEventListener extends BcHelperEventListener {
 /**
- * 登録フック
+ * 登録イベント
  *
  * @var array
  */
-	public $registerHooks = array('afterFormCreate', 'afterBaserGetLink');
+	public $events = array(
+		'Blog.Form.afterCreate',
+		'Html.afterGetLink'
+	);
 	
 /**
  * ビュー
@@ -49,51 +52,50 @@ class OptionalLinkHookHelper extends AppHelper {
 	}
 	
 /**
- * afterFormCreate
+ * blogFormAfterCreate
  * 
- * @param Object $form
- * @param string $id
- * @param string $out
+ * @param CakeEvent $event
  * @return string
  */
-	public function afterFormCreate($form, $id, $out) {
+	public function blogFormAfterCreate(CakeEvent $event) {
+		$form = $event->subject();
 		
-		if ($form->params['controller'] == 'blog_posts') {
+		if ($form->request->params['controller'] == 'blog_posts') {
 			if (!empty($form->data['OptionalLinkConfig']['status'])) {
 				// ブログ記事追加画面に編集欄を追加する
-				if ($this->action == 'admin_add' || $this->action == 'admin_edit') {
-					if ($id == 'BlogPostForm') {
-						$out = $out . $this->View->element('admin/optional_link_form', array('plugin' => 'optional_link'));
+				if ($form->request->params['action'] == 'admin_add' || $form->request->params['action'] == 'admin_edit') {
+					if ($event->data['id'] == 'BlogPostForm') {
+						$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_form');
 					}
 				}
 			}
 		}
 		
-		if ($form->params['controller'] == 'blog_contents'){
+		if ($form->request->params['controller'] == 'blog_contents'){
 			// ブログ設定編集画面に設定欄を表示する
-			if ($this->action == 'admin_edit' || $this->action == 'admin_edit') {
-				if ($id == 'BlogContentEditForm') {
-					$out = $out . $this->View->element('admin/optional_link_config_form', array('plugin' => 'optional_link'));
+			if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_edit') {
+				if ($event->data['id'] == 'BlogContentEditForm') {
+					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
 				}
 			}
 		}
 		
-		return $out;
-		
+		return $event->data['out'];
 	}
 	
 /**
- * afterBaserGetLink
+ * htmlAfterGetLink
  * 
- * @param Object $html
- * @param string $link
- * @param string $out
+ * @param CakeEvent $event
  * @return string
  */
-	public function afterBaserGetLink($html, $link, $out) {
+	public function htmlAfterGetLink(CakeEvent $event) {
+		$html = $event->subject();
+		$link = $event->data['link'];
+		$out = $event->data['out'];
 		
 		// 管理システム側でのアクセスではURL変換を行わない
-		if (!empty($this->params['prefix']) && $this->params['prefix'] == 'admin') {
+		if (!empty($html->request->params['prefix']) && $html->request->params['prefix'] == 'admin') {
 			$this->judgeAdmin = true;
 		}
 		
@@ -137,7 +139,7 @@ class OptionalLinkHookHelper extends AppHelper {
 						$urls = explode('/', $link);
 						if (is_array($urls)) {
 							// SP、FPでは判定構造を１つ繰り上げる
-							if (!empty($this->params['prefix'])) {
+							if (!empty($html->request->params['prefix'])) {
 								$urls[1] = $urls[2];
 								$urls[3] = $urls[4];
 							}
