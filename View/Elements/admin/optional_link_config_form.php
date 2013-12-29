@@ -7,14 +7,14 @@
  * @license			MIT
  */
 ?>
-<?php if($this->action != 'admin_add'): ?>
+<?php if($this->request->params['action'] != 'admin_add'): ?>
 	<?php echo $this->BcForm->input('OptionalLinkConfig.id', array('type' => 'hidden')) ?>
 <?php endif ?>
 
 <div id="OptionalLinkConfigConfigTable">
 
 <table cellpadding="0" cellspacing="0" class="form-table section">
-<?php if($this->params['controller'] != 'blog_contents'): ?>
+<?php if($this->request->params['controller'] != 'blog_contents'): ?>
 	<tr>
 		<th class="col-head"><?php echo $this->BcForm->label('OptionalLinkConfig.id', 'NO') ?></th>
 		<td class="col-input">

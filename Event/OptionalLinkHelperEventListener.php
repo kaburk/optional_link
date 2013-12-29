@@ -61,7 +61,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		$form = $event->subject();
 		
 		if ($form->request->params['controller'] == 'blog_posts') {
-			if (!empty($form->data['OptionalLinkConfig']['status'])) {
+			if (!empty($form->request->data['OptionalLinkConfig']['status'])) {
 				// ブログ記事追加画面に編集欄を追加する
 				if ($form->request->params['action'] == 'admin_add' || $form->request->params['action'] == 'admin_edit') {
 					if ($event->data['id'] == 'BlogPostForm') {

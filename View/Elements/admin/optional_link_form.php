@@ -7,7 +7,7 @@
  * @license			MIT
  */
 ?>
-<?php if($this->params['controller'] != 'blog_posts'): ?>
+<?php if($this->request->params['controller'] != 'blog_posts'): ?>
 <script type="text/javascript">
 $(window).load(function() {
 	$("#OptionalLinkName").focus();
@@ -15,14 +15,14 @@ $(window).load(function() {
 </script>
 <?php endif ?>
 
-<?php if($this->action != 'admin_add'): ?>
+<?php if($this->request->params['action'] != 'admin_add'): ?>
 	<?php echo $this->BcForm->input('OptionalLink.id', array('type' => 'hidden')) ?>
 <?php endif ?>
 
 <div id="OptionalLinkTable">
 
 <table cellpadding="0" cellspacing="0" class="form-table section">
-<?php if($this->params['controller'] != 'blog_posts'): ?>
+<?php if($this->request->params['controller'] != 'blog_posts'): ?>
 	<tr>
 		<th class="col-head"><?php echo $this->BcForm->label('OptionalLink.id', 'NO') ?></th>
 		<td class="col-input">
