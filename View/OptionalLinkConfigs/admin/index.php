@@ -23,4 +23,4 @@ $(document).ready(function(){
 
 <div id="AjaxBatchUrl" style="display:none"><?php $this->BcBaser->url(array('controller' => 'optional_link_configs', 'action' => 'ajax_batch')) ?></div>
 <div id="AlertMessage" class="message" style="display:none"></div>
-<div id="DataList"><?php $this->BcBaser->element('OptionalLink.optional_link_configs/index_list') ?></div>
+<div id="DataList"><?php $this->BcBaser->element('optional_link_configs/index_list') ?></div>
