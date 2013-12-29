@@ -14,7 +14,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  */
 	public $events = array(
 		'initialize',
-		'Blog.Blog.startup',
+		'startup',
 		'Blog.Blog.beforeRender',
 		'Blog.BlogPosts.beforeRender',
 		'Blog.BlogContents.beforeRender'
@@ -56,18 +56,20 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  * 
  * @param CakeEvent $event
  */
-	public function blogBlogStartup(CakeEvent $event) {
+	public function startup(CakeEvent $event) {
 		$controller = $event->subject();
-		// ブログページ表示の際に実行
-		if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
-			$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
-		} else {
-			$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
-		}
-		// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
-		if (!empty($controller->BlogContent->id)) {
-			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
-			$this->OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
+		if ($controller->request->params['controller'] == 'blog_posts' || $controller->request->params['controller'] == 'blog_contents') {
+			// ブログページ表示の際に実行
+			if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
+				$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
+			} else {
+				$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
+			}
+			// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
+			if (!empty($controller->BlogContent->id)) {
+				$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
+				$this->OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
+			}
 		}
 	}
 	
@@ -96,13 +98,13 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 	public function blogBlogPostsBeforeRender(CakeEvent $event) {
 		$controller = $event->subject();
 		// ブログ記事編集・追加画面で実行
-		if ($controller->action == 'admin_edit') {
-			$controller->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
+		if ($controller->request->params['action'] == 'admin_edit') {
+			$controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
 		}
-		if ($controller->action == 'admin_add') {
+		if ($controller->request->params['action'] == 'admin_add') {
 			$defalut = $this->OptionalLinkModel->getDefaultValue();
-			$controller->data['OptionalLink'] = $defalut['OptionalLink'];
-			$controller->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
+			$controller->request->data['OptionalLink'] = $defalut['OptionalLink'];
+			$controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
 		}
 	}
 	
