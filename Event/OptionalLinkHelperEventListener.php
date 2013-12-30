@@ -14,15 +14,15 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public $events = array(
 		'Blog.Form.afterCreate',
-		'Html.afterGetLink'
+		'Html.beforeGetLink',
+		'Blog.Html.beforeGetLink',
+		'Html.afterGetLink',
+		'Blog.Html.afterGetLink'
 	);
 	
-/**
- * ビュー
- * 
- * @var View 
- */
-	public $View = null;
+	public $url = array();
+	
+	public $judgeRewrite = false;
 	
 /**
  * 管理システム側かの判定値
@@ -44,11 +44,8 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public function __construct() {
 		parent::__construct();
-		$this->View = ClassRegistry::getObject('view');
-		if (empty($this->View->params['prefix']) || $this->View->params['prefix'] != 'admin') {
-			$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
-			$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
-		}
+		$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
+		$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
 	}
 	
 /**
@@ -84,6 +81,83 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	}
 	
 /**
+ * htmlBeforeGetLink
+ * 
+ * @param CakeEvent $event
+ * @return string
+ */
+	public function htmlBeforeGetLink(CakeEvent $event) {
+		$html = $event->subject();
+		$this->_judgeRewriteUrl($event);
+		return $event->data['options'];
+	}
+	
+/**
+ * blogHtmlBeforeGetLink
+ * 
+ * @param CakeEvent $event
+ * @return string
+ */
+	public function blogHtmlBeforeGetLink(CakeEvent $event) {
+		$html = $event->subject();
+		$this->_judgeRewriteUrl($event);
+		return $event->data['options'];
+	}
+	
+/**
+ * リンクのURLを書き換えるかどうかを判定する
+ * 
+ * @param CakeEvent $event
+ * @return
+ */
+	private function _judgeRewriteUrl(CakeEvent $event) {
+		$html = $event->subject();
+		$this->judgeRewrite = false;
+		
+		// 管理システム側でのアクセスではURL変換を行わない
+		if (!isset($html->request->params['prefix']) || $html->request->params['prefix'] != 'admin') {
+			
+			if (!is_array($event->data['url'])) {
+				$this->url = Router::parse($event->data['url']);
+			} else {
+				$this->url = $event->data['url'];
+			}
+			
+			if (!$this->url) {
+				return;
+			}
+			
+			if (isset($this->url['admin'])) {
+				// 管理システムへのURLの場合は書き換えを行わない
+				if ($this->url['admin']) {
+					return;
+				}
+			}
+			
+			if ($this->url['plugin'] == 'blog' && $this->url['action'] == 'archives') {
+				// 引数のURLが1つ（記事詳細）のときに有効とする
+				if (count($this->url[0]) === 1) {
+					$this->judgeRewrite = true;
+					return;
+				}
+			}
+			
+			if ($this->url['action'] == 'archives') {
+				// 引数のURLが1つ（記事詳細）のときに有効とする
+				if (count($this->url[0]) === 1) {
+					foreach ($this->blogContents as $key => $value) {
+						if ($this->url['controller'] == $value['BlogContent']['name']) {
+							$this->judgeRewrite = true;
+							return;
+						}
+					}
+				}
+			}
+			
+		}
+	}
+	
+/**
  * htmlAfterGetLink
  * 
  * @param CakeEvent $event
@@ -91,103 +165,81 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public function htmlAfterGetLink(CakeEvent $event) {
 		$html = $event->subject();
-		$link = $event->data['url'];
-		$out = $event->data['out'];
-		
-		// 管理システム側でのアクセスではURL変換を行わない
-		if (!empty($html->request->params['prefix']) && $html->request->params['prefix'] == 'admin') {
-			$this->judgeAdmin = true;
+		if ($this->judgeRewrite) {
+			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out'], $event->data['url']);
+		}
+		return $event->data['out'];
+	}
+	
+/**
+ * blogHtmlAfterGetLink
+ * 
+ * @param CakeEvent $event
+ * @return string
+ */
+	public function blogHtmlAfterGetLink(CakeEvent $event) {
+		$html = $event->subject();
+		if ($this->judgeRewrite) {
+			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out'], $event->data['url']);
+		}
+		return $event->data['out'];
+	}
+	
+/**
+ * 
+ * @param type $html
+ * @param type $out
+ * @param type $link
+ * @return string
+ */
+	private function _rewriteUrl($html, $out, $link) {
+		$urls = $this->url;
+		// SP、FPでは判定構造を１つ繰り上げる
+		if (!empty($html->request->params['prefix'])) {
+//			$urls[1] = $urls[2];
+//			$urls[3] = $urls[4];
 		}
 		
-		if (!$this->judgeAdmin) {
-			$params = Router::parse($link);
-			$judge = false;
+		foreach ($this->blogContents as $value) {
+			if ($urls['controller'] == $value['BlogContent']['name']) {
 
-			// blogPost での判定を作成する
-			if (!$judge) {
-				if (empty($params['admin']) || $params['prefix'] != 'admin') {
-					if (isset($params['controller']) && $params['action'] == 'archives') {
-						foreach ($this->blogContents as $key => $value) {
-							if ($params['controller'] == $value['BlogContent']['name']) {
-								$judge = true;
-								break;
-							}
+				if (ClassRegistry::isKeySet('Blog.BlogPost')) {
+					$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
+				} else {
+					$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+				}
+				$post = $BlogPostModel->find('first', array(
+					'conditions' => array(
+						'BlogPost.blog_content_id' => $value['BlogContent']['id'],
+						'BlogPost.no' => $urls[0]
+					),
+					// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
+					'recursive' => 1
+				));
+				if ($post && !empty($post['OptionalLink'])) {
+					$link = '';
+					if ($post['OptionalLink']['status']) {
+						$link = $post['OptionalLink']['name'];
+					}
+					$strBlank = '';
+					if ($post['OptionalLink']['blank']) {
+						$strBlank = ' target="_blank"';
+					}
+					if ($link) {
+						// <a href="/URL">TEXT</a>
+						//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+						$regex = '/href=\"(.+)\"/';
+						$replacement = 'href="'. $link .'"';
+						if ($strBlank) {
+							$replacement = $replacement . $strBlank;
 						}
+						$out = preg_replace($regex, $replacement, $out);
 					}
 				}
-			}
-			
-			if (!$judge) {
-				if (empty($params['admin']) || $params['prefix'] != 'admin') {
-					if (isset($params['plugin']) && $params['plugin'] == 'blog') {
-						if (isset($params['controller']) && $params['controller'] == 'blog') {
-							if (isset($params['action']) && $params['action'] == 'archives') {
-								if (count($params['pass']) == 1) {
-									$judge = true;
-								}
-							}
 
-						}
-					}
-				}
-			}
-			
-			if ($judge) {
-				if (isset($params['action']) && $params['action'] == 'archives') {
-					if (count($params['pass']) == 1) {
-
-						$urls = explode('/', $link);
-						if (is_array($urls)) {
-							// SP、FPでは判定構造を１つ繰り上げる
-							if (!empty($html->request->params['prefix'])) {
-								$urls[1] = $urls[2];
-								$urls[3] = $urls[4];
-							}
-							
-							foreach ($this->blogContents as $key => $value) {
-								if ($urls[1] == $value['BlogContent']['name']) {
-
-									if (ClassRegistry::isKeySet('Blog.BlogPost')) {
-										$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
-									} else {
-										$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-									}
-									$post = $BlogPostModel->find('first', array(
-										'conditions' => array(
-											'BlogPost.blog_content_id' => $value['BlogContent']['id'],
-											'BlogPost.no' => $urls[3]
-										),
-										// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
-										'recursive' => 1
-									));
-									if ($post && !empty($post['OptionalLink'])) {
-										$link = '';
-										if ($post['OptionalLink']['status']) {
-											$link = $post['OptionalLink']['name'];
-										}
-										$strBlank = '';
-										if ($post['OptionalLink']['blank']) {
-											$strBlank = ' target="_blank"';
-										}
-										if ($link) {
-											// <a href="/URL">TEXT</a>
-											//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-											$regex = '/href=\"(.+)\"/';
-											$replacement = 'href="'. $link .'"';
-											if ($strBlank) {
-												$replacement = $replacement . $strBlank;
-											}
-											$out = preg_replace($regex, $replacement, $out);
-										}
-									}
-									
-								}
-							}
-						}
-					}
-				}
 			}
 		}
+		
 		return $out;
 	}
 	
