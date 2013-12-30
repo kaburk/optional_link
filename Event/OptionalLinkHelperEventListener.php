@@ -22,14 +22,14 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	
 	public $url = array();
 	
-	public $judgeRewrite = false;
-	
+	public $judgeBlogArchivesUrl = false;
+		
 /**
  * 管理システム側かの判定値
  * 
  * @var boolean
  */
-	public $judgeAdmin = false;
+	public $judgeRewrite = false;
 	
 /**
  * ブログデータ
@@ -87,7 +87,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return string
  */
 	public function htmlBeforeGetLink(CakeEvent $event) {
-		$html = $event->subject();
 		$this->_judgeRewriteUrl($event);
 		return $event->data['options'];
 	}
@@ -99,7 +98,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return string
  */
 	public function blogHtmlBeforeGetLink(CakeEvent $event) {
-		$html = $event->subject();
 		$this->_judgeRewriteUrl($event);
 		return $event->data['options'];
 	}
@@ -112,6 +110,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	private function _judgeRewriteUrl(CakeEvent $event) {
 		$html = $event->subject();
+		$this->judgeBlogArchivesUrl = false;
 		$this->judgeRewrite = false;
 		
 		// 管理システム側でのアクセスではURL変換を行わない
@@ -137,18 +136,43 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			if ($this->url['plugin'] == 'blog' && $this->url['action'] == 'archives') {
 				// 引数のURLが1つ（記事詳細）のときに有効とする
 				if (count($this->url[0]) === 1) {
-					$this->judgeRewrite = true;
-					return;
+					$this->judgeBlogArchivesUrl = true;
 				}
 			}
 			
-			if ($this->url['action'] == 'archives') {
-				// 引数のURLが1つ（記事詳細）のときに有効とする
-				if (count($this->url[0]) === 1) {
-					foreach ($this->blogContents as $key => $value) {
-						if ($this->url['controller'] == $value['BlogContent']['name']) {
-							$this->judgeRewrite = true;
-							return;
+			if (!$this->judgeBlogArchivesUrl) {
+				if ($this->url['action'] == 'archives') {
+					// 引数のURLが1つ（記事詳細）のときに有効とする
+					if (count($this->url[0]) === 1) {
+						foreach ($this->blogContents as $key => $value) {
+							if ($this->url['controller'] == $value['BlogContent']['name']) {
+								$this->judgeBlogArchivesUrl = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			if ($this->judgeBlogArchivesUrl) {
+				if (ClassRegistry::isKeySet('Blog.BlogPost')) {
+					$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
+				} else {
+					$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+				}
+				$post = $BlogPostModel->find('first', array(
+					'conditions' => array(
+						'BlogPost.blog_content_id' => $value['BlogContent']['id'],
+						'BlogPost.no' => $this->url[0]
+					),
+					// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
+					'recursive' => 1
+				));
+				if ($post && !empty($post['OptionalLink'])) {
+					if ($post['OptionalLink']['status']) {
+						$this->judgeRewrite = true;
+						if ($post['OptionalLink']['blank']) {
+							$event->data['options']['target'] = '_blank';
 						}
 					}
 				}
@@ -165,7 +189,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public function htmlAfterGetLink(CakeEvent $event) {
 		$html = $event->subject();
-		if ($this->judgeRewrite) {
+		if ($this->judgeBlogArchivesUrl) {
 			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out'], $event->data['url']);
 		}
 		return $event->data['out'];
@@ -179,7 +203,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public function blogHtmlAfterGetLink(CakeEvent $event) {
 		$html = $event->subject();
-		if ($this->judgeRewrite) {
+		if ($this->judgeBlogArchivesUrl) {
 			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out'], $event->data['url']);
 		}
 		return $event->data['out'];
@@ -202,7 +226,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		
 		foreach ($this->blogContents as $value) {
 			if ($urls['controller'] == $value['BlogContent']['name']) {
-
+				
 				if (ClassRegistry::isKeySet('Blog.BlogPost')) {
 					$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
 				} else {
@@ -221,22 +245,15 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 					if ($post['OptionalLink']['status']) {
 						$link = $post['OptionalLink']['name'];
 					}
-					$strBlank = '';
-					if ($post['OptionalLink']['blank']) {
-						$strBlank = ' target="_blank"';
-					}
 					if ($link) {
 						// <a href="/URL">TEXT</a>
 						//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-						$regex = '/href=\"(.+)\"/';
+						$regex = '/href=\"(.+?)\"/';
 						$replacement = 'href="'. $link .'"';
-						if ($strBlank) {
-							$replacement = $replacement . $strBlank;
-						}
 						$out = preg_replace($regex, $replacement, $out);
 					}
 				}
-
+				
 			}
 		}
 		
