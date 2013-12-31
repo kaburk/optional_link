@@ -13,13 +13,13 @@ $(window).load(function() {
 });
 </script>
 
-<?php if($this->request->params['action'] == 'admin_add'): ?>
-	<?php echo $this->BcForm->create('OptionalLink', array('url' => array('action' => 'add'))) ?>
-<?php else: ?>
+<?php if($this->request->params['action'] != 'admin_add'): ?>
 	<?php echo $this->BcForm->create('OptionalLink', array('url' => array('action' => 'edit'))) ?>
 	<?php echo $this->BcForm->input('OptionalLink.id', array('type' => 'hidden')) ?>
 	<?php echo $this->BcForm->input('OptionalLink.blog_post_id', array('type' => 'hidden')) ?>
 	<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'hidden')) ?>
+<?php else: ?>
+	<?php echo $this->BcForm->create('OptionalLink', array('url' => array('action' => 'add'))) ?>
 <?php endif ?>
 
 <div id="OptionalLinkTable">
