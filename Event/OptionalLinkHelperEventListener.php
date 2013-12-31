@@ -65,30 +65,24 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public function blogFormAfterCreate(CakeEvent $event) {
 		$form = $event->subject();
 		
-		if ($form->request->params['controller'] == 'blog_posts') {
+		if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
 			// ブログ記事追加画面に編集欄を追加する
-			if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
-				if ($event->data['id'] == 'BlogPostForm') {
-					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_form');
-					return $event->data['out'];
-				}
+			if ($event->data['id'] == 'BlogPostForm') {
+				$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_form');
+				return $event->data['out'];
 			}
-		}
-		
-		if ($form->request->params['controller'] == 'blog_contents'){
+			
 			// ブログ設定編集画面に設定欄を表示する
-			if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
-				if ($event->data['id'] == 'BlogContentAdminEditForm') {
-					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
-					return $event->data['out'];
-				}
-				if ($event->data['id'] == 'BlogContentAdminAddForm') {
-					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
-					return  $event->data['out'];
-				}
+			if ($event->data['id'] == 'BlogContentAdminEditForm') {
+				$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
+				return $event->data['out'];
+			}
+			if ($event->data['id'] == 'BlogContentAdminAddForm') {
+				$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
+				return  $event->data['out'];
 			}
 		}
-		
+				
 		return $event->data['out'];
 	}
 	

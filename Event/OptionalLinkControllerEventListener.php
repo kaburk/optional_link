@@ -81,11 +81,9 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 	public function blogBlogBeforeRender(CakeEvent $event) {
 		$controller = $event->subject();
 		// プレビューの際は編集欄の内容を送る
-		if ($controller->name == 'Blog') {			
-			if ($controller->preview) {
-				if (!empty($controller->data['OptionalLink'])) {
-					$controller->viewVars['post']['OptionalLink'] = $controller->data['OptionalLink'];
-				}
+		if ($controller->preview) {
+			if (!empty($controller->data['OptionalLink'])) {
+				$controller->viewVars['post']['OptionalLink'] = $controller->data['OptionalLink'];
 			}
 		}
 	}
