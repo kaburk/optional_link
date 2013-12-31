@@ -38,6 +38,24 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 	public $OptionalLinkConfig = null;
 	
 /**
+ * Construct
+ * 
+ */
+	function __construct() {
+		parent::__construct();
+		if (ClassRegistry::isKeySet('OptionalLink.OptionalLink')) {
+			$this->OptionalLink = ClassRegistry::getObject('OptionalLink.OptionalLink');
+		} else {
+			$this->OptionalLink = ClassRegistry::init('OptionalLink.OptionalLink');
+		}
+		if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
+			$this->OptionalLinkConfig = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
+		} else {
+			$this->OptionalLinkConfig = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
+		}
+	}
+	
+/**
  * blogBlogPostBeforeFind
  * 
  * @param CakeEvent $event
@@ -82,9 +100,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		$model = $event->subject();
 		// ブログ記事保存の手前で OptionalLink モデルのデータに対して validation を行う
 		// TODO saveAll() ではbeforeValidateが効かない？
-		$OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
-		$OptionalLinkModel->set($model->data);
-		return $OptionalLinkModel->validates();
+		$this->OptionalLink->set($model->data);
+		return $this->OptionalLink->validates();
 	}
 	
 /**
@@ -96,8 +113,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 	public function blogBlogContentBeforeValidate(CakeEvent $event) {
 		$model = $event->subject();
 		// ブログ設定保存の手前で OptionalLinkConfig モデルのデータに対して validation を行う
-		$model->OptionalLinkConfig->set($model->data);
-		return $model->OptionalLinkConfig->validates();
+		$this->OptionalLinkConfig->set($model->data);
+		return $this->OptionalLinkConfig->validates();
 	}
 	
 /**
@@ -116,12 +133,12 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		$saveData = $this->_generateSaveData($model, $contentId);
 		if (isset($saveData['OptionalLink']['id'])) {
 			// ブログ記事編集保存時に設定情報を保存する
-			$model->OptionalLink->set($saveData);
+			$this->OptionalLink->set($saveData);
 		} else {
 			// ブログ記事追加時に設定情報を保存する
-			$model->OptionalLink->create($saveData);
+			$this->OptionalLink->create($saveData);
 		}
-		if (!$model->OptionalLink->save()) {
+		if (!$this->OptionalLink->save()) {
 			$this->log(sprintf('ID：%s のオプショナルリンクの保存に失敗しました。', $model->data['OptionalLink']['id']));
 		}
 	}
@@ -142,12 +159,12 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		$saveData = $this->_generateSaveData($model, $contentId);
 		if (isset($saveData['OptionalLinkConfig']['id'])) {
 			// ブログ設定編集保存時に設定情報を保存する
-			$model->OptionalLinkConfig->set($saveData);
+			$this->OptionalLinkConfig->set($saveData);
 		} else {
 			// ブログ追加時に設定情報を保存する
-			$model->OptionalLinkConfig->create($saveData);
+			$this->OptionalLinkConfig->create($saveData);
 		}
-		if (!$model->OptionalLinkConfig->save()) {
+		if (!$this->OptionalLinkConfig->save()) {
 			$this->log(sprintf('ID：%s のオプショナルリンク設定の保存に失敗しました。', $model->data['OptionalLinkConfig']['id']));
 		}
 		
@@ -164,20 +181,20 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		
 		if ($model->alias == 'BlogPost') {
 			$params = Router::getParams();
-			$OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
 			$data = array();
 			
 			if ($contentId) {
-				$data = $OptionalLinkModel->find('first', array('conditions' => array(
+				$data = $this->OptionalLink->find('first', array('conditions' => array(
 					'OptionalLink.blog_post_id' => $contentId
 				)));
 			}
 			if ($params['action'] != 'admin_ajax_copy') {
-				if(!empty($OptionalLinkModel->data['OptionalLink'])) {
+				if(!empty($this->OptionalLink->data['OptionalLink'])) {
 					$data['OptionalLink']['blog_post_id'] = $contentId;
-					$data['OptionalLink']['name'] = $OptionalLinkModel->data['OptionalLink']['name'];
-					$data['OptionalLink']['blank'] = $OptionalLinkModel->data['OptionalLink']['blank'];
-					$data['OptionalLink']['status'] = $OptionalLinkModel->data['OptionalLink']['status'];
+					$data['OptionalLink']['blog_content_id'] = $this->OptionalLink->data['OptionalLink']['blog_content_id'];
+					$data['OptionalLink']['name'] = $this->OptionalLink->data['OptionalLink']['name'];
+					$data['OptionalLink']['blank'] = $this->OptionalLink->data['OptionalLink']['blank'];
+					$data['OptionalLink']['status'] = $this->OptionalLink->data['OptionalLink']['status'];
 				} else {
 					// ブログ記事追加の場合
 					$data['OptionalLink']['blog_post_id'] = $contentId;
@@ -187,7 +204,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 				// Ajaxコピー処理時に実行
 				// ブログコピー保存時にエラーがなければ保存処理を実行
 				if (empty($model->validationErrors)) {
-					$_data = $OptionalLinkModel->find('first', array(
+					$_data = $this->OptionalLink->find('first', array(
 						'conditions' => array(
 							'OptionalLink.blog_post_id' => $params['pass'][1]
 						),
@@ -210,22 +227,21 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		
 		if ($model->alias == 'BlogContent') {
 			$params = Router::getParams();
-			$OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
 			$data = array();
 			
 			if ($contentId) {
-				$data = $OptionalLinkConfigModel->find('first', array('conditions' => array(
+				$data = $this->OptionalLinkConfig->find('first', array('conditions' => array(
 					'OptionalLinkConfig.blog_content_id' => $contentId
 				)));
 			}
 			if ($params['action'] != 'admin_ajax_copy') {
 				$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
-				$data['OptionalLinkConfig']['status'] = $OptionalLinkConfigModel->data['OptionalLinkConfig']['status'];
+				$data['OptionalLinkConfig']['status'] = $this->OptionalLinkConfig->data['OptionalLinkConfig']['status'];
 			} else {
 				// Ajaxコピー処理時に実行
 				// ブログコピー保存時にエラーがなければ保存処理を実行
 				if (empty($model->validationErrors)) {
-					$_data = $OptionalLinkConfigModel->find('first', array(
+					$_data = $this->OptionalLinkConfig->find('first', array(
 						'conditions' => array(
 							'OptionalLinkConfig.blog_content_id' => $params['pass']['0']
 						),
@@ -254,13 +270,12 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 	public function blogBlogPostAfterDelete(CakeEvent $event) {
 		$model = $event->subject();
 		// ブログ記事削除時、そのブログ記事が持つOptionalLinkを削除する
-		$OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
-		$data = $OptionalLinkModel->find('first', array(
+		$data = $this->OptionalLink->find('first', array(
 			'conditions' => array('OptionalLink.blog_post_id' => $model->id),
 			'recursive' => -1
 		));
 		if ($data) {
-			if (!$OptionalLinkModel->delete($data['OptionalLink']['id'])) {
+			if (!$this->OptionalLink->delete($data['OptionalLink']['id'])) {
 				$this->log('ID:' . $data['OptionalLink']['id'] . 'のOptionalLinkの削除に失敗しました。');
 			}
 		}
@@ -274,13 +289,12 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 	public function blogBlogContentAfterDelete(CakeEvent $event) {
 		$model = $event->subject();
 		// ブログ削除時、そのブログが持つOptionalLink設定を削除する
-		$OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
-		$data = $OptionalLinkConfigModel->find('first', array(
+		$data = $this->OptionalLinkConfig->find('first', array(
 			'conditions' => array('OptionalLinkConfig.blog_content_id' => $model->id),
 			'recursive' => -1
 		));
 		if ($data) {
-			if (!$OptionalLinkConfigModel->delete($data['OptionalLinkConfig']['id'])) {
+			if (!$this->OptionalLinkConfig->delete($data['OptionalLinkConfig']['id'])) {
 				$this->log('ID:' . $data['OptionalLinkConfig']['id'] . 'のOptionalLink設定の削除に失敗しました。');
 			}
 		}
