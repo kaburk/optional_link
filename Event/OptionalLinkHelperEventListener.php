@@ -76,13 +76,11 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		$form = $event->subject();
 		
 		if ($form->request->params['controller'] == 'blog_posts') {
-			if (!empty($form->request->data['OptionalLinkConfig']['status'])) {
-				// ブログ記事追加画面に編集欄を追加する
-				if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
-					if ($event->data['id'] == 'BlogPostForm') {
-						$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_form');
-						return $event->data['out'];
-					}
+			// ブログ記事追加画面に編集欄を追加する
+			if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
+				if ($event->data['id'] == 'BlogPostForm') {
+					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_form');
+					return $event->data['out'];
 				}
 			}
 		}

@@ -7,14 +7,6 @@
  * @license			MIT
  */
 ?>
-<?php if($this->request->params['controller'] != 'blog_posts'): ?>
-<script type="text/javascript">
-$(window).load(function() {
-	$("#OptionalLinkName").focus();
-});
-</script>
-<?php endif ?>
-
 <?php if($this->request->params['action'] != 'admin_add'): ?>
 	<?php echo $this->BcForm->input('OptionalLink.id', array('type' => 'hidden')) ?>
 	<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'hidden')) ?>
@@ -22,25 +14,9 @@ $(window).load(function() {
 	<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'hidden', 'value' => $blogContent['BlogContent']['id'])) ?>
 <?php endif ?>
 
+<?php if($this->request->data['OptionalLinkConfig']['status']): ?>
 <div id="OptionalLinkTable">
-
 <table cellpadding="0" cellspacing="0" class="form-table section">
-<?php if($this->request->params['controller'] != 'blog_posts'): ?>
-	<tr>
-		<th class="col-head"><?php echo $this->BcForm->label('OptionalLink.id', 'NO') ?></th>
-		<td class="col-input">
-			<?php echo $this->BcForm->value('OptionalLink.id') ?>
-		</td>
-	</tr>
-	<tr>
-		<th class="col-head">ブログ名</th>
-		<td class="col-input">
-			<ul>
-				<li><?php echo $blogContentDatas[$this->BcForm->value('OptionalLink.blog_content_id')] ?></li>
-			</ul>
-		</td>
-	</tr>
-<?php endif ?>
 	<tr>
 		<th class="col-head">
 			<?php echo $this->BcForm->label('OptionalLink.status', 'オプショナルリンク') ?>
@@ -74,3 +50,8 @@ $(window).load(function() {
 	</tr>
 </table>
 </div>
+<?php else: ?>
+	<?php echo $this->BcForm->input('OptionalLink.status', array('type' => 'hidden')) ?>
+	<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'hidden')) ?>
+	<?php echo $this->BcForm->input('OptionalLink.blank', array('type' => 'hidden')) ?>
+<?php endif ?>
