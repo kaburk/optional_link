@@ -118,7 +118,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 		// ブログ追加画面に設定情報を送る
 		if ($controller->action == 'admin_add') {
 			$defalut = $this->OptionalLinkConfigModel->getDefaultValue();
-			$controller->data['OptionalLinkConfig'] = $defalut['OptionalLinkConfig'];
+			$controller->request->data['OptionalLinkConfig'] = $defalut['OptionalLinkConfig'];
 		}
 	}
 	
