@@ -21,6 +21,10 @@ $class=' class="'.implode(' ', $classies).'"';
 	<?php $this->BcBaser->link($this->BcBaser->getImg('admin/icn_tool_publish.png', array('width' => 24, 'height' => 24, 'alt' => '有効', 'class' => 'btn')),
 			array('action' => 'ajax_publish', $data['OptionalLinkConfig']['id']), array('title' => '有効', 'class' => 'btn-publish')) ?>
 
+	<?php // ブログ設定編集画面へ移動 ?>
+	<?php $this->BcBaser->link($this->BcBaser->getImg('admin/icn_tool_check.png', array('width' => 24, 'height' => 24, 'alt' => 'ブログ設定編集', 'class' => 'btn')),
+			array('admin' => true, 'plugin' => 'blog', 'controller' => 'blog_contents', 'action' => 'edit', $data['OptionalLinkConfig']['blog_content_id']), array('title' => 'ブログ設定編集')) ?>
+
 	<?php $this->BcBaser->link($this->BcBaser->getImg('admin/icn_tool_edit.png', array('width' => 24, 'height' => 24, 'alt' => '編集', 'class' => 'btn')),
 			array('action' => 'edit', $data['OptionalLinkConfig']['id']), array('title' => '編集')) ?>
 	<?php $this->BcBaser->link($this->BcBaser->getImg('admin/icn_tool_delete.png', array('width' => 24, 'height' => 24, 'alt' => '削除', 'class' => 'btn')),
