@@ -20,17 +20,33 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		'Blog.Html.afterGetLink'
 	);
 	
+/**
+ * 判定するURL
+ * 
+ * @var array
+ */
 	public $url = array();
 	
+/**
+ * ブログ記事詳細へのURLかどうかを判定
+ * 
+ * @var boolean
+ */
 	public $judgeBlogArchivesUrl = false;
 	
 /**
- * 管理システム側かの判定値
+ * URL書換を機能させるかどうかを判定
+ * - OptionalLink データがあり、かつ設定が有効の際に書換る
  * 
  * @var boolean
  */
 	public $judgeRewrite = false;
 	
+/**
+ * OptionalLinkデータ
+ * 
+ * @var array
+ */
 	public $optionalLink = array();
 	
 /**
@@ -120,7 +136,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			
 			if (!is_array($event->data['url'])) {
 				$this->url = Router::parse($event->data['url']);
-				$fuga = parse_url($event->data['url']);
 			} else {
 				$this->url = $event->data['url'];
 			}
@@ -214,10 +229,10 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	}
 	
 /**
+ * 出力されるHTMLのリンクを書き換える
  * 
- * @param type $html
- * @param type $out
- * @param type $link
+ * @param Object $html
+ * @param string $out
  * @return string
  */
 	private function _rewriteUrl($html, $out) {
