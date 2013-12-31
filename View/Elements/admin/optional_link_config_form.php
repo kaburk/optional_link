@@ -9,19 +9,13 @@
 ?>
 <?php if($this->request->params['action'] != 'admin_add'): ?>
 	<?php echo $this->BcForm->input('OptionalLinkConfig.id', array('type' => 'hidden')) ?>
+	<?php echo $this->BcForm->input('OptionalLinkConfig.blog_content_id', array('type' => 'hidden')) ?>
+<?php else: ?>
+	<?php echo $this->BcForm->input('OptionalLinkConfig.blog_content_id', array('type' => 'hidden', 'value' => $this->request->data['BlogContent']['id'])) ?>
 <?php endif ?>
 
 <div id="OptionalLinkConfigConfigTable">
-
 <table cellpadding="0" cellspacing="0" class="form-table section">
-<?php if($this->request->params['controller'] != 'blog_contents'): ?>
-	<tr>
-		<th class="col-head"><?php echo $this->BcForm->label('OptionalLinkConfig.id', 'NO') ?></th>
-		<td class="col-input">
-			<?php echo $this->BcForm->value('OptionalLinkConfig.id') ?>
-		</td>
-	</tr>
-<?php endif ?>
 	<tr>
 		<th class="col-head">
 			<?php echo $this->BcForm->label('OptionalLinkConfig.status', 'オプショナルリンクの利用') ?>
