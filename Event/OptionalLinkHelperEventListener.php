@@ -157,18 +157,18 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 				}
 			}
 			
-			if ($this->url['plugin'] == 'blog' && $this->url['action'] == 'archives') {
-				// 引数のURLが1つ（記事詳細）のときに有効とする
-				if (!empty($this->url[0]) && !isset($this->url[1])) {
-					$this->judgeBlogArchivesUrl = true;
-				}
-			}
+//			if ($this->url['plugin'] == 'blog' && $this->url['action'] == 'archives') {
+//				// 引数のURLが1つ（記事詳細）のときに有効とする
+//				if (!empty($this->url[0]) && !isset($this->url[1])) {
+//					$this->judgeBlogArchivesUrl = true;
+//				}
+//			}
 			
 			if (!$this->judgeBlogArchivesUrl) {
 				if ($this->url['action'] == 'archives') {
 					// 引数のURLが1つ（記事詳細）のときに有効とする
 					if (!empty($this->url[0]) && !isset($this->url[1])) {
-						foreach ($this->blogContents as $key => $value) {
+						foreach ($this->blogContents as $value) {
 							if ($this->url['controller'] == $value['BlogContent']['name']) {
 								$this->judgeBlogArchivesUrl = true;
 								break;
@@ -179,6 +179,20 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			}
 			
 			if ($this->judgeBlogArchivesUrl) {
+				
+				if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
+					$OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
+				} else {
+					$OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
+				}
+				$optionalLinkConfig = $OptionalLinkConfigModel->find('first', array('conditions' => array(
+					'OptionalLinkConfig.blog_content_id' => $value['BlogContent']['id']
+				)));
+				if (!$optionalLinkConfig['OptionalLinkConfig']['status']) {
+					// オプショナルリンク設定が無効の場合はURL書き換えを行わない
+					return;
+				}
+				
 				if (ClassRegistry::isKeySet('Blog.BlogPost')) {
 					$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
 				} else {
