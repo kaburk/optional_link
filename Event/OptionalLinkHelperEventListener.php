@@ -57,16 +57,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public $blogContents = array();
 	
 /**
- * Construct 
- * 
- */
-	public function __construct() {
-		parent::__construct();
-		$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
-		$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
-	}
-	
-/**
  * blogFormAfterCreate
  * 
  * @param CakeEvent $event
@@ -162,10 +152,19 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 //				}
 //			}
 			
+			// URLがブログ記事詳細へのリンクかどうかを判定する
 			if (!$this->judgeBlogArchivesUrl) {
 				if ($this->url['action'] == 'archives') {
 					// 引数のURLが1つ（記事詳細）のときに有効とする
 					if (!empty($this->url[0]) && !isset($this->url[1])) {
+						if (!$this->blogContents) {
+							if (ClassRegistry::isKeySet('Blog.BlogContent')) {
+								$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
+							} else {
+								$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
+							}
+							$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
+						}
 						foreach ($this->blogContents as $value) {
 							if ($this->url['controller'] == $value['BlogContent']['name']) {
 								$this->judgeBlogArchivesUrl = true;
@@ -177,7 +176,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			}
 			
 			if ($this->judgeBlogArchivesUrl) {
-				
 				if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
 					$OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
 				} else {
