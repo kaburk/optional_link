@@ -23,13 +23,15 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public $url = array();
 	
 	public $judgeBlogArchivesUrl = false;
-		
+	
 /**
  * 管理システム側かの判定値
  * 
  * @var boolean
  */
 	public $judgeRewrite = false;
+	
+	public $optionalLink = array();
 	
 /**
  * ブログデータ
@@ -118,6 +120,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			
 			if (!is_array($event->data['url'])) {
 				$this->url = Router::parse($event->data['url']);
+				$fuga = parse_url($event->data['url']);
 			} else {
 				$this->url = $event->data['url'];
 			}
@@ -135,7 +138,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			
 			if ($this->url['plugin'] == 'blog' && $this->url['action'] == 'archives') {
 				// 引数のURLが1つ（記事詳細）のときに有効とする
-				if (count($this->url[0]) === 1) {
+				if (!empty($this->url[0]) && !isset($this->url[1])) {
 					$this->judgeBlogArchivesUrl = true;
 				}
 			}
@@ -143,7 +146,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			if (!$this->judgeBlogArchivesUrl) {
 				if ($this->url['action'] == 'archives') {
 					// 引数のURLが1つ（記事詳細）のときに有効とする
-					if (count($this->url[0]) === 1) {
+					if (!empty($this->url[0]) && !isset($this->url[1])) {
 						foreach ($this->blogContents as $key => $value) {
 							if ($this->url['controller'] == $value['BlogContent']['name']) {
 								$this->judgeBlogArchivesUrl = true;
@@ -169,6 +172,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 					'recursive' => 1
 				));
 				if ($post && !empty($post['OptionalLink'])) {
+					$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
 					if ($post['OptionalLink']['status']) {
 						$this->judgeRewrite = true;
 						if ($post['OptionalLink']['blank']) {
@@ -190,7 +194,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public function htmlAfterGetLink(CakeEvent $event) {
 		$html = $event->subject();
 		if ($this->judgeBlogArchivesUrl) {
-			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out'], $event->data['url']);
+			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out']);
 		}
 		return $event->data['out'];
 	}
@@ -204,7 +208,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public function blogHtmlAfterGetLink(CakeEvent $event) {
 		$html = $event->subject();
 		if ($this->judgeBlogArchivesUrl) {
-			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out'], $event->data['url']);
+			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out']);
 		}
 		return $event->data['out'];
 	}
@@ -216,47 +220,25 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @param type $link
  * @return string
  */
-	private function _rewriteUrl($html, $out, $link) {
-		$urls = $this->url;
-		// SP、FPでは判定構造を１つ繰り上げる
-		if (!empty($html->request->params['prefix'])) {
-//			$urls[1] = $urls[2];
-//			$urls[3] = $urls[4];
-		}
-		
-		foreach ($this->blogContents as $value) {
-			if ($urls['controller'] == $value['BlogContent']['name']) {
-				
-				if (ClassRegistry::isKeySet('Blog.BlogPost')) {
-					$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
-				} else {
-					$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-				}
-				$post = $BlogPostModel->find('first', array(
-					'conditions' => array(
-						'BlogPost.blog_content_id' => $value['BlogContent']['id'],
-						'BlogPost.no' => $urls[0]
-					),
-					// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
-					'recursive' => 1
-				));
-				if ($post && !empty($post['OptionalLink'])) {
-					$link = '';
-					if ($post['OptionalLink']['status']) {
-						$link = $post['OptionalLink']['name'];
-					}
-					if ($link) {
-						// <a href="/URL">TEXT</a>
-						//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-						$regex = '/href=\"(.+?)\"/';
-						$replacement = 'href="'. $link .'"';
-						$out = preg_replace($regex, $replacement, $out);
-					}
+	private function _rewriteUrl($html, $out) {
+		if ($this->optionalLink) {
+			$link = $this->optionalLink['OptionalLink']['name'];
+			if ($link) {
+				// /files〜 の場合はドメインを付与して絶対指定扱いにする
+				$regexFiles = '/^\/files\/.+/';
+				if (preg_match($regexFiles, $link)) {
+					// /lib/Baser/basics.php
+					$link = topLevelUrl(false) . $link;
+					//$link = Configure::read('BcEnv.siteUrl') . $link;
 				}
 				
+				// <a href="/URL">TEXT</a>
+				//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+				$regex = '/href=\"(.+?)\"/';
+				$replacement = 'href="'. $link .'"';
+				$out = preg_replace($regex, $replacement, $out);
 			}
 		}
-		
 		return $out;
 	}
 	
