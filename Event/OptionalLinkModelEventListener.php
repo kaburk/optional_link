@@ -189,12 +189,12 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 				)));
 			}
 			if ($params['action'] != 'admin_ajax_copy') {
-				if(!empty($this->OptionalLink->data['OptionalLink'])) {
+				if(!empty($model->data['OptionalLink'])) {
 					$data['OptionalLink']['blog_post_id'] = $contentId;
-					$data['OptionalLink']['blog_content_id'] = $this->OptionalLink->data['OptionalLink']['blog_content_id'];
-					$data['OptionalLink']['name'] = $this->OptionalLink->data['OptionalLink']['name'];
-					$data['OptionalLink']['blank'] = $this->OptionalLink->data['OptionalLink']['blank'];
-					$data['OptionalLink']['status'] = $this->OptionalLink->data['OptionalLink']['status'];
+					$data['OptionalLink']['blog_content_id'] = $model->data['OptionalLink']['blog_content_id'];
+					$data['OptionalLink']['name'] = $model->data['OptionalLink']['name'];
+					$data['OptionalLink']['blank'] = $model->data['OptionalLink']['blank'];
+					$data['OptionalLink']['status'] = $model->data['OptionalLink']['status'];
 				} else {
 					// ブログ記事追加の場合
 					$data['OptionalLink']['blog_post_id'] = $contentId;
