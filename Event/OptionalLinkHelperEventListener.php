@@ -82,7 +82,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 				return  $event->data['out'];
 			}
 		}
-				
+		
 		return $event->data['out'];
 	}
 	

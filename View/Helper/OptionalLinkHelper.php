@@ -16,8 +16,8 @@ class OptionalLinkHelper extends AppHelper {
 	
 /**
  * 除外状態を取得する
- *
- * @param array データリスト
+ * 
+ * @param array $data
  * @return boolean 除外状態
  */
 	public function allowPublish($data){
@@ -44,5 +44,5 @@ class OptionalLinkHelper extends AppHelper {
 		}
 		return false;
 	}
-		
+	
 }
