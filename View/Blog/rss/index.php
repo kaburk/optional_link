@@ -7,7 +7,6 @@
  * @license			MIT
  */
 ?>
-<h1>TEST</h1>
 <?php
 if ($posts) {
 	if (!$OptionalLinkConfig['OptionalLinkConfig']['status']) {
@@ -28,9 +27,8 @@ function transformRSS($data) {
 		'pubDate' => $data['BlogPost']['posts_date']
 	);
 }
-// 通常のブログRSS動作
+// オプショナルリンク設定が有効時のブログRSS動作
 function transformRSSEx($data) {
-	$hoge = 1;
 	if ($data['OptionalLink']['status']) {
 		$link = $data['OptionalLink']['name'];
 		$guid = $data['OptionalLink']['name'];
@@ -38,7 +36,7 @@ function transformRSSEx($data) {
 		$link = '/' . $data['BlogContent']['name'] . '/archives/' . $data['BlogPost']['no'];
 		$guid = '/' . $data['BlogContent']['name'] . '/archives/' . $data['BlogPost']['no'];
 	}
-
+	
 	return array(
 		'title' => $data['BlogPost']['name'],
 		'link' => $link,
