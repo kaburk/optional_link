@@ -120,7 +120,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		$this->judgeRewrite = false;
 		
 		// 管理システム側でのアクセスではURL変換を行わない
-		if (!isset($html->request->params['prefix']) || $html->request->params['prefix'] != 'admin') {
+		if(!BcUtil::isAdminSystem()) {
 			
 			if (!is_array($event->data['url'])) {
 				$this->url = Router::parse($event->data['url']);
@@ -138,13 +138,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 					return;
 				}
 			}
-			
-//			if ($this->url['plugin'] == 'blog' && $this->url['action'] == 'archives') {
-//				// 引数のURLが1つ（記事詳細）のときに有効とする
-//				if (!empty($this->url[0]) && !isset($this->url[1])) {
-//					$this->judgeBlogArchivesUrl = true;
-//				}
-//			}
 			
 			// URLがブログ記事詳細へのリンクかどうかを判定する
 			if (!$this->judgeBlogArchivesUrl) {
