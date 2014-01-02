@@ -15,27 +15,28 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 	public $events = array(
 		'initialize',
 		'startup',
+		'Blog.Blog.startup',
 		'Blog.Blog.beforeRender',
 		'Blog.BlogPosts.beforeRender',
 		'Blog.BlogContents.beforeRender'
 	);
 	
 /**
- * optional_link設定情報
+ * OptionalLink設定情報
  * 
  * @var array
  */
 	public $optionalLinkConfigs = array();
 	
 /**
- * optional_linkモデル
+ * OptionalLinkモデル
  * 
  * @var Object
  */
 	public $OptionalLinkModel = null;
 	
 /**
- * optional_link設定モデル
+ * OptionalLink設定モデル
  * 
  * @var Object
  */
@@ -52,7 +53,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 	}
 	
 /**
- * blogBlogStartup
+ * startup
  * 
  * @param CakeEvent $event
  */
@@ -74,12 +75,32 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 	}
 	
 /**
+ * blogBlogStartup
+ * 
+ * @param CakeEvent $event
+ */
+	public function blogBlogStartup(CakeEvent $event) {
+		$controller = $event->subject();
+		if(!BcUtil::isAdminSystem()) {
+			if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
+				$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
+			} else {
+				$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
+			}
+			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
+		}
+	}
+	
+/**
  * blogBlogBeforeRender
  * 
  * @param CakeEvent $event
  */
 	public function blogBlogBeforeRender(CakeEvent $event) {
 		$controller = $event->subject();
+		if (!empty($controller->blogContent['BlogContent'])) {			
+			$controller->set('OptionalLinkConfig', $this->optionalLinkConfigs);
+		}
 		// プレビューの際は編集欄の内容を送る
 		if ($controller->preview) {
 			if (!empty($controller->data['OptionalLink'])) {
