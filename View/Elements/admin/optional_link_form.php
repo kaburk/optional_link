@@ -35,7 +35,7 @@
 			<?php echo $this->BcForm->label('OptionalLink.name', 'URL') ?>
 		</th>
 		<td class="col-input">
-			<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'text', 'size' => 74, 'maxlength' => 255, 'counter' => true)) ?>
+			<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'text', 'size' => 68, 'maxlength' => 255, 'counter' => true)) ?>
 			<?php echo $this->BcForm->error('OptionalLink.name') ?>
 			<br />
 			<?php echo $this->BcForm->input('OptionalLink.blank', array('type' => 'checkbox', 'label' => '別窓で開く')) ?>
