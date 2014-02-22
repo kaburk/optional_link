@@ -45,4 +45,42 @@ class OptionalLinkHelper extends AppHelper {
 		return false;
 	}
 	
+/**
+ * リンク文字列をチェックして判定する
+ * 
+ * @param type $post
+ * @return string
+ */
+	public function judgeLinkKinds($post = array()) {
+		$str = '';
+		if(!empty($post['OptionalLink']['name'])) {
+			$content = trim(strip_tags($post['OptionalLink']['name']));
+			// URLを分解する
+			$links = parse_url($content);
+			$path = pathinfo($content);
+			
+			if (!empty($path['extension'])) {
+				if ($path['extension'] == 'pdf') {
+					$str = 'pdf';
+				}
+				if ($path['extension'] == 'xls' || $path['extension'] == 'xlsx') {
+					$str = 'excel';
+				}
+				if ($path['extension'] == 'doc' || $path['extension'] == 'docx') {
+					$str = 'word';
+				}
+			}
+			if ($str) {
+				return $str;
+			}
+			
+			if (!empty($links['host'])) {
+				if ($_SERVER['HTTP_HOST'] != $links['host']) {
+					$str = 'external';
+				}
+			}
+		}
+		return $str;
+	}
+	
 }
