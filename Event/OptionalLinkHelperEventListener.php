@@ -13,7 +13,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @var array
  */
 	public $events = array(
-		'Blog.Form.afterCreate',
+		'Form.afterCreate',
 		'Html.beforeGetLink',
 		'Blog.Html.beforeGetLink',
 		'Html.afterGetLink',
@@ -57,29 +57,38 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public $blogContents = array();
 	
 /**
+ * 処理対象とするコントローラー
+ * 
+ * @var array
+ */
+	public $judgeControllers = array('BlogPosts', 'BlogContents');
+	
+/**
  * blogFormAfterCreate
  * 
  * @param CakeEvent $event
  * @return string
  */
-	public function blogFormAfterCreate(CakeEvent $event) {
+	public function formAfterCreate(CakeEvent $event) {
 		$form = $event->subject();
 		
-		if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
-			// ブログ記事追加画面に編集欄を追加する
-			if ($event->data['id'] == 'BlogPostForm') {
-				$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_form');
-				return $event->data['out'];
-			}
-			
-			// ブログ設定編集画面に設定欄を表示する
-			if ($event->data['id'] == 'BlogContentAdminEditForm') {
-				$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
-				return $event->data['out'];
-			}
-			if ($event->data['id'] == 'BlogContentAdminAddForm') {
-				$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
-				return  $event->data['out'];
+		if (in_array($form->name, $this->judgeControllers)) {
+			if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
+				// ブログ記事追加画面に編集欄を追加する
+				if ($event->data['id'] == 'BlogPostForm') {
+					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
+					return $event->data['out'];
+				}
+				
+				// ブログ設定編集画面に設定欄を表示する
+				if ($event->data['id'] == 'BlogContentAdminEditForm') {
+					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
+					return $event->data['out'];
+				}
+				if ($event->data['id'] == 'BlogContentAdminAddForm') {
+					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
+					return  $event->data['out'];
+				}
 			}
 		}
 		
