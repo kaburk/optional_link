@@ -9,13 +9,12 @@ $this->Plugin->initDb('plugin', 'OptionalLink');
  *   ・設定データがないブログ用のデータのみ作成する
  * 
  */
-	$this->loadModel('Model', 'Blog.BlogContent');
+	App::uses('BlogContent', 'Blog.Model');
 	$BlogContentModel = new BlogContent();
 	$blogContentDatas = $BlogContentModel->find('list', array('recursive' => -1));
 	if ($blogContentDatas) {
 		CakePlugin::load('OptionalLink');
-		App::uses('Model', 'OptionalLink.OptionalLinkConfig');
-		$this->loadModel('OptionalLink.OptionalLinkConfig');
+		App::uses('OptionalLinkConfig', 'OptionalLink.Model');
 		$OptionalLinkConfigModel = new OptionalLinkConfig();
 		foreach ($blogContentDatas as $key => $blog) {
 			$optionalLinkConfigData = $OptionalLinkConfigModel->findByBlogContentId($key);
@@ -33,13 +32,12 @@ $this->Plugin->initDb('plugin', 'OptionalLink');
  *   ・データがないブログ用のデータのみ作成する
  * 
  */
-	$this->loadModel('Blog.BlogPost');
+	App::uses('BlogPost', 'Blog.Model');
 	$BlogPostModel = new BlogPost();
 	$posts = $BlogPostModel->find('all', array('recursive' => -1));
 	if ($posts) {
 		CakePlugin::load('OptionalLink');
-		App::uses('Model', 'OptionalLink.OptionalLink');
-		$this->loadModel('OptionalLink.OptionalLink');
+		App::uses('OptionalLink', 'OptionalLink.Model');
 		$OptionalLinkModel = new OptionalLink();
 		foreach ($posts as $key => $post) {
 			$optionalLinkData = $OptionalLinkModel->findByBlogPostId($post['BlogPost']['id']);
