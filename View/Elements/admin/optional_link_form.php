@@ -15,30 +15,7 @@
 <?php endif ?>
 
 <?php if($this->request->data['OptionalLinkConfig']['status']): ?>
-<script type="text/javascript">
-$(function () {
-	optionalLinkValueChengeHandler();
-	$('#OptionalLinkNolink').click(function () {
-		optionalLinkValueChengeHandler();
-	});
-
-	function optionalLinkValueChengeHandler() {
-		judge = $('#OptionalLinkNolink').prop('checked');
-		if (judge) {
-			$('#OptionalLinkName').attr('disabled', true);
-			$('#OptionalLinkName').css('background-color', '#CCC');
-			$('#OptionalLinkBlank').attr('disabled', true);
-			$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
-		} else {
-			$('#OptionalLinkName').attr('disabled', false);
-			$('#OptionalLinkName').css('background-color', '');
-			$('#OptionalLinkBlank').attr('disabled', false);
-			$('label[for="OptionalLinkBlank"]').css('color', '');
-		}
-	}
-});
-</script>
-
+<?php $this->BcBaser->js(array('OptionalLink.admin/optional_link'), array('inline' => true)) ?>
 <div id="OptionalLinkTable">
 <table cellpadding="0" cellspacing="0" class="form-table section">
 	<tr>

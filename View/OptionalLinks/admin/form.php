@@ -11,30 +11,8 @@
 $(window).load(function() {
 	$("#OptionalLinkName").focus();
 });
-
-$(function () {
-	optionalLinkValueChengeHandler();
-	$('#OptionalLinkNolink').click(function () {
-		optionalLinkValueChengeHandler();
-	});
-
-	function optionalLinkValueChengeHandler() {
-		judge = $('#OptionalLinkNolink').prop('checked');
-		if (judge) {
-			$('#OptionalLinkName').attr('disabled', true);
-			$('#OptionalLinkName').css('background-color', '#CCC');
-			$('#OptionalLinkBlank').attr('disabled', true);
-			$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
-		} else {
-			$('#OptionalLinkName').attr('disabled', false);
-			$('#OptionalLinkName').css('background-color', '');
-			$('#OptionalLinkBlank').attr('disabled', false);
-			$('label[for="OptionalLinkBlank"]').css('color', '');
-		}
-	}
-});
 </script>
-
+<?php $this->BcBaser->js(array('OptionalLink.admin/optional_link'), array('inline' => true)) ?>
 <?php if($this->request->params['action'] != 'admin_add'): ?>
 	<?php echo $this->BcForm->create('OptionalLink', array('url' => array('action' => 'edit'))) ?>
 	<?php echo $this->BcForm->input('OptionalLink.id', array('type' => 'hidden')) ?>
