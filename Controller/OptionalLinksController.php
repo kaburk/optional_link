@@ -194,6 +194,9 @@ class OptionalLinksController extends OptionalLinkAppController {
 		if (isset($data[$this->modelClass]['status']) && $data[$this->modelClass]['status'] === '') {
 			unset($data[$this->modelClass]['status']);
 		}
+		if (isset($data[$this->modelClass]['nolink']) && $data[$this->modelClass]['nolink'] === '') {
+			unset($data[$this->modelClass]['nolink']);
+		}
 		
 		unset($data['_Token']);
 		unset($data[$this->modelClass]['name']);

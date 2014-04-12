@@ -11,6 +11,28 @@
 $(window).load(function() {
 	$("#OptionalLinkName").focus();
 });
+
+$(function () {
+	optionalLinkValueChengeHandler();
+	$('#OptionalLinkNolink').click(function () {
+		optionalLinkValueChengeHandler();
+	});
+
+	function optionalLinkValueChengeHandler() {
+		judge = $('#OptionalLinkNolink').prop('checked');
+		if (judge) {
+			$('#OptionalLinkName').attr('disabled', true);
+			$('#OptionalLinkName').css('background-color', '#CCC');
+			$('#OptionalLinkBlank').attr('disabled', true);
+			$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
+		} else {
+			$('#OptionalLinkName').attr('disabled', false);
+			$('#OptionalLinkName').css('background-color', '');
+			$('#OptionalLinkBlank').attr('disabled', false);
+			$('label[for="OptionalLinkBlank"]').css('color', '');
+		}
+	}
+});
 </script>
 
 <?php if($this->request->params['action'] != 'admin_add'): ?>
@@ -56,7 +78,7 @@ $(window).load(function() {
 			<?php echo $this->BcForm->label('OptionalLink.name', 'URL') ?>
 		</th>
 		<td class="col-input">
-			<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'text', 'size' => 74, 'maxlength' => 255, 'counter' => true)) ?>
+			<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'text', 'size' => 68, 'maxlength' => 255, 'counter' => true)) ?>
 			<?php echo $this->BcForm->error('OptionalLink.name') ?>
 			<br />
 			<?php echo $this->BcForm->input('OptionalLink.blank', array('type' => 'checkbox', 'label' => '別窓で開く')) ?>
@@ -69,6 +91,8 @@ $(window).load(function() {
 					<li>「/files/〜」（アップローダでの管理ファイル）から記述した場合、リンクにプレフィックスがつかなくなりスマホ、モバイルでも共通のリンク指定となります。</li>
 				</ul>
 			</div>
+			<?php echo $this->BcForm->input('OptionalLink.nolink', array('type' => 'checkbox', 'label' => 'リンクなし')) ?>
+			<?php echo $this->BcForm->error('OptionalLink.nolink') ?>
 		</td>
 	</tr>
 </table>

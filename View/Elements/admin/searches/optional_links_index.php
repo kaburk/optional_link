@@ -18,9 +18,15 @@
 		<?php echo $this->BcForm->label('OptionalLink.blog_content_id', 'ブログ') ?>
 		&nbsp;<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'select', 'options' => $blogContentDatas)) ?>
 	</span>
+	&nbsp;&nbsp;
 	<span>
 		<?php echo $this->BcForm->label('OptionalLink.status', '利用状態') ?>
 		&nbsp;<?php echo $this->BcForm->input('OptionalLink.status', array('type' => 'select', 'options' => $this->BcText->booleanMarkList(), 'empty' => '指定なし')) ?>
+	</span>
+	&nbsp;&nbsp;
+	<span>
+		<?php echo $this->BcForm->label('OptionalLink.nolink', 'リンクなし') ?>
+		&nbsp;<?php echo $this->BcForm->input('OptionalLink.nolink', array('type' => 'select', 'options' => $this->BcText->booleanMarkList(), 'empty' => '指定なし')) ?>
 	</span>
 </p>
 <div class="button">
