@@ -190,11 +190,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 			}
 			if ($params['action'] != 'admin_ajax_copy') {
 				if(!empty($model->data['OptionalLink'])) {
+					$data['OptionalLink'] = $model->data['OptionalLink'];
 					$data['OptionalLink']['blog_post_id'] = $contentId;
-					$data['OptionalLink']['blog_content_id'] = $model->data['OptionalLink']['blog_content_id'];
-					$data['OptionalLink']['name'] = $model->data['OptionalLink']['name'];
-					$data['OptionalLink']['blank'] = $model->data['OptionalLink']['blank'];
-					$data['OptionalLink']['status'] = $model->data['OptionalLink']['status'];
 				} else {
 					// ブログ記事追加の場合
 					$data['OptionalLink']['blog_post_id'] = $contentId;
@@ -212,11 +209,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 					));
 					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
 					if ($_data) {
+						$data['OptionalLink'] = $_data['OptionalLink'];
 						$data['OptionalLink']['blog_post_id'] = $contentId;
-						$data['OptionalLink']['blog_content_id'] = $_data['OptionalLink']['blog_content_id'];
-						$data['OptionalLink']['name'] = $_data['OptionalLink']['name'];
-						$data['OptionalLink']['blank'] = $_data['OptionalLink']['blank'];
-						$data['OptionalLink']['status'] = $_data['OptionalLink']['status'];
 					} else {
 						$data['OptionalLink']['blog_post_id'] = $contentId;
 						$data['OptionalLink']['blog_content_id'] = $params['pass'][0];
@@ -249,8 +243,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 					));
 					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
 					if ($_data) {
+						$data['OptionalLinkConfig'] = $_data['OptionalLinkConfig'];
 						$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
-						$data['OptionalLinkConfig']['status'] = $_data['OptionalLinkConfig']['status'];
 					} else {
 						$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
 						$data['OptionalLinkConfig']['status'] = true;
