@@ -19,6 +19,7 @@ class OptionalLinksSchema extends CakeSchema {
 		'name' => array('type' => 'string', 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
 		'blank' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'status' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
+		'nolink' => array('type' => 'boolean', 'null' => false, 'default' => '0'),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'indexes' => array(

@@ -15,6 +15,30 @@
 <?php endif ?>
 
 <?php if($this->request->data['OptionalLinkConfig']['status']): ?>
+<script type="text/javascript">
+$(function () {
+	optionalLinkValueChengeHandler();
+	$('#OptionalLinkNolink').click(function () {
+		optionalLinkValueChengeHandler();
+	});
+
+	function optionalLinkValueChengeHandler() {
+		judge = $('#OptionalLinkNolink').prop('checked');
+		if (judge) {
+			$('#OptionalLinkName').attr('disabled', true);
+			$('#OptionalLinkName').css('background-color', '#CCC');
+			$('#OptionalLinkBlank').attr('disabled', true);
+			$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
+		} else {
+			$('#OptionalLinkName').attr('disabled', false);
+			$('#OptionalLinkName').css('background-color', '');
+			$('#OptionalLinkBlank').attr('disabled', false);
+			$('label[for="OptionalLinkBlank"]').css('color', '');
+		}
+	}
+});
+</script>
+
 <div id="OptionalLinkTable">
 <table cellpadding="0" cellspacing="0" class="form-table section">
 	<tr>
@@ -48,6 +72,8 @@
 					<li>「/files/〜」（アップローダでの管理ファイル）から記述した場合、リンクにプレフィックスがつかなくなりスマホ、モバイルでも共通のリンク指定となります。</li>
 				</ul>
 			</div>
+			<?php echo $this->BcForm->input('OptionalLink.nolink', array('type' => 'checkbox', 'label' => 'リンクなし')) ?>
+			<?php echo $this->BcForm->error('OptionalLink.nolink') ?>
 		</td>
 	</tr>
 </table>
@@ -56,4 +82,5 @@
 	<?php echo $this->BcForm->input('OptionalLink.status', array('type' => 'hidden')) ?>
 	<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'hidden')) ?>
 	<?php echo $this->BcForm->input('OptionalLink.blank', array('type' => 'hidden')) ?>
+	<?php echo $this->BcForm->input('OptionalLink.nolink', array('type' => 'hidden')) ?>
 <?php endif ?>

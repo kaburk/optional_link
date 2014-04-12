@@ -251,21 +251,32 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	private function _rewriteUrl($html, $out) {
 		if ($this->optionalLink) {
-			$link = $this->optionalLink['OptionalLink']['name'];
-			if ($link) {
-				// /files〜 の場合はドメインを付与して絶対指定扱いにする
-				$regexFiles = '/^\/files\/.+/';
-				if (preg_match($regexFiles, $link)) {
-					// /lib/Baser/basics.php
-					$link = topLevelUrl(false) . $link;
-					//$link = Configure::read('BcEnv.siteUrl') . $link;
+			if (!$this->optionalLink['OptionalLink']['nolink']) {
+				$link = $this->optionalLink['OptionalLink']['name'];
+				if ($link) {
+					// /files〜 の場合はドメインを付与して絶対指定扱いにする
+					$regexFiles = '/^\/files\/.+/';
+					if (preg_match($regexFiles, $link)) {
+						// /lib/Baser/basics.php
+						$link = topLevelUrl(false) . $link;
+						//$link = Configure::read('BcEnv.siteUrl') . $link;
+					}
+
+					// <a href="/URL">TEXT</a>
+					//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+					$regex = '/href=\"(.+?)\"/';
+					$replacement = 'href="'. $link .'"';
+					$out = preg_replace($regex, $replacement, $out);
 				}
-				
-				// <a href="/URL">TEXT</a>
-				//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-				$regex = '/href=\"(.+?)\"/';
-				$replacement = 'href="'. $link .'"';
-				$out = preg_replace($regex, $replacement, $out);
+			} else {
+				// リンクしない場合は文字列に置換する
+				// 例：<a href="/news/archives/2>(.)</a>
+				// \<a\ (.+)\>(.+)\<\/a\>
+				$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
+				preg_match($regex, $out, $matches);
+				if ($matches[1]) {
+					$out = $matches[1];
+				}
 			}
 		}
 		return $out;
