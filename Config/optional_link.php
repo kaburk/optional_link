@@ -9,6 +9,7 @@
 /**
  * システムナビ
  */
+if (BcUtil::isAdminUser()) {
 $config['BcApp.adminNavi.optional_link'] = array(
 		'name'		=> 'オプショナルリンク プラグイン',
 		'contents'	=> array(
@@ -35,3 +36,4 @@ $config['BcApp.adminNavi.optional_link'] = array(
 			)
 	)
 );
+}
