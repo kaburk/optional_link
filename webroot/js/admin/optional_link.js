@@ -7,16 +7,24 @@ $(function () {
 	if (optionalLinkStatusVal != 1) {
 		optionalLinkStatusChangeHandler();
 	}
+	var judge = $('#OptionalLinkNolink').prop('checked');
+	if (judge) {
+		optionalLinkNolinkChengeHandler();
+	}
+	
 	// status の切り替えイベント
 	$("input[name='data[OptionalLink][status]']").click(function () {
 		var optionalLinkStatusVal = $("input[name='data[OptionalLink][status]']:checked").val();
 		if (optionalLinkStatusVal != 1) {
 			optionalLinkStatusChangeHandler();
 		} else {
-			$('#OptionalLinkName').attr('disabled', false);
-			$('#OptionalLinkName').css('background-color', '');
-			$('#OptionalLinkBlank').attr('disabled', false);
-			$('label[for="OptionalLinkBlank"]').css('color', '');
+			var judge = $('#OptionalLinkNolink').prop('checked');
+			if (!judge) {
+				$('#OptionalLinkName').attr('disabled', false);
+				$('#OptionalLinkName').css('background-color', '');
+				$('#OptionalLinkBlank').attr('disabled', false);
+				$('label[for="OptionalLinkBlank"]').css('color', '');
+			}
 			$('#OptionalLinkNolink').attr('disabled', false);
 			$('label[for="OptionalLinkNolink"]').css('color', '');
 			$("#OptionalLinkName").focus();
@@ -26,7 +34,15 @@ $(function () {
 	$('#OptionalLinkNolink').click(function () {
 		var optionalLinkStatusVal = $("input[name='data[OptionalLink][status]']:checked").val();
 		if (optionalLinkStatusVal == 1) {
-			optionalLinkValueChengeHandler();
+			var judge = $('#OptionalLinkNolink').prop('checked');
+			if (judge) {
+				optionalLinkNolinkChengeHandler();
+			} else {
+				$('#OptionalLinkName').attr('disabled', false);
+				$('#OptionalLinkName').css('background-color', '');
+				$('#OptionalLinkBlank').attr('disabled', false);
+				$('label[for="OptionalLinkBlank"]').css('color', '');
+			}
 		}
 	});
 	
@@ -40,18 +56,10 @@ $(function () {
 		$('label[for="OptionalLinkNolink"]').css('color', '#CCC');
 	}
 	// nolink 値による切り替え動作
-	function optionalLinkValueChengeHandler() {		
-		var judge = $('#OptionalLinkNolink').prop('checked');
-		if (judge) {
-			$('#OptionalLinkName').attr('disabled', true);
-			$('#OptionalLinkName').css('background-color', '#CCC');
-			$('#OptionalLinkBlank').attr('disabled', true);
-			$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
-		} else {
-			$('#OptionalLinkName').attr('disabled', false);
-			$('#OptionalLinkName').css('background-color', '');
-			$('#OptionalLinkBlank').attr('disabled', false);
-			$('label[for="OptionalLinkBlank"]').css('color', '');
-		}
+	function optionalLinkNolinkChengeHandler() {
+		$('#OptionalLinkName').attr('disabled', true);
+		$('#OptionalLinkName').css('background-color', '#CCC');
+		$('#OptionalLinkBlank').attr('disabled', true);
+		$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
 	}
 });
