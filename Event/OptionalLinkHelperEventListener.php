@@ -15,9 +15,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public $events = array(
 		'Form.afterCreate',
 		'Html.beforeGetLink',
-		'Blog.Html.beforeGetLink',
-		'Html.afterGetLink',
-		'Blog.Html.afterGetLink'
+		'Html.afterGetLink'
 	);
 	
 /**
@@ -102,17 +100,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return string
  */
 	public function htmlBeforeGetLink(CakeEvent $event) {
-		$this->_judgeRewriteUrl($event);
-		return $event->data['options'];
-	}
-	
-/**
- * blogHtmlBeforeGetLink
- * 
- * @param CakeEvent $event
- * @return string
- */
-	public function blogHtmlBeforeGetLink(CakeEvent $event) {
 		$this->_judgeRewriteUrl($event);
 		return $event->data['options'];
 	}
@@ -221,20 +208,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return string
  */
 	public function htmlAfterGetLink(CakeEvent $event) {
-		$html = $event->subject();
-		if ($this->judgeBlogArchivesUrl) {
-			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out']);
-		}
-		return $event->data['out'];
-	}
-	
-/**
- * blogHtmlAfterGetLink
- * 
- * @param CakeEvent $event
- * @return string
- */
-	public function blogHtmlAfterGetLink(CakeEvent $event) {
 		$html = $event->subject();
 		if ($this->judgeBlogArchivesUrl) {
 			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out']);
