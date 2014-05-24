@@ -134,6 +134,11 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  */
 	public function blogBlogContentsBeforeRender(CakeEvent $event) {
 		$controller = $event->subject();
+		// ブログ設定編集
+		if ($controller->request->params['action'] == 'admin_edit') {
+			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
+			$controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
+		}
 		// ブログ追加画面に設定情報を送る
 		if ($controller->action == 'admin_add') {
 			$defalut = $this->OptionalLinkConfigModel->getDefaultValue();
