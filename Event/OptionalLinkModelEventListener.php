@@ -17,7 +17,6 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		'Blog.BlogPost.afterSave',
 		'Blog.BlogPost.afterDelete',
 		'Blog.BlogPost.beforeFind',
-		'Blog.BlogContent.beforeValidate',
 		'Blog.BlogContent.afterSave',
 		'Blog.BlogContent.afterDelete',
 		'Blog.BlogContent.beforeFind'
@@ -102,19 +101,6 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		// TODO saveAll() ではbeforeValidateが効かない？
 		$this->OptionalLink->set($model->data);
 		return $this->OptionalLink->validates();
-	}
-	
-/**
- * blogBlogContentBeforeValidate
- * 
- * @param CakeEvent $event
- * @return boolean
- */
-	public function blogBlogContentBeforeValidate(CakeEvent $event) {
-		$model = $event->subject();
-		// ブログ設定保存の手前で OptionalLinkConfig モデルのデータに対して validation を行う
-		$this->OptionalLinkConfig->set($model->data);
-		return $this->OptionalLinkConfig->validates();
 	}
 	
 /**
@@ -229,8 +215,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 				)));
 			}
 			if ($params['action'] != 'admin_ajax_copy') {
+				$data['OptionalLinkConfig'] = $model->data['OptionalLinkConfig'];
 				$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
-				$data['OptionalLinkConfig']['status'] = $this->OptionalLinkConfig->data['OptionalLinkConfig']['status'];
 			} else {
 				// Ajaxコピー処理時に実行
 				// ブログコピー保存時にエラーがなければ保存処理を実行
