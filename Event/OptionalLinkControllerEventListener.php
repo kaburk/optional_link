@@ -68,7 +68,12 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 			}
 			// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
 			if (!empty($controller->BlogContent->id)) {
-				$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
+				$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
+					'conditions' => array(
+						'OptionalLinkConfig.blog_content_id' => $controller->BlogContent->id
+					),
+					'recursive' => -1
+				));
 				$this->OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
 			}
 		}
@@ -87,7 +92,12 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 			} else {
 				$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
 			}
-			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
+			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
+				'conditions' => array(
+					'OptionalLinkConfig.blog_content_id' => $controller->BlogContent->id
+				),
+				'recursive' => -1
+			));
 		}
 	}
 	
@@ -136,7 +146,12 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 		$controller = $event->subject();
 		// ブログ設定編集
 		if ($controller->request->params['action'] == 'admin_edit') {
-			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $controller->BlogContent->id);
+			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
+				'conditions' => array(
+					'OptionalLinkConfig.blog_content_id' => $controller->BlogContent->id
+				),
+				'recursive' => -1
+			));
 			$controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
 		}
 		// ブログ追加画面に設定情報を送る
