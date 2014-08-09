@@ -30,8 +30,8 @@
 					array('escape' => false, 'class' => 'btn-direction')) ?>
 			</th>
 			<th><?php echo $this->Paginator->sort('blank', array(
-					'asc' => $this->BcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' 別窓指定',
-					'desc' => $this->BcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' 別窓指定'),
+					'asc' => $this->BcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' 別ウィンドウ（タブ）指定',
+					'desc' => $this->BcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' 別ウィンドウ（タブ）指定'),
 					array('escape' => false, 'class' => 'btn-direction')) ?>
 			</th>
 			<th><?php echo $this->Paginator->sort('created', array(

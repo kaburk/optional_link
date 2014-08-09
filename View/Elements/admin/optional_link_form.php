@@ -39,7 +39,7 @@
 			<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'text', 'size' => 68, 'maxlength' => 255, 'counter' => true)) ?>
 			<?php echo $this->BcForm->error('OptionalLink.name') ?>
 			<br />
-			<?php echo $this->BcForm->input('OptionalLink.blank', array('type' => 'checkbox', 'label' => '別窓で開く')) ?>
+			<?php echo $this->BcForm->input('OptionalLink.blank', array('type' => 'checkbox', 'label' => '別ウィンドウ（タブ）で開く')) ?>
 			<?php echo $this->BcForm->error('OptionalLink.blank') ?>
 			<?php echo $this->BcBaser->img('admin/icn_help.png', array('id' => 'helpOptionalLinkName', 'class' => 'btn help', 'alt' => 'ヘルプ')) ?>
 			<div id="helptextOptionalLinkName" class="helptext">
