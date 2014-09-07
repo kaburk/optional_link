@@ -130,6 +130,25 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 	}
 	
 /**
+ * blogBlogPostAfterDelete
+ * 
+ * @param CakeEvent $event
+ */
+	public function blogBlogPostAfterDelete(CakeEvent $event) {
+		$Model = $event->subject();
+		// ブログ記事削除時、そのブログ記事が持つOptionalLinkを削除する
+		$data = $this->OptionalLink->find('first', array(
+			'conditions' => array('OptionalLink.blog_post_id' => $Model->id),
+			'recursive' => -1
+		));
+		if ($data) {
+			if (!$this->OptionalLink->delete($data['OptionalLink']['id'])) {
+				$this->log('ID:' . $data['OptionalLink']['id'] . 'のOptionalLinkの削除に失敗しました。');
+			}
+		}
+	}
+	
+/**
  * blogBlogContentAfterSave
  * 
  * @param CakeEvent $event
@@ -154,6 +173,25 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 			$this->log(sprintf('ID：%s のオプショナルリンク設定の保存に失敗しました。', $Model->data['OptionalLinkConfig']['id']));
 		}
 		
+	}
+	
+/**
+ * blogBlogContentAfterDelete
+ * 
+ * @param CakeEvent $event
+ */
+	public function blogBlogContentAfterDelete(CakeEvent $event) {
+		$Model = $event->subject();
+		// ブログ削除時、そのブログが持つOptionalLink設定を削除する
+		$data = $this->OptionalLinkConfig->find('first', array(
+			'conditions' => array('OptionalLinkConfig.blog_content_id' => $Model->id),
+			'recursive' => -1
+		));
+		if ($data) {
+			if (!$this->OptionalLinkConfig->delete($data['OptionalLinkConfig']['id'])) {
+				$this->log('ID:' . $data['OptionalLinkConfig']['id'] . 'のOptionalLink設定の削除に失敗しました。');
+			}
+		}
 	}
 	
 /**
@@ -240,44 +278,6 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		}
 		
 		return $data;
-	}
-	
-/**
- * blogBlogPostAfterDelete
- * 
- * @param CakeEvent $event
- */
-	public function blogBlogPostAfterDelete(CakeEvent $event) {
-		$Model = $event->subject();
-		// ブログ記事削除時、そのブログ記事が持つOptionalLinkを削除する
-		$data = $this->OptionalLink->find('first', array(
-			'conditions' => array('OptionalLink.blog_post_id' => $Model->id),
-			'recursive' => -1
-		));
-		if ($data) {
-			if (!$this->OptionalLink->delete($data['OptionalLink']['id'])) {
-				$this->log('ID:' . $data['OptionalLink']['id'] . 'のOptionalLinkの削除に失敗しました。');
-			}
-		}
-	}
-	
-/**
- * blogBlogContentAfterDelete
- * 
- * @param CakeEvent $event
- */
-	public function blogBlogContentAfterDelete(CakeEvent $event) {
-		$Model = $event->subject();
-		// ブログ削除時、そのブログが持つOptionalLink設定を削除する
-		$data = $this->OptionalLinkConfig->find('first', array(
-			'conditions' => array('OptionalLinkConfig.blog_content_id' => $Model->id),
-			'recursive' => -1
-		));
-		if ($data) {
-			if (!$this->OptionalLinkConfig->delete($data['OptionalLinkConfig']['id'])) {
-				$this->log('ID:' . $data['OptionalLinkConfig']['id'] . 'のOptionalLink設定の削除に失敗しました。');
-			}
-		}
 	}
 	
 }
