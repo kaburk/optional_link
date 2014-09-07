@@ -202,77 +202,113 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
  * @return array
  */
 	private function _generateSaveData($Model, $contentId = '') {
-		
+		$params = Router::getParams();
+		$data = array();
+		$modelId = $oldModelId = null;
 		if ($Model->alias == 'BlogPost') {
-			$params = Router::getParams();
-			$data = array();
-			
-			if ($contentId) {
-				$data = $this->OptionalLink->find('first', array('conditions' => array(
-					'OptionalLink.blog_post_id' => $contentId
-				)));
+			$modelId = $contentId;
+			if(!empty($params['pass'][1])) {
+				$oldModelId = $params['pass'][1];
 			}
-			if ($params['action'] != 'admin_ajax_copy') {
-				if(!empty($Model->data['OptionalLink'])) {
-					$data['OptionalLink'] = $Model->data['OptionalLink'];
-					$data['OptionalLink']['blog_post_id'] = $contentId;
-				} else {
-					// ブログ記事追加の場合
-					$data['OptionalLink']['blog_post_id'] = $contentId;
-					$data['OptionalLink']['blog_content_id'] = $Model->BlogContent->id;
-				}
+		}
+		
+		if ($contentId) {
+			$data = $this->OptionalLink->find('first', array(
+				'conditions' => array('OptionalLink.blog_post_id' => $contentId),
+				'recursive' => -1
+			));
+		}
+		
+		if ($params['action'] != 'admin_ajax_copy') {
+			if ($data) {
+				// 編集時
+				$data['OptionalLink'] = array_merge($data['OptionalLink'], $Model->data['OptionalLink']);
 			} else {
-				// Ajaxコピー処理時に実行
-				// ブログコピー保存時にエラーがなければ保存処理を実行
-				if (empty($Model->validationErrors)) {
+				// 追加時
+				$data['OptionalLink'] = $Model->data['OptionalLink'];
+				$data['OptionalLink']['blog_post_id'] = $contentId;
+				$data['OptionalLink']['blog_content_id'] = $Model->BlogContent->id;
+			}
+		} else {
+			// Ajaxコピー処理時に実行
+			// ブログコピー保存時にエラーがなければ保存処理を実行
+			if (empty($Model->validationErrors)) {
+				$_data = array();
+				if ($oldModelId) {
 					$_data = $this->OptionalLink->find('first', array(
-						'conditions' => array(
-							'OptionalLink.blog_post_id' => $params['pass'][1]
-						),
+						'conditions' => array('OptionalLink.blog_post_id' => $oldModelId),
 						'recursive' => -1
 					));
-					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
-					if ($_data) {
-						$data['OptionalLink'] = $_data['OptionalLink'];
-						$data['OptionalLink']['blog_post_id'] = $contentId;
-					} else {
-						$data['OptionalLink']['blog_post_id'] = $contentId;
-						$data['OptionalLink']['blog_content_id'] = $params['pass'][0];
-					}
+				}
+				// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
+				if ($_data) {
+					// コピー元データがある時
+					$data['OptionalLink'] = $_data['OptionalLink'];
+					$data['OptionalLink']['blog_post_id'] = $contentId;
+					unset($data['OptionalLink']['id']);
+				} else {
+					// コピー元データがない時
+					$data['OptionalLink']['blog_post_id'] = $modelId;
+					$data['OptionalLink']['blog_content_id'] = $params['pass'][0];
 				}
 			}
 		}
 		
-		if ($model->alias == 'BlogContent') {
-			$params = Router::getParams();
-			$data = array();
-			
-			if ($contentId) {
-				$data = $this->OptionalLinkConfig->find('first', array('conditions' => array(
-					'OptionalLinkConfig.blog_content_id' => $contentId
-				)));
+		return $data;
+	}
+	
+/**
+ * 保存するデータの生成
+ * 
+ * @param Object $Model
+ * @param int $contentId
+ * @return array
+ */
+	private function _generateContentSaveData($Model, $contentId = '') {
+		$params = Router::getParams();
+		$data = array();
+		if ($Model->alias == 'BlogContent') {
+			$modelId = $contentId;
+			if (isset($params['pass'][0])) {
+				$oldModelId = $params['pass'][0];
 			}
-			if ($params['action'] != 'admin_ajax_copy') {
-				$data['OptionalLinkConfig'] = $model->data['OptionalLinkConfig'];
-				$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
+		}
+		
+		if ($contentId) {
+			$data = $this->OptionalLinkConfig->find('first', array(
+				'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId)
+			));
+		}
+		
+		if ($params['action'] != 'admin_ajax_copy') {
+			if ($data) {
+				// 編集時
+				$data['OptionalLinkConfig'] = array_merge($data['OptionalLinkConfig'], $Model->data['OptionalLinkConfig']);
 			} else {
-				// Ajaxコピー処理時に実行
-				// ブログコピー保存時にエラーがなければ保存処理を実行
-				if (empty($model->validationErrors)) {
-					$_data = $this->OptionalLinkConfig->find('first', array(
-						'conditions' => array(
-							'OptionalLinkConfig.blog_content_id' => $params['pass']['0']
-						),
-						'recursive' => -1
-					));
-					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
-					if ($_data) {
-						$data['OptionalLinkConfig'] = $_data['OptionalLinkConfig'];
-						$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
-					} else {
-						$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
-						$data['OptionalLinkConfig']['status'] = true;
-					}
+				// 追加時
+				if (!empty($Model->data['OptionalLinkConfig'])) {
+					$data['OptionalLinkConfig'] = $Model->data['OptionalLinkConfig'];
+				}
+				$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
+			}
+		} else {
+			// Ajaxコピー処理時に実行
+			// ブログコピー保存時にエラーがなければ保存処理を実行
+			if (empty($Model->validationErrors)) {
+				$_data = $this->OptionalLinkConfig->find('first', array(
+					'conditions' => array('OptionalLinkConfig.blog_content_id' => $oldModelId),
+					'recursive' => -1
+				));
+				// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
+				if ($_data) {
+					// コピー元データがある時
+					$data = Hash::merge($data, $_data);
+					$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
+					unset($data['OptionalLinkConfig']['id']);
+				} else {
+					// コピー元データがない時
+					$data['OptionalLinkConfig']['blog_content_id'] = $modelId;
+					$data['OptionalLinkConfig']['status'] = true;
 				}
 			}
 		}
