@@ -20,12 +20,12 @@ $(function () {
 		} else {
 			var judge = $('#OptionalLinkNolink').prop('checked');
 			if (!judge) {
-				$('#OptionalLinkName').attr('disabled', false);
+				$('#OptionalLinkName').attr('readonly', false);
 				$('#OptionalLinkName').css('background-color', '');
 				$('#OptionalLinkBlank').attr('disabled', false);
 				$('label[for="OptionalLinkBlank"]').css('color', '');
 			}
-			$('#OptionalLinkNolink').attr('disabled', false);
+			$('#OptionalLinkNolink').attr('readonly', false);
 			$('label[for="OptionalLinkNolink"]').css('color', '');
 			$("#OptionalLinkName").focus();
 		}
@@ -38,7 +38,7 @@ $(function () {
 			if (judge) {
 				optionalLinkNolinkChengeHandler();
 			} else {
-				$('#OptionalLinkName').attr('disabled', false);
+				$('#OptionalLinkName').attr('readonly', false);
 				$('#OptionalLinkName').css('background-color', '');
 				$('#OptionalLinkBlank').attr('disabled', false);
 				$('label[for="OptionalLinkBlank"]').css('color', '');
@@ -48,7 +48,7 @@ $(function () {
 	
 	// status 値による切り替え動作
 	function optionalLinkStatusChangeHandler() {
-		$('#OptionalLinkName').attr('disabled', true);
+		$('#OptionalLinkName').attr('readonly', true);
 		$('#OptionalLinkName').css('background-color', '#CCC');
 		$('#OptionalLinkBlank').attr('disabled', true);
 		$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
@@ -57,7 +57,7 @@ $(function () {
 	}
 	// nolink 値による切り替え動作
 	function optionalLinkNolinkChengeHandler() {
-		$('#OptionalLinkName').attr('disabled', true);
+		$('#OptionalLinkName').attr('readonly', true);
 		$('#OptionalLinkName').css('background-color', '#CCC');
 		$('#OptionalLinkBlank').attr('disabled', true);
 		$('label[for="OptionalLinkBlank"]').css('color', '#CCC');
