@@ -25,7 +25,7 @@ $(function () {
 				$('#OptionalLinkBlank').attr('disabled', false);
 				$('label[for="OptionalLinkBlank"]').css('color', '');
 			}
-			$('#OptionalLinkNolink').attr('readonly', false);
+			$('#OptionalLinkNolink').attr('disabled', false);
 			$('label[for="OptionalLinkNolink"]').css('color', '');
 			$("#OptionalLinkName").focus();
 		}
