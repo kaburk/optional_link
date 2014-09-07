@@ -23,7 +23,7 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
  * 
  * @var array
  */
-	public $uses = array('OptionalLink.OptionalLinkConfig');
+	public $uses = array('OptionalLink.OptionalLinkConfig', 'OptionalLink.OptionalLink');
 	
 /**
  * ぱんくずナビ
