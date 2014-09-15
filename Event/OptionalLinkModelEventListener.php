@@ -37,6 +37,13 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 	public $OptionalLinkConfig = null;
 	
 /**
+ * ブログ記事多重保存の判定
+ * 
+ * @var boolean
+ */
+	public $throwBlogPost = false;
+	
+/**
  * Construct
  * 
  */
@@ -117,16 +124,23 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 			$contentId = $Model->data[$Model->alias]['id'];
 		}
 		$saveData = $this->_generateSaveData($Model, $contentId);
-		if (isset($saveData['OptionalLink']['id'])) {
-			// ブログ記事編集保存時に設定情報を保存する
-			$this->OptionalLink->set($saveData);
-		} else {
-			// ブログ記事追加時に設定情報を保存する
-			$this->OptionalLink->create($saveData);
+		// 2周目では保存処理に渡らないようにしている
+		if (!$this->throwBlogPost) {
+			if (isset($saveData['OptionalLink']['id'])) {
+				// ブログ記事編集保存時に設定情報を保存する
+				$this->OptionalLink->set($saveData);
+			} else {
+				// ブログ記事追加時に設定情報を保存する
+				$this->OptionalLink->create($saveData);
+			}
+			if (!$this->OptionalLink->save()) {
+				$this->log(sprintf('ID：%s のオプショナルリンクの保存に失敗しました。', $Model->data['OptionalLink']['id']));
+			}
 		}
-		if (!$this->OptionalLink->save()) {
-			$this->log(sprintf('ID：%s のオプショナルリンクの保存に失敗しました。', $Model->data['OptionalLink']['id']));
-		}
+		
+		// ブログ記事コピー保存時、アイキャッチが入っていると処理が2重に行われるため、1周目で処理通過を判定し、
+		// 2周目では保存処理に渡らないようにしている
+		$this->throwBlogPost = true;
 	}
 	
 /**
