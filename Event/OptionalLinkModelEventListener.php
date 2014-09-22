@@ -123,7 +123,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		} else {
 			$contentId = $Model->data[$Model->alias]['id'];
 		}
-		$saveData = $this->_generateSaveData($Model, $contentId);
+		$saveData = $this->generateSaveData($Model, $contentId);
 		// 2周目では保存処理に渡らないようにしている
 		if (!$this->throwBlogPost) {
 			if (isset($saveData['OptionalLink']['id'])) {
@@ -175,7 +175,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		} else {
 			$contentId = $Model->data[$Model->alias]['id'];
 		}
-		$saveData = $this->_generateContentSaveData($Model, $contentId);
+		$saveData = $this->generateContentSaveData($Model, $contentId);
 		if (isset($saveData['OptionalLinkConfig']['id'])) {
 			// ブログ設定編集保存時に設定情報を保存する
 			$this->OptionalLinkConfig->set($saveData);
@@ -215,7 +215,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
  * @param int $contentId
  * @return array
  */
-	private function _generateSaveData($Model, $contentId = '') {
+	public function generateSaveData($Model, $contentId = '') {
 		$params = Router::getParams();
 		$data = array();
 		$modelId = $oldModelId = null;
@@ -278,7 +278,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
  * @param int $contentId
  * @return array
  */
-	private function _generateContentSaveData($Model, $contentId = '') {
+	public function generateContentSaveData($Model, $contentId = '') {
 		$params = Router::getParams();
 		$data = array();
 		if ($Model->alias == 'BlogContent') {
