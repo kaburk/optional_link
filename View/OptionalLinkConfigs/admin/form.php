@@ -15,7 +15,17 @@
 	<?php echo $this->BcForm->create('OptionalLinkConfig', array('url' => array('action' => 'add'))) ?>
 <?php endif ?>
 
-<h2><?php echo $blogContentDatas[$this->request->data['OptionalLinkConfig']['blog_content_id']] ?></h2>
+<h2>
+<?php $this->BcBaser->link($blogContentDatas[$this->request->data['OptionalLinkConfig']['blog_content_id']] .' ブログ設定編集はこちら', array(
+	'admin' => true, 'plugin' => 'blog', 'controller' => 'blog_contents',
+	'action' => 'edit', $this->request->data['OptionalLinkConfig']['blog_content_id']
+)) ?>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<?php $this->BcBaser->link('≫記事一覧こちら', array(
+	'admin' => true, 'plugin' => 'blog', 'controller' => 'blog_posts',
+	'action' => 'index', $this->request->data['OptionalLinkConfig']['blog_content_id']
+)) ?>
+</h2>
 
 <div id="OptionalLinkConfigConfigTable">
 <table cellpadding="0" cellspacing="0" class="form-table section">

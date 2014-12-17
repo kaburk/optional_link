@@ -14,9 +14,17 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public $events = array(
 		'Form.afterCreate',
+		'Form.afterEnd',
 		'Html.beforeGetLink',
 		'Html.afterGetLink'
 	);
+	
+/**
+ * オプショナルリンク設定
+ * 
+ * @var array
+ */
+	public $optionalLinkConfigs = array();
 	
 /**
  * 判定するURL
@@ -62,35 +70,69 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	public $judgeControllers = array('BlogPosts', 'BlogContents');
 	
 /**
- * blogFormAfterCreate
+ * formAfterCreate
+ * - ブログ記事追加・編集画面に編集欄を追加する
+ * 
+ */
+	public function formAfterCreate(CakeEvent $event) {
+		$Form = $event->subject();
+		if ($Form->request->params['controller'] == 'blog_posts') {
+			if ($Form->request->params['action'] == 'admin_edit' || $Form->request->params['action'] == 'admin_add') {
+				// ブログ記事追加・編集画面に編集欄を追加する
+				if ($event->data['id'] == 'BlogPostForm') {
+					$event->data['out'] = $event->data['out'] . $Form->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
+					return $event->data['out'];
+				}
+			}
+		}
+		return $event->data['out'];
+	}
+	
+/**
+ * blogFormAfterEnd
+ * - ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
  * 
  * @param CakeEvent $event
  * @return string
  */
-	public function formAfterCreate(CakeEvent $event) {
-		$form = $event->subject();
-		
-		if (in_array($form->name, $this->judgeControllers)) {
-			if ($form->request->params['action'] == 'admin_edit' || $form->request->params['action'] == 'admin_add') {
-				// ブログ記事追加画面に編集欄を追加する
-				if ($event->data['id'] == 'BlogPostForm') {
-					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
-					return $event->data['out'];
-				}
-				
-				// ブログ設定編集画面に設定欄を表示する
+	public function formAfterEnd(CakeEvent $event) {
+		$Form = $event->subject();
+		if ($Form->request->params['controller'] == 'blog_contents') {
+			if ($Form->request->params['action'] == 'admin_edit') {
+				// ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
 				if ($event->data['id'] == 'BlogContentAdminEditForm') {
-					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
+					$this->modelInitializer($Form);
+					$output = $Form->BcBaser->link('≫オプショナルリンク設定', array(
+						'plugin' => 'optional_link',
+						'controller' => 'optional_link_configs',
+						'action' => 'edit', $this->optionalLinkConfigs['OptionalLinkConfig']['id']
+					));
+					$event->data['out'] = $event->data['out'] . $output;
 					return $event->data['out'];
-				}
-				if ($event->data['id'] == 'BlogContentAdminAddForm') {
-					$event->data['out'] = $event->data['out'] . $form->element('OptionalLink.optional_link_config_form');
-					return  $event->data['out'];
 				}
 			}
 		}
-		
 		return $event->data['out'];
+	}
+	
+/**
+ * モデル登録用メソッド
+ * 
+ * @param View $View
+ */
+	public function modelInitializer($View) {
+		if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
+			$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
+		} else {
+			$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
+		}
+		//$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $View->Blog->blogContent['id']);
+		$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
+			'conditions' => array(
+				'OptionalLinkConfig.blog_content_id' => $View->Blog->blogContent['id'],
+			),
+			'recursive' => -1,
+		));
 	}
 	
 /**

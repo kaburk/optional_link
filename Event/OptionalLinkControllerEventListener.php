@@ -18,7 +18,6 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 		'Blog.Blog.startup',
 		'Blog.Blog.beforeRender',
 		'Blog.BlogPosts.beforeRender',
-		'Blog.BlogContents.beforeRender'
 	);
 	
 /**
@@ -134,30 +133,6 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 			$defalut = $this->OptionalLinkModel->getDefaultValue();
 			$controller->request->data['OptionalLink'] = $defalut['OptionalLink'];
 			$controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
-		}
-	}
-	
-/**
- * blogBlogContentsBeforeRender
- * 
- * @param CakeEvent $event
- */
-	public function blogBlogContentsBeforeRender(CakeEvent $event) {
-		$controller = $event->subject();
-		// ブログ設定編集
-		if ($controller->request->params['action'] == 'admin_edit') {
-			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
-				'conditions' => array(
-					'OptionalLinkConfig.blog_content_id' => $controller->BlogContent->id
-				),
-				'recursive' => -1
-			));
-			$controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
-		}
-		// ブログ追加画面に設定情報を送る
-		if ($controller->action == 'admin_add') {
-			$defalut = $this->OptionalLinkConfigModel->getDefaultValue();
-			$controller->request->data['OptionalLinkConfig'] = $defalut['OptionalLinkConfig'];
 		}
 	}
 	
