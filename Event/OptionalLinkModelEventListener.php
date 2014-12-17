@@ -172,21 +172,13 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		$created = $event->data[0];
 		if ($created) {
 			$contentId = $Model->getLastInsertId();
-		} else {
-			$contentId = $Model->data[$Model->alias]['id'];
-		}
-		$saveData = $this->generateContentSaveData($Model, $contentId);
-		if (isset($saveData['OptionalLinkConfig']['id'])) {
-			// ブログ設定編集保存時に設定情報を保存する
-			$this->OptionalLinkConfig->set($saveData);
-		} else {
-			// ブログ追加時に設定情報を保存する
+			$saveData = $this->generateContentSaveData($Model, $contentId);
+			// ブログ設定追加時に設定情報を保存する
 			$this->OptionalLinkConfig->create($saveData);
+			if (!$this->OptionalLinkConfig->save()) {
+				$this->log(sprintf('ID：%s のオプショナルリンク設定の保存に失敗しました。', $Model->data['OptionalLinkConfig']['id']));
+			}
 		}
-		if (!$this->OptionalLinkConfig->save()) {
-			$this->log(sprintf('ID：%s のオプショナルリンク設定の保存に失敗しました。', $Model->data['OptionalLinkConfig']['id']));
-		}
-		
 	}
 	
 /**
