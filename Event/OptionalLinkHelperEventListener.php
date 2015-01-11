@@ -249,12 +249,13 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 						$optionalLink = $this->optionalLink['OptionalLink'];
 						if ($optionalLink['file']) {
 							$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file']);
-							preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
-							$optionalLink['name'] = $match[1];
-							
+							$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
+							if ($result) {
+								$optionalLink['name'] = $match[1];
+								$event->data['options']['target'] = '_blank'; // 問答無用でblank
+							}
 						}
 						$this->optionalLink['OptionalLink'] = $optionalLink;
-						$event->data['options']['target'] = '_blank'; // 問答無用でblank
 					}
 				}
 			}
