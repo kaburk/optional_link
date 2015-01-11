@@ -75,12 +75,12 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * 
  */
 	public function formAfterCreate(CakeEvent $event) {
-		$Form = $event->subject();
-		if ($Form->request->params['controller'] == 'blog_posts') {
-			if ($Form->request->params['action'] == 'admin_edit' || $Form->request->params['action'] == 'admin_add') {
+		$View = $event->subject();
+		if ($View->request->params['controller'] == 'blog_posts') {
+			if ($View->request->params['action'] == 'admin_edit' || $View->request->params['action'] == 'admin_add') {
 				// ブログ記事追加・編集画面に編集欄を追加する
 				if ($event->data['id'] == 'BlogPostForm') {
-					$event->data['out'] = $event->data['out'] . $Form->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
+					$event->data['out'] = $event->data['out'] . $View->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
 					return $event->data['out'];
 				}
 			}
@@ -96,17 +96,19 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return string
  */
 	public function formAfterEnd(CakeEvent $event) {
-		$Form = $event->subject();
-		if ($Form->request->params['controller'] == 'blog_contents') {
-			if ($Form->request->params['action'] == 'admin_edit') {
+		$View = $event->subject();
+		if ($View->request->params['controller'] == 'blog_contents') {
+			if ($View->request->params['action'] == 'admin_edit') {
 				// ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
 				if ($event->data['id'] == 'BlogContentAdminEditForm') {
-					$this->modelInitializer($Form);
-					$output = $Form->BcBaser->link('≫オプショナルリンク設定', array(
+					$this->modelInitializer($View);
+					$output = '<div id="OptionalLinkConfigBox">';
+					$output .= $View->BcBaser->getLink('≫オプショナルリンク設定', array(
 						'plugin' => 'optional_link',
 						'controller' => 'optional_link_configs',
 						'action' => 'edit', $this->optionalLinkConfigs['OptionalLinkConfig']['id']
 					));
+					$output .= '</div>';
 					$event->data['out'] = $event->data['out'] . $output;
 					return $event->data['out'];
 				}
