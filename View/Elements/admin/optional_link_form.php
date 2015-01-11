@@ -17,7 +17,7 @@
 <?php if($this->request->data['OptionalLinkConfig']['status']): ?>
 <?php $this->BcBaser->js(array('OptionalLink.admin/optional_link'), array('inline' => true)) ?>
 <div id="OptionalLinkTable">
-<table cellpadding="0" cellspacing="0" class="form-table section">
+<table cellpadding="0" cellspacing="0" class="form-table section" style="margin-bottom: 10px;">
 	<tr>
 		<th class="col-head">
 			<?php echo $this->BcForm->label('OptionalLink.status', 'オプショナルリンク') ?>
@@ -25,12 +25,17 @@
 		<td class="col-input">
 			<?php echo $this->BcForm->input('OptionalLink.status', array(
 					'type'		=> 'radio',
-					'options'	=> $this->BcText->booleanDoList('利用'),
+					'options'	=> array(0 => '利用しない', 1 => 'URL', 2 => 'ファイル'),
 					'legend'	=> false,
+					'class'		=> 'optionallink-status',
 					'separator'	=> '&nbsp;&nbsp;')) ?>
 			<?php echo $this->BcForm->error('OptionalLink.status') ?>
 		</td>
 	</tr>
+</table>
+
+<div class="section">
+<table cellpadding="0" cellspacing="0" class="form-table section">
 	<tr>
 		<th class="col-head">
 			<?php echo $this->BcForm->label('OptionalLink.name', 'URL') ?>
@@ -54,7 +59,30 @@
 		</td>
 	</tr>
 </table>
-</div>
+<!-- /.section --></div>
+
+<div class="section">
+<table cellpadding="0" cellspacing="0" class="form-table section">
+	<tr>
+		<th class="col-head">
+			<?php echo $this->BcForm->label('OptionalLink.file', 'ファイル') ?>
+		</th>
+		<td class="col-input">
+			<?php echo $this->BcForm->file('OptionalLink.file') ?>
+			<?php echo $this->BcForm->error('OptionalLink.file') ?>
+
+			<?php echo $this->BcForm->label('OptionalLink.publish_begin', '公開期間指定') ?>
+			<?php echo $this->BcForm->dateTimePicker('OptionalLink.publish_begin', array('size' => 12, 'maxlength' => 10), true) ?>
+			&nbsp;〜&nbsp;
+			<?php echo $this->BcForm->dateTimePicker('OptionalLink.publish_end', array('size' => 12, 'maxlength' => 10),true) ?>
+			<?php echo $this->BcForm->error('OptionalLink.publish_begin') ?>
+			<?php echo $this->BcForm->error('OptionalLink.publish_end') ?>
+		</td>
+	</tr>
+</table>
+<!-- /.section --></div>
+
+<!-- /#OptionalLinkTable --></div>
 <?php else: ?>
 	<?php echo $this->BcForm->input('OptionalLink.status', array('type' => 'hidden')) ?>
 	<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'hidden')) ?>
