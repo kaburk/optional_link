@@ -12,7 +12,7 @@ class OptionalLinkHelper extends AppHelper {
  *
  * @var array
  */
-	public $helpers = array('Blog', 'Html');
+	public $helpers = array('BcBaser', 'Blog', 'BcUpload');
 	
 /**
  * 除外状態を取得する
@@ -81,6 +81,60 @@ class OptionalLinkHelper extends AppHelper {
 			}
 		}
 		return $str;
+	}
+	
+/**
+ * オプショナルリンクの設定を反映したブログ記事リンクを出力する
+ * - posts ビューで記事を取得する箇所で利用できる
+ * - 利用方法：$this->OptionalLink->getPostTitle($post)
+ * 
+ * @param array $post
+ * @param array $options
+ * @return string
+ */
+	public function getPostTitle($post = array(), $options = array()) {
+		$_options = array(
+			'link' => true,
+		);
+		$options = Hash::merge($_options, $options);
+		$url = '';
+		$this->Blog->setContent($post['BlogPost']['blog_content_id']);
+		
+		if ($options['link']) {
+			if (isset($post['OptionalLink']) && $post['OptionalLink']['status'] >= 1) {
+				
+				switch ($post['OptionalLink']['status']) {
+					case '1':
+						$url = topLevelUrl(false) . $post['OptionalLink']['name'];
+						if ($post['OptionalLink']['blank']) {
+							$options['target'] = '_blank';
+						}
+						if ($post['OptionalLink']['nolink']) {
+							return $post['BlogPost']['name'];
+						}
+						break;
+					
+					case '2':
+						$fileLink = $this->BcUpload->uploadImage('OptionalLink.file', $post['OptionalLink']['file']);
+						$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
+						if ($result) {
+							$post['OptionalLink']['name'] = $match[1];
+							$url = $post['OptionalLink']['name'];
+							$options['target'] = '_blank';
+						}
+						break;
+					
+					default:
+						break;
+				}
+			} else {
+				$url = array('admin' => false, 'plugin' => '', 'controller' => $this->Blog->blogContent['name'], 'action' => 'archives', $post['BlogPost']['no']);
+			}
+			
+			return $this->BcBaser->getLink($post['BlogPost']['name'], $url, $options);
+		} else {
+			return $post['BlogPost']['name'];
+		}
 	}
 	
 }
