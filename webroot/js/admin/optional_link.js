@@ -27,11 +27,10 @@ $(function () {
 
 			case '1':
 				$urlArea.slideDown();
-				//$fileArea.slideDown();
+				optionalLinkNolinkChengeHandler();
 				break;
 
 			case '2':
-				//$urlArea.slideDown();
 				$fileArea.slideDown();
 				break;
 		}
