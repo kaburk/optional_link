@@ -19,9 +19,9 @@ $this->Plugin->initDb('plugin', 'OptionalLink');
 		foreach ($blogContentDatas as $key => $blog) {
 			$optionalLinkConfigData = $OptionalLinkConfigModel->findByBlogContentId($key);
 			$savaData = array();
-			if(!$optionalLinkConfigData) {
+			if (!$optionalLinkConfigData) {
 				$savaData['OptionalLinkConfig']['blog_content_id'] = $key;
-				$savaData['OptionalLinkConfig']['status'] = true;
+				$savaData['OptionalLinkConfig']['status'] = 0;
 				$OptionalLinkConfigModel->create($savaData);
 				$OptionalLinkConfigModel->save($savaData, false);
 			}
@@ -42,7 +42,7 @@ $this->Plugin->initDb('plugin', 'OptionalLink');
 		foreach ($posts as $key => $post) {
 			$optionalLinkData = $OptionalLinkModel->findByBlogPostId($post['BlogPost']['id']);
 			$savaData = array();
-			if(!$optionalLinkData) {
+			if (!$optionalLinkData) {
 				$savaData['OptionalLink']['blog_post_id'] = $post['BlogPost']['id'];
 				$savaData['OptionalLink']['blog_content_id'] = $post['BlogPost']['blog_content_id'];
 				$OptionalLinkModel->create($savaData);
