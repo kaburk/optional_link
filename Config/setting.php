@@ -12,14 +12,7 @@
 $config['BcApp.adminNavi.optional_link'] = array(
 		'name'		=> 'オプショナルリンク プラグイン',
 		'contents'	=> array(
-			array('name' => 'オプショナルリンク一覧',
-				'url' => array(
-					'admin' => true,
-					'plugin' => 'optional_link',
-					'controller' => 'optional_links',
-					'action' => 'index')
-			),
-			array('name' => 'オプショナルリンク設定一覧',
+			array('name' => '設定一覧',
 				'url' => array(
 					'admin' => true,
 					'plugin' => 'optional_link',
