@@ -73,15 +73,18 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * formAfterCreate
  * - ブログ記事追加・編集画面に編集欄を追加する
  * 
+ * @param CakeEvent $event
  */
 	public function formAfterCreate(CakeEvent $event) {
 		$View = $event->subject();
-		if ($View->request->params['controller'] == 'blog_posts') {
-			if ($View->request->params['action'] == 'admin_edit' || $View->request->params['action'] == 'admin_add') {
-				// ブログ記事追加・編集画面に編集欄を追加する
-				if ($event->data['id'] == 'BlogPostForm') {
-					$event->data['out'] = $event->data['out'] . $View->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
-					return $event->data['out'];
+		if (BcUtil::isAdminSystem()) {
+			if ($View->request->params['controller'] == 'blog_posts') {
+				if ($View->request->params['action'] == 'admin_edit' || $View->request->params['action'] == 'admin_add') {
+					// ブログ記事追加・編集画面に編集欄を追加する
+					if ($event->data['id'] == 'BlogPostForm') {
+						$event->data['out'] = $event->data['out'] . $View->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
+						return $event->data['out'];
+					}
 				}
 			}
 		}
@@ -97,20 +100,22 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public function formAfterEnd(CakeEvent $event) {
 		$View = $event->subject();
-		if ($View->request->params['controller'] == 'blog_contents') {
-			if ($View->request->params['action'] == 'admin_edit') {
-				// ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
-				if ($event->data['id'] == 'BlogContentAdminEditForm') {
-					$this->modelInitializer($View);
-					$output = '<div id="OptionalLinkConfigBox">';
-					$output .= $View->BcBaser->getLink('≫オプショナルリンク設定', array(
-						'plugin' => 'optional_link',
-						'controller' => 'optional_link_configs',
-						'action' => 'edit', $this->optionalLinkConfigs['OptionalLinkConfig']['id']
-					));
-					$output .= '</div>';
-					$event->data['out'] = $event->data['out'] . $output;
-					return $event->data['out'];
+		if (BcUtil::isAdminSystem()) {
+			if ($View->request->params['controller'] == 'blog_contents') {
+				if ($View->request->params['action'] == 'admin_edit') {
+					// ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
+					if ($event->data['id'] == 'BlogContentAdminEditForm') {
+						$this->modelInitializer($View);
+						$output = '<div id="OptionalLinkConfigBox">';
+						$output .= $View->BcBaser->getLink('≫オプショナルリンク設定', array(
+							'plugin' => 'optional_link',
+							'controller' => 'optional_link_configs',
+							'action' => 'edit', $this->optionalLinkConfigs['OptionalLinkConfig']['id']
+						));
+						$output .= '</div>';
+						$event->data['out'] = $event->data['out'] . $output;
+						return $event->data['out'];
+					}
 				}
 			}
 		}
@@ -155,7 +160,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return
  */
 	private function _judgeRewriteUrl(CakeEvent $event) {
-		$html = $event->subject();
+		$View = $event->subject();
 		$this->judgeBlogArchivesUrl = false;
 		$this->judgeRewrite = false;
 		
@@ -239,6 +244,18 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 							$event->data['options']['target'] = '_blank';
 						}
 					}
+					// PDFの場合はnameにPDFへのURLを入れる - modify by gondoh
+					if ($post['OptionalLink']['status'] == '2') {
+						$optionalLink = $this->optionalLink['OptionalLink'];
+						if ($optionalLink['file']) {
+							$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file']);
+							preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
+							$optionalLink['name'] = $match[1];
+							
+						}
+						$this->optionalLink['OptionalLink'] = $optionalLink;
+						$event->data['options']['target'] = '_blank'; // 問答無用でblank
+					}
 				}
 			}
 			
@@ -252,9 +269,9 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return string
  */
 	public function htmlAfterGetLink(CakeEvent $event) {
-		$html = $event->subject();
+		$View = $event->subject();
 		if ($this->judgeBlogArchivesUrl) {
-			$event->data['out'] = $this->_rewriteUrl($html, $event->data['out']);
+			$event->data['out'] = $this->_rewriteUrl($View, $event->data['out']);
 		}
 		return $event->data['out'];
 	}
@@ -262,39 +279,67 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 /**
  * 出力されるHTMLのリンクを書き換える
  * 
- * @param Object $html
+ * @param Object $View
  * @param string $out
  * @return string
  */
-	private function _rewriteUrl($html, $out) {
+	private function _rewriteUrl($View, $out) {
 		if ($this->optionalLink) {
 			if ($this->optionalLink['OptionalLink']['status']) {
-				if (!$this->optionalLink['OptionalLink']['nolink']) {
-					$link = $this->optionalLink['OptionalLink']['name'];
-					if ($link) {
-						// /files〜 の場合はドメインを付与して絶対指定扱いにする
-						$regexFiles = '/^\/files\/.+/';
-						if (preg_match($regexFiles, $link)) {
-							// /lib/Baser/basics.php
-							$link = topLevelUrl(false) . $link;
-							//$link = Configure::read('BcEnv.siteUrl') . $link;
+				
+				switch ($this->optionalLink['OptionalLink']['status']) {
+					case '1':	// URLの場合
+						if (!$this->optionalLink['OptionalLink']['nolink']) {
+							$link = $this->optionalLink['OptionalLink']['name'];
+							if ($link) {
+								// /files〜 の場合はドメインを付与して絶対指定扱いにする
+								$regexFiles = '/^\/files\/.+/';
+								if (preg_match($regexFiles, $link)) {
+									// /lib/Baser/basics.php
+									$link = topLevelUrl(false) . $link;
+									//$link = Configure::read('BcEnv.siteUrl') . $link;
+								}
+								// <a href="/URL">TEXT</a>
+								//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+								$regex = '/href=\"(.+?)\"/';
+								$replacement = 'href="'. $link .'"';
+								$out = preg_replace($regex, $replacement, $out);
+							}
+						} else {
+							// リンクしない場合は文字列に置換する
+							// 例：<a href="/news/archives/2>(.)</a>
+							// \<a\ (.+)\>(.+)\<\/a\>
+							$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
+							preg_match($regex, $out, $matches);
+							if ($matches[1]) {
+								$out = $matches[1];
+							}
 						}
-						// <a href="/URL">TEXT</a>
-						//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-						$regex = '/href=\"(.+?)\"/';
-						$replacement = 'href="'. $link .'"';
-						$out = preg_replace($regex, $replacement, $out);
-					}
-				} else {
-					// リンクしない場合は文字列に置換する
-					// 例：<a href="/news/archives/2>(.)</a>
-					// \<a\ (.+)\>(.+)\<\/a\>
-					$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
-					preg_match($regex, $out, $matches);
-					if ($matches[1]) {
-						$out = $matches[1];
-					}
+						break;
+
+					case '2':	// PDFの場合
+							$link = $this->optionalLink['OptionalLink']['name'];
+							if ($link) {
+								// /files〜 の場合はドメインを付与して絶対指定扱いにする
+								$regexFiles = '/^\/files\/.+/';
+								if (preg_match($regexFiles, $link)) {
+									// /lib/Baser/basics.php
+									$link = topLevelUrl(false) . $link;
+									//$link = Configure::read('BcEnv.siteUrl') . $link;
+								}
+								// <a href="/URL">TEXT</a>
+								//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+								$regex = '/href=\"(.+?)\"/';
+								$replacement = 'href="'. $link .'"';
+								$out = preg_replace($regex, $replacement, $out);
+							}
+						break;
+					
+					default:
+						break;
 				}
+				
+				
 			}
 		}
 		return $out;
