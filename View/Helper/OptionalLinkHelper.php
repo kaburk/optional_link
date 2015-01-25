@@ -12,7 +12,26 @@ class OptionalLinkHelper extends AppHelper {
  *
  * @var array
  */
-	public $helpers = array('BcBaser', 'Blog', 'BcUpload');
+	public $helpers = array('BcBaser', 'Blog', 'BcUpload', 'Html');
+	
+/**
+ * アップロードファイルの保存URL
+ * 
+ * @var		string
+ */
+	public $savedUrl = '';
+/**
+ * アップロードファイルの保存パス
+ * 
+ * @var		string
+ */
+	public $savePath = '';
+	
+	public function __construct(View $View, $settings = array()) {
+		parent::__construct($View, $settings);
+		$this->savedUrl = '/files/optionallink/';
+		$this->savePath = WWW_ROOT . 'files' . DS . 'optionallink' . DS;
+	}
 	
 /**
  * 除外状態を取得する
@@ -53,31 +72,68 @@ class OptionalLinkHelper extends AppHelper {
  */
 	public function judgeLinkKinds($post = array()) {
 		$str = '';
-		if(!empty($post['OptionalLink']['name'])) {
-			$content = trim(strip_tags($post['OptionalLink']['name']));
-			// URLを分解する
-			$links = parse_url($content);
-			$path = pathinfo($content);
-			
-			if (!empty($path['extension'])) {
-				if ($path['extension'] == 'pdf') {
-					$str = 'pdf';
-				}
-				if ($path['extension'] == 'xls' || $path['extension'] == 'xlsx') {
-					$str = 'excel';
-				}
-				if ($path['extension'] == 'doc' || $path['extension'] == 'docx') {
-					$str = 'word';
-				}
-			}
-			if ($str) {
-				return $str;
-			}
-			
-			if (!empty($links['host'])) {
-				if ($_SERVER['HTTP_HOST'] != $links['host']) {
-					$str = 'external';
-				}
+		
+		if ($post['OptionalLink']['status']) {
+			switch ($post['OptionalLink']['status']) {
+				case '1':
+					if(!empty($post['OptionalLink']['name'])) {
+						if ($post['OptionalLink']['blank']) {
+							$str = 'external';
+						}
+						$content = trim(strip_tags($post['OptionalLink']['name']));
+						// URLを分解する
+						$links = parse_url($content);
+						$path = pathinfo($content);
+
+						if (!empty($path['extension'])) {
+							if ($path['extension'] == 'pdf') {
+								$str = 'pdf';
+							}
+							if ($path['extension'] == 'xls' || $path['extension'] == 'xlsx') {
+								$str = 'excel';
+							}
+							if ($path['extension'] == 'doc' || $path['extension'] == 'docx') {
+								$str = 'word';
+							}
+						}
+						if ($str) {
+							return $str;
+						}
+
+						if (!empty($links['host'])) {
+							if ($_SERVER['HTTP_HOST'] != $links['host']) {
+								$str = 'external';
+							}
+						}
+					}
+					break;
+
+				case '2':
+					if(!empty($post['OptionalLink']['file'])) {
+						$content = trim(strip_tags($post['OptionalLink']['file']));
+						// URLを分解する
+						$links = parse_url($content);
+						$path = pathinfo($content);
+
+						if (!empty($path['extension'])) {
+							if ($path['extension'] == 'pdf') {
+								$str = 'pdf';
+							}
+							if ($path['extension'] == 'xls' || $path['extension'] == 'xlsx') {
+								$str = 'excel';
+							}
+							if ($path['extension'] == 'doc' || $path['extension'] == 'docx') {
+								$str = 'word';
+							}
+						}
+						if ($str) {
+							return $str;
+						}
+					}
+					break;
+				
+				default:
+					break;
 			}
 		}
 		return $str;
@@ -135,6 +191,52 @@ class OptionalLinkHelper extends AppHelper {
 		} else {
 			return $post['BlogPost']['name'];
 		}
+	}
+	
+/**
+ * ファイルが保存されているURLを取得する
+ *
+ * @param	string	$fileName
+ * @return	string
+ */
+	public function getFileUrl ($fileName) {
+		if ($fileName) {
+			return $this->savedUrl . $fileName;
+		} else {
+			return '';
+		}
+	}
+	
+/**
+ * ファイルリンクタグを出力する
+ * 
+ * @param array $uploaderFile
+ * @param array $options
+ * @return string リンクタグ
+ */
+	public function file ($uploaderFile, $options = array()) {
+		if (isset($uploaderFile['OptionalLink'])) {
+			$uploaderFile = $uploaderFile['OptionalLink'];
+		}
+		$_options = array(
+			'alt' => $uploaderFile['file'],
+			'target' => '_blank',
+		);
+		$options = Hash::merge($_options, $options);
+		
+		$imgUrl = $this->getFileUrl($uploaderFile['file']);
+		$pathInfo = pathinfo($uploaderFile['file']);
+		
+		if (!empty($uploaderFile['publish_begin']) || !empty($uploaderFile['publish_end'])) {
+			$savePath = $this->savePath . 'limited' . DS . $uploaderFile['file'];
+		} else {
+			$savePath = $this->savePath . $uploaderFile['file'];
+		}
+		if (file_exists($savePath)) {
+			$out = $this->BcBaser->getLink('≫ファイル', $imgUrl, $options);
+			return $out;
+		}
+		return '';
 	}
 	
 }
