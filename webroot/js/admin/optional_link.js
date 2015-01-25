@@ -20,7 +20,6 @@ $(function () {
 		$fileArea.slideUp();
 		
 		// ステータス値により表示切替え
-		console.log(optionalLinkStatusVal);
 		switch (optionalLinkStatusVal) {
 			case '0':
 				break;
