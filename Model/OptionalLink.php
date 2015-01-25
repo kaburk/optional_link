@@ -74,10 +74,58 @@ class OptionalLink extends BcPluginAppModel {
 	public function getDefaultValue() {
 		$data = array(
 			'OptionalLink' => array(
-				'status' => false
+				'status' => 0
 			)
 		);
 		return $data;
+	}
+	
+/**
+ * beforeSave
+ * 公開期間指定がある場合、ファイルを limited に移動する
+ * 公開期間指定がない場合、ファイルを limited から通常領域に移動する
+ * 
+ * @param array $options
+ * @return boolean
+ */
+	public function beforeSave($options = array()) {
+		parent::beforeSave($options);
+		
+		if (!empty($this->data['OptionalLink']['id'])) {
+			$savePath = WWW_ROOT . 'files' . DS . $this->actsAs['BcUpload']['saveDir'] . DS;
+			//$pathinfo = pathinfo($this->data['OptionalLink']['file']);
+			
+			if (!empty($this->data['OptionalLink']['publish_begin']) || !empty($this->data['OptionalLink']['publish_end'])) {
+				if (file_exists($savePath . $this->data['OptionalLink']['file'])) {
+					rename($savePath . $this->data['OptionalLink']['file'], $savePath . 'limited' . DS . $this->data['OptionalLink']['file']);
+				}
+			} else {
+				if (file_exists($savePath . 'limited' . DS . $this->data['OptionalLink']['file'])) {
+					rename($savePath . 'limited' . DS . $this->data['OptionalLink']['file'], $savePath . $this->data['OptionalLink']['file']);
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+/**
+ * beforeDelete
+ * 公開期間指定がある場合、削除前に保存場所のパスを limited を考慮して書換える
+ * 
+ * @param boolean $cascade
+ * @return boolean
+ */
+	public function beforeDelete($cascade = true) {
+		$data = $this->read(null, $this->id);
+		if (!empty($data['OptionalLink']['publish_begin']) || !empty($data['OptionalLink']['publish_end'])) {
+			$this->Behaviors->BcUpload->savePath .= 'limited' . DS;
+		} else {
+			$this->Behaviors->BcUpload->savePath = preg_replace('/' . preg_quote('limited' . DS, '/') . '$/', '', $this->Behaviors->BcUpload->savePath);
+		}
+		parent::beforeDelete($cascade);
+		
+		return true;
 	}
 	
 }
