@@ -96,8 +96,11 @@ class OptionalLink extends BcPluginAppModel {
 			//$pathinfo = pathinfo($this->data['OptionalLink']['file']);
 			
 			if (!empty($this->data['OptionalLink']['publish_begin']) || !empty($this->data['OptionalLink']['publish_end'])) {
-				if (file_exists($savePath . $this->data['OptionalLink']['file'])) {
-					rename($savePath . $this->data['OptionalLink']['file'], $savePath . 'limited' . DS . $this->data['OptionalLink']['file']);
+				// 削除チェックを入れた場合、'file' にファイル名が入ってこない
+				if (empty($this->data['OptionalLink']['file_delete'])) {
+					if (file_exists($savePath . $this->data['OptionalLink']['file'])) {
+						rename($savePath . $this->data['OptionalLink']['file'], $savePath . 'limited' . DS . $this->data['OptionalLink']['file']);
+					}
 				}
 			} else {
 				if (file_exists($savePath . 'limited' . DS . $this->data['OptionalLink']['file'])) {
