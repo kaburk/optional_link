@@ -233,4 +233,81 @@ class OptionalLinksController extends OptionalLinkAppController {
 		
 	}
 	
+/**
+ * 公開期間のチェックを行う
+ * 
+ */
+	public function view_limited_file($filename) {
+		$display = false;
+		// 管理側ログイン中は制限に関わらずファイルを表示する
+		if (!empty($_SESSION['Auth']['User'])) {
+			$display = true;
+		} else {
+			$conditions = array(
+				'OptionalLink.file' => $filename,
+				array('or'=> array(array('OptionalLink.publish_begin <=' => date('Y-m-d H:i:s')),
+									array('OptionalLink.publish_begin' => NULL),
+									array('OptionalLink.publish_begin' => '0000-00-00 00:00:00'))),
+				array('or'=> array(array('OptionalLink.publish_end >=' => date('Y-m-d H:i:s')),
+									array('OptionalLink.publish_end' => NULL),
+									array('OptionalLink.publish_end' => '0000-00-00 00:00:00')))
+			);
+			$data = $this->OptionalLink->find('first', array(
+				'conditions' => $conditions,
+				'recursive' => -1,
+			));
+			if ($data) {
+				$display = true;
+			}
+		}
+		
+		if ($display) {
+			$info = pathinfo($filename);
+			$ext = $info['extension'];
+			$contentsMaping = array(
+				"gif"	=> "image/gif",
+				"jpg"	=> "image/jpeg",
+				"jpeg"	=> "image/jpeg",
+				"png"	=> "image/png",
+				"swf"	=> "application/x-shockwave-flash",
+				"pdf"	=> "application/pdf",
+				"sig"	=> "application/pgp-signature",
+				"spl"	=> "application/futuresplash",
+				"doc"	=> "application/msword",
+				"ai"	=> "application/postscript",
+				"torrent"=> "application/x-bittorrent",
+				"dvi"	=> "application/x-dvi",
+				"gz"	=> "application/x-gzip",
+				"pac"	=> "application/x-ns-proxy-autoconfig",
+				"tar.gz"=> "application/x-tgz",
+				"tar"	=> "application/x-tar",
+				"zip"	=> "application/zip",
+				"mp3"	=> "audio/mpeg",
+				"m3u"	=> "audio/x-mpegurl",
+				"wma"	=> "audio/x-ms-wma",
+				"wax"	=> "audio/x-ms-wax",
+				"wav"	=> "audio/x-wav",
+				"xbm"	=> "image/x-xbitmap",
+				"xpm"	=> "image/x-xpixmap",
+				"xwd"	=> "image/x-xwindowdump",
+				"css"	=> "text/css",
+				"html"	=> "text/html",
+				"js"	=> "text/javascript",
+				"txt"	=> "text/plain",
+				"xml"	=> "text/xml",
+				"mpeg"	=> "video/mpeg",
+				"mov"	=> "video/quicktime",
+				"avi"	=> "video/x-msvideo",
+				"asf"	=> "video/x-ms-asf",
+				"wmv"	=> "video/x-ms-wmv"
+			);
+			header("Content-type: " . $contentsMaping[$ext]);
+			readfile(WWW_ROOT . '/files/optionallink/limited/'. $filename);
+			exit();
+		} else {
+			$this->notFound();
+		}
+		
+	}
+	
 }
