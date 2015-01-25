@@ -68,15 +68,17 @@
 			<?php echo $this->BcForm->label('OptionalLink.file', 'PDF') ?>
 		</th>
 		<td class="col-input">
-			<?php echo $this->BcForm->file('OptionalLink.file') ?>
+			<?php echo $this->BcForm->file('OptionalLink.file', array('link' => false)) ?>
 			<?php echo $this->BcForm->error('OptionalLink.file') ?>
 
 			<?php echo $this->BcForm->label('OptionalLink.publish_begin', '公開期間指定') ?>
 			<?php echo $this->BcForm->dateTimePicker('OptionalLink.publish_begin', array('size' => 12, 'maxlength' => 10), true) ?>
 			&nbsp;〜&nbsp;
-			<?php echo $this->BcForm->dateTimePicker('OptionalLink.publish_end', array('size' => 12, 'maxlength' => 10),true) ?>
+			<?php echo $this->BcForm->dateTimePicker('OptionalLink.publish_end', array('size' => 12, 'maxlength' => 10), true) ?>
 			<?php echo $this->BcForm->error('OptionalLink.publish_begin') ?>
 			<?php echo $this->BcForm->error('OptionalLink.publish_end') ?>
+			<br /><small>※管理システムにログイン中は、公開期間を指定しているファイルにアクセスすることができます。
+			<!-- <p class="link"><?php echo $this->OptionalLink->file($this->request->data) ?></p> --></small>
 		</td>
 	</tr>
 </table>
