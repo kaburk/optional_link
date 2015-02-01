@@ -101,10 +101,17 @@ class OptionalLink extends BcPluginAppModel {
 					if (file_exists($savePath . $this->data['OptionalLink']['file'])) {
 						rename($savePath . $this->data['OptionalLink']['file'], $savePath . 'limited' . DS . $this->data['OptionalLink']['file']);
 					}
+				} else {
+					$filePath = $savePath .'limited'. DS . $this->data['OptionalLink']['file_'];
+					if (file_exists($filePath)) {
+						return unlink($filePath);
+					}
 				}
 			} else {
-				if (file_exists($savePath . 'limited' . DS . $this->data['OptionalLink']['file'])) {
-					rename($savePath . 'limited' . DS . $this->data['OptionalLink']['file'], $savePath . $this->data['OptionalLink']['file']);
+				if (!empty($this->data['OptionalLink']['file'])) {
+					if (file_exists($savePath . 'limited' . DS . $this->data['OptionalLink']['file'])) {
+						rename($savePath . 'limited' . DS . $this->data['OptionalLink']['file'], $savePath . $this->data['OptionalLink']['file']);
+					}
 				}
 			}
 		}
