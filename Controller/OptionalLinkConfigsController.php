@@ -118,6 +118,42 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 	}
 	
 /**
+ * [ADMIN] ファイルの公開期間制限に利用するフォルダとファイルを生成する
+ *  ・/files/optionallink/limited/.htaccess
+ * 
+ * @return void
+ */
+	public function admin_init_folder () {
+		// 必要フォルダ初期化
+		$filesPath = WWW_ROOT .'files';
+		$savePath = $filesPath .DS. 'optionallink';
+		$limitedPath = $savePath . DS . 'limited';
+		
+		if (is_writable($filesPath) && !is_dir($savePath)) {
+			mkdir($savePath);
+		}
+		if (!is_writable($savePath)) {
+			chmod($savePath, 0777);
+		}
+		if (is_writable($savePath) && !is_dir($limitedPath)) {
+			mkdir($limitedPath);
+		}
+		if (!is_writable($limitedPath)) {
+			chmod($limitedPath, 0777);
+		}
+		if (is_writable($limitedPath)) {
+			$File = new File($limitedPath . DS . '.htaccess');
+			$htaccess = "Order allow,deny\nDeny from all";
+			$File->write($htaccess);
+			$File->close();
+		}
+		
+		$message = sprintf('フォルダの初期化処理を完了しました。<br />'. $limitedPath .' が作成されていることを確認してください。');
+		$this->setMessage($message);
+		$this->redirect(array('controller' => 'optional_link_configs', 'action' => 'index'));
+	}
+	
+/**
  * 一覧用の検索条件を生成する
  *
  * @param array $data
