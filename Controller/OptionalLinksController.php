@@ -48,6 +48,7 @@ class OptionalLinksController extends OptionalLinkAppController {
  * @return	void
  */
 	public function beforeFilter() {
+		$this->BcAuth->allow('view_limited_file');
 		parent::beforeFilter();
 	}
 	
