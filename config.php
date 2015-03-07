@@ -6,7 +6,7 @@
  * @author			arata
  * @license			MIT
  */
-$title = 'optional_link プラグイン';
+$title = 'OptionalLink プラグイン';
 $description = 'ブログ記事に任意のURLを設定できます。';
 $author = 'arata';
 $url = 'http://www.materializing.net/';
