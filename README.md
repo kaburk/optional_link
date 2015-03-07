@@ -1,5 +1,7 @@
 # オプショナルリンク プラグイン #
 
+[![Join the chat at https://gitter.im/materializing/optional_link](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/materializing/optional_link?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 OptionalLink プラグインは、ブログ記事に任意のURLを設定できる入力欄を追加できるbaserCMS専用のプラグインです。
 
 
