@@ -1,18 +1,18 @@
-# オプショナルリンク プラグイン #
-
-[![Join the chat at https://gitter.im/materializing/optional_link](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/materializing/optional_link?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# オプショナルリンク プラグイン
 
 OptionalLink プラグインは、ブログ記事に任意のURLを設定できる入力欄を追加できるbaserCMS専用のプラグインです。
 
+- [Summary: Wiki](https://github.com/materializing/optional_link/wiki)
 
-## Installation ##
+
+## Installation
 
 1. 圧縮ファイルを解凍後、BASERCMS/app/Plugin/OptionalLink に配置します。
 2. 管理システムのプラグイン管理に入って、表示されている OptionalLink プラグイン を有効化して下さい。
 3. プラグインの有効化後、ブログ記事の投稿画面にアクセスすると、入力項目が追加されてます。
 
 
-## Uses Config ##
+## Uses Config
 
 オプショナルリンク設定画面では、ブログ別に以下の設定を行う事ができます。
 
@@ -24,8 +24,14 @@ OptionalLink プラグインは、ブログ記事に任意のURLを設定でき�
 * 管理システムにログイン状態で /admin/optional_link/optional_link_configs/init_folder にアクセスすると、ファイルの公開期間制限に必要なフォルダとファイルが生成されます。
 
 
-## Thanks ##
+## Bug reports, Discuss, Support
 
-- http://basercms.net
-- http://doc.basercms.net/
-- http://cakephp.jp
+- Join online chat at [![Join the chat at https://gitter.im/materializing/optional_link](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/materializing/optional_link?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+- [Issue](https://github.com/materializing/optional_link/issues)
+
+
+## Thanks
+
+- [http://basercms.net/](http://basercms.net/)
+- [http://wiki.basercms.net/](http://wiki.basercms.net/)
+- [http://cakephp.jp](http://cakephp.jp)
