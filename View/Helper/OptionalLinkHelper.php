@@ -224,17 +224,18 @@ class OptionalLinkHelper extends AppHelper {
 		);
 		$options = Hash::merge($_options, $options);
 		
-		$imgUrl = $this->getFileUrl($uploaderFile['file']);
-		$pathInfo = pathinfo($uploaderFile['file']);
-		
-		if (!empty($uploaderFile['publish_begin']) || !empty($uploaderFile['publish_end'])) {
-			$savePath = $this->savePath . 'limited' . DS . $uploaderFile['file'];
-		} else {
-			$savePath = $this->savePath . $uploaderFile['file'];
-		}
-		if (file_exists($savePath)) {
-			$out = $this->BcBaser->getLink('≫ファイル', $imgUrl, $options);
-			return $out;
+		if (!empty($uploaderFile['file'])) {
+			$imgUrl = $this->getFileUrl($uploaderFile['file']);
+			//$pathInfo = pathinfo($uploaderFile['file']);
+			if (!empty($uploaderFile['publish_begin']) || !empty($uploaderFile['publish_end'])) {
+				$savePath = $this->savePath . 'limited' . DS . $uploaderFile['file'];
+			} else {
+				$savePath = $this->savePath . $uploaderFile['file'];
+			}
+			if (file_exists($savePath)) {
+				$out = $this->BcBaser->getLink('≫ファイル', $imgUrl, $options);
+				return $out;
+			}
 		}
 		return '';
 	}
