@@ -86,4 +86,20 @@ $(function () {
 		});
 		return false;
 	});
+	
+	/**
+	 * ファイルに画像を登録した際、表示画像が150pxより大きい場合は小さくして表示する
+	 */
+	resizeUploadImage();
+	function resizeUploadImage() {
+		$imageFile = $('#OptionalLinkTable .upload-file img');
+		imgHeight = '';
+		imgHeight = $imageFile.height();
+		console.log(imgHeight);
+		if (imgHeight) {
+			if (imgHeight > 150) {
+				$imageFile.attr({'height': 150});
+			}
+		}
+	}
 });
