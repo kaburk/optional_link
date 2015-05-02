@@ -164,12 +164,14 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return
  */
 	private function _judgeRewriteUrl(CakeEvent $event) {
+		// 管理システム側でのアクセスではURL変換を行わない
+		if (BcUtil::isAdminSystem()) {
+			return;
+		}
+		
 		$View = $event->subject();
 		$this->judgeBlogArchivesUrl = false;
 		$this->judgeRewrite = false;
-		
-		// 管理システム側でのアクセスではURL変換を行わない
-		if(!BcUtil::isAdminSystem()) {
 			
 			if (!is_array($event->data['url'])) {
 				$this->url = Router::parse($event->data['url']);
@@ -265,7 +267,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 				}
 			}
 			
-		}
 	}
 	
 /**
