@@ -68,7 +68,7 @@
 			<?php echo $this->BcForm->label('OptionalLink.file', 'ファイル') ?>
 		</th>
 		<td class="col-input">
-			<?php echo $this->BcForm->file('OptionalLink.file', array('link' => false)) ?>
+			<?php echo $this->BcForm->file('OptionalLink.file', array('link' => true, 'imgsize' => 'thumb')) ?>
 			<?php echo $this->BcForm->error('OptionalLink.file') ?>
 
 			<?php echo $this->BcForm->label('OptionalLink.publish_begin', '公開期間指定') ?>

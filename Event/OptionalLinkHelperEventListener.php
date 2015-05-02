@@ -252,7 +252,8 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 					if ($post['OptionalLink']['status'] == '2') {
 						$optionalLink = $this->optionalLink['OptionalLink'];
 						if ($optionalLink['file']) {
-							$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file']);
+							// サムネイル側へのリンクになるため、imgsize => large を指定する
+							$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
 							$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
 							if ($result) {
 								$optionalLink['name'] = $match[1];

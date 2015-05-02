@@ -190,7 +190,8 @@ class OptionalLinkHelper extends AppHelper {
 						break;
 					
 					case '2':
-						$fileLink = $this->BcUpload->uploadImage('OptionalLink.file', $post['OptionalLink']['file']);
+						// サムネイル側へのリンクになるため、imgsize => large を指定する
+						$fileLink = $this->BcUpload->uploadImage('OptionalLink.file', $post['OptionalLink']['file'], array('imgsize' => 'large'));
 						$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
 						if ($result) {
 							$post['OptionalLink']['name'] = $match[1];
