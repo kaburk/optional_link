@@ -50,6 +50,25 @@ class OptionalLinkHelper extends AppHelper {
 	}
 	
 /**
+ * ファイルの公開状態を取得する
+ *
+ * @param array リンク状態のデータ
+ * @return boolean 公開状態
+ */
+	public function allowPublishFile($data) {
+		if (isset($data['OptionalLink'])) {
+			$data = $data['OptionalLink'];
+		}
+		$allowPublish = true;
+		// 期限を設定している場合に条件に該当しない場合は強制的に非公開とする
+		if (($data['publish_begin'] != 0 && $data['publish_begin'] >= date('Y-m-d H:i:s')) ||
+			($data['publish_end'] != 0 && $data['publish_end'] <= date('Y-m-d H:i:s'))) {
+			$allowPublish = false;
+		}
+		return $allowPublish;
+	}
+	
+/**
  * オプショナルリンクの有効を判定する
  * 
  * @param array $post

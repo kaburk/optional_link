@@ -325,18 +325,29 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 					case '2':	// PDFの場合
 							$link = $this->optionalLink['OptionalLink']['name'];
 							if ($link) {
-								// /files〜 の場合はドメインを付与して絶対指定扱いにする
-								$regexFiles = '/^\/files\/.+/';
-								if (preg_match($regexFiles, $link)) {
-									// /lib/Baser/basics.php
-									$link = topLevelUrl(false) . $link;
-									//$link = Configure::read('BcEnv.siteUrl') . $link;
+								// ファイルの公開期間をチェックする
+								$checkPublish = $View->OptionalLink->allowPublishFile($this->optionalLink);
+								if ($checkPublish) {
+									// /files〜 の場合はドメインを付与して絶対指定扱いにする
+									$regexFiles = '/^\/files\/.+/';
+									if (preg_match($regexFiles, $link)) {
+										// /lib/Baser/basics.php
+										$link = topLevelUrl(false) . $link;
+										//$link = Configure::read('BcEnv.siteUrl') . $link;
+									}
+									// <a href="/URL">TEXT</a>
+									//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+									$regex = '/href=\"(.+?)\"/';
+									$replacement = 'href="'. $link .'"';
+									$out = preg_replace($regex, $replacement, $out);
+								} else {
+									// ファイルの公開期間が終了していれば、リンクしない文字列に置換する
+									$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
+									preg_match($regex, $out, $matches);
+									if ($matches[1]) {
+										$out = $matches[1];
+									}
 								}
-								// <a href="/URL">TEXT</a>
-								//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-								$regex = '/href=\"(.+?)\"/';
-								$replacement = 'href="'. $link .'"';
-								$out = preg_replace($regex, $replacement, $out);
 							}
 						break;
 					
