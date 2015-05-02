@@ -77,8 +77,19 @@
 			<?php echo $this->BcForm->dateTimePicker('OptionalLink.publish_end', array('size' => 12, 'maxlength' => 10), true) ?>
 			<?php echo $this->BcForm->error('OptionalLink.publish_begin') ?>
 			<?php echo $this->BcForm->error('OptionalLink.publish_end') ?>
+			&nbsp;&nbsp;&nbsp;<?php echo $this->BcForm->input('公開期間クリア', array('type' => 'button', 'div' => false, 'id' => 'BtnClearOptionalLinkPublish')) ?>
 			<br /><small>※管理システムにログイン中は、公開期間を指定しているファイルにアクセスすることができます。
 			<!-- <p class="link"><?php echo $this->OptionalLink->file($this->request->data) ?></p> --></small>
+			<div id="BtnClearOptionalLinkPublishDialog" class="display-none">
+				<p>公開期間指定欄の開始日時と終了日時を空にします。</p>
+				<p>よろしいですか？</p>
+				<div class="dialog-property display-none">
+					<h3>公開期間指定欄</h3>
+					<span class="width">360</span>
+					<span class="btn-cancel">キャンセル</span>
+					<span class="btn-ok">OK</span>
+				</div>
+			</div>
 		</td>
 	</tr>
 </table>

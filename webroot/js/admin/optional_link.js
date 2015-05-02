@@ -56,4 +56,34 @@ $(function () {
 		// $('#OptionalLinkNolink').attr('disabled', false);
 		// $('label[for="OptionalLinkNolink"]').css('color', '');
 	}
+	
+	/**
+	 * 公開期間クリアボタンを押下した際に、ダイアログを表示して期間指定をクリアする
+	 */
+	$("#BtnClearOptionalLinkPublish").click(function() {
+		var dialogId = '#' + $(this).attr('id') + 'Dialog';
+		var dialogTitle = $(dialogId).find('.dialog-property').find('h3').html();
+		var dialogWidth = $(dialogId).find('.dialog-property').find('.width').html();
+		// TODO ボタン用のテキストを動的に設定する
+		//var dialogBtnCancel = $(dialogId).find('.dialog-property').find('.btn-cancel').html();
+		//var dialogBtnOk = $(dialogId).find('.dialog-property').find('.btn-ok').html();
+		$(dialogId).dialog({
+			modal: true,
+			title: dialogTitle,
+			width: dialogWidth,
+			buttons: {
+				'キャンセル': function() {
+					$(this).dialog("close");
+				},
+				'OK': function() {
+					$('#OptionalLinkPublishBeginDate').val('');
+					$('#OptionalLinkPublishBeginTime').val('');
+					$('#OptionalLinkPublishEndDate').val('');
+					$('#OptionalLinkPublishEndTime').val('');
+					$(this).dialog("close");
+				}
+			}
+		});
+		return false;
+	});
 });
