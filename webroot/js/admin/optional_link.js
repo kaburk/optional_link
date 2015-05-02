@@ -93,12 +93,14 @@ $(function () {
 	resizeUploadImage();
 	function resizeUploadImage() {
 		$imageFile = $('#OptionalLinkTable .upload-file img');
+		$imageFile.addClass('optional-thumbnail');
+		
 		imgHeight = '';
 		imgHeight = $imageFile.height();
 		console.log(imgHeight);
 		if (imgHeight) {
-			if (imgHeight > 150) {
-				$imageFile.attr({'height': 150});
+			if (imgHeight > 200) {
+				$imageFile.attr({'height': 200});
 			}
 		}
 	}

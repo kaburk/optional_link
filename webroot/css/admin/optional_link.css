@@ -1,0 +1,10 @@
+@charset "utf-8";
+/**
+ * [ADMIN] OptionalLink
+ * 
+ * オプショナルリンク用のスタイル
+ */
+#OptionalLinkTable .upload-file img {
+	max-height: 200px;
+	max-width: 200px;
+}

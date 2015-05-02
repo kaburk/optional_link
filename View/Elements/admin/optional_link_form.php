@@ -15,6 +15,7 @@
 <?php endif ?>
 
 <?php if($this->request->data['OptionalLinkConfig']['status']): ?>
+<?php $this->BcBaser->css('OptionalLink.admin/optional_link', array('inline' => false)); ?>
 <?php $this->BcBaser->js(array('OptionalLink.admin/optional_link'), array('inline' => true)) ?>
 <div id="OptionalLinkTable">
 <table cellpadding="0" cellspacing="0" class="form-table section" style="margin-bottom: 10px;">
