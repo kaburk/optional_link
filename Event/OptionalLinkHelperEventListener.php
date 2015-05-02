@@ -172,79 +172,84 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		$View = $event->subject();
 		$this->judgeBlogArchivesUrl = false;
 		$this->judgeRewrite = false;
-			
-			if (!is_array($event->data['url'])) {
-				$this->url = Router::parse($event->data['url']);
-			} else {
-				$this->url = $event->data['url'];
+		
+		if (!is_array($event->data['url'])) {
+			$this->url = Router::parse($event->data['url']);
+		} else {
+			$this->url = $event->data['url'];
+		}
+
+		if (!$this->url) {
+			return;
+		}
+		
+		if (isset($this->url['admin'])) {
+			// 管理システムへのURLの場合は書き換えを行わない
+			if ($this->url['admin']) {
+				return;
 			}
-			
-			if (!$this->url) {
+		}
+		
+		// URLがブログ記事詳細へのリンクかどうかを判定する
+		if (!$this->judgeBlogArchivesUrl) {
+			if (!isset($this->url['action'])) {
 				return;
 			}
 			
-			if (isset($this->url['admin'])) {
-				// 管理システムへのURLの場合は書き換えを行わない
-				if ($this->url['admin']) {
-					return;
-				}
-			}
-			
-			// URLがブログ記事詳細へのリンクかどうかを判定する
-			if (!$this->judgeBlogArchivesUrl) {
-				if (isset($this->url['action'])) {
-					if ($this->url['action'] == 'archives') {
-						// 引数のURLが1つ（記事詳細）のときに有効とする
-						if (!empty($this->url[0]) && !isset($this->url[1])) {
-							if (!$this->blogContents) {
-								if (ClassRegistry::isKeySet('Blog.BlogContent')) {
-									$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
-								} else {
-									$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
-								}
-								$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
-							}
-							foreach ($this->blogContents as $value) {
-								if ($this->url['controller'] == $value['BlogContent']['name']) {
-									$this->judgeBlogArchivesUrl = true;
-									break;
-								}
-							}
+			if ($this->url['action'] == 'archives') {
+				// 引数のURLが1つ（記事詳細）のときに有効とする
+				if (!empty($this->url[0]) && !isset($this->url[1])) {
+					if (!$this->blogContents) {
+						if (ClassRegistry::isKeySet('Blog.BlogContent')) {
+							$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
+						} else {
+							$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
+						}
+						$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
+					}
+					foreach ($this->blogContents as $value) {
+						if ($this->url['controller'] == $value['BlogContent']['name']) {
+							$this->judgeBlogArchivesUrl = true;
+							break;
 						}
 					}
 				}
 			}
-			
-			if ($this->judgeBlogArchivesUrl) {
-				$this->modelInitializer($View);
-				if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
-					// オプショナルリンク設定が無効の場合はURL書き換えを行わない
-					return;
+		}
+		
+		// URLがブログ記事詳細へのリンクの場合、リンクの書換えを実施する
+		if ($this->judgeBlogArchivesUrl) {
+			$this->modelInitializer($View);
+			if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
+				// オプショナルリンク設定が無効の場合はURL書き換えを行わない
+				return;
+			}
+			// 現在の画面ではなく、ブログ記事のURLに対しての情報が必要なため取得する
+			if (ClassRegistry::isKeySet('Blog.BlogPost')) {
+				$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
+			} else {
+				$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+			}
+			$post = $BlogPostModel->find('first', array(
+				'conditions' => array(
+					'BlogPost.blog_content_id' => $value['BlogContent']['id'],
+					'BlogPost.no' => $this->url[0]
+				),
+				// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
+				'recursive' => 1
+			));
+			if ($post && !empty($post['OptionalLink'])) {
+				$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
+				if ($this->optionalLink['OptionalLink']['status']) {
+					$this->judgeRewrite = true;
+					if ($this->optionalLink['OptionalLink']['blank']) {
+						$event->data['options']['target'] = '_blank';
+					}
 				}
 				
-				if (ClassRegistry::isKeySet('Blog.BlogPost')) {
-					$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
-				} else {
-					$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-				}
-				$post = $BlogPostModel->find('first', array(
-					'conditions' => array(
-						'BlogPost.blog_content_id' => $value['BlogContent']['id'],
-						'BlogPost.no' => $this->url[0]
-					),
-					// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
-					'recursive' => 1
-				));
-				if ($post && !empty($post['OptionalLink'])) {
-					$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
-					if ($post['OptionalLink']['status']) {
-						$this->judgeRewrite = true;
-						if ($post['OptionalLink']['blank']) {
-							$event->data['options']['target'] = '_blank';
-						}
-					}
-					// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
-					if ($post['OptionalLink']['status'] == '2') {
+				switch ($this->optionalLink['OptionalLink']['status']) {
+					case '2':
+						// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
 						$optionalLink = $this->optionalLink['OptionalLink'];
 						if ($optionalLink['file']) {
 							// サムネイル側へのリンクになるため、imgsize => large を指定する
@@ -256,10 +261,14 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 							}
 						}
 						$this->optionalLink['OptionalLink'] = $optionalLink;
-					}
+						break;
+						
+					default:
+						break;
 				}
 			}
-			
+		}
+		
 	}
 	
 /**
