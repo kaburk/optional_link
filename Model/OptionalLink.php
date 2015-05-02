@@ -22,11 +22,12 @@ class OptionalLink extends BcPluginAppModel {
 	public $plugin = 'OptionalLink';
 	
 /**
- * ビヘイビア
+ * Behavior
  * 
  * @var array
  */
 	public $actsAs = array(
+		'BcCache',
 		'BcUpload' => array(
 			'saveDir' => "optionallink",
 			'fields' => array(

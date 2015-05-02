@@ -20,7 +20,16 @@ class OptionalLinkConfig extends BcPluginAppModel {
  * @var string
  */
 	public $plugin = 'OptionalLink';
-		
+	
+/**
+ * Behavior
+ * 
+ * @var array
+ */
+	public $actsAs = array(
+		'BcCache',
+	);
+	
 /**
  * Validation
  *
