@@ -25,7 +25,7 @@
 		<td class="col-input">
 			<?php echo $this->BcForm->input('OptionalLink.status', array(
 					'type'		=> 'radio',
-					'options'	=> array(0 => '利用しない', 1 => 'URL', 2 => 'PDF'),
+					'options'	=> array(0 => '利用しない', 1 => 'URL', 2 => 'ファイル'),
 					'legend'	=> false,
 					'class'		=> 'optionallink-status',
 					'separator'	=> '&nbsp;&nbsp;')) ?>
@@ -65,7 +65,7 @@
 <table cellpadding="0" cellspacing="0" class="form-table section">
 	<tr>
 		<th class="col-head">
-			<?php echo $this->BcForm->label('OptionalLink.file', 'PDF') ?>
+			<?php echo $this->BcForm->label('OptionalLink.file', 'ファイル') ?>
 		</th>
 		<td class="col-input">
 			<?php echo $this->BcForm->file('OptionalLink.file', array('link' => false)) ?>

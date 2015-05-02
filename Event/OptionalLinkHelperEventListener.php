@@ -248,7 +248,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 							$event->data['options']['target'] = '_blank';
 						}
 					}
-					// PDFの場合はnameにPDFへのURLを入れる - modify by gondoh
+					// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
 					if ($post['OptionalLink']['status'] == '2') {
 						$optionalLink = $this->optionalLink['OptionalLink'];
 						if ($optionalLink['file']) {
@@ -322,7 +322,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 						}
 						break;
 
-					case '2':	// PDFの場合
+					case '2':	// ファイルの場合
 							$link = $this->optionalLink['OptionalLink']['name'];
 							if ($link) {
 								// ファイルの公開期間をチェックする

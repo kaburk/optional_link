@@ -32,12 +32,17 @@ class OptionalLink extends BcPluginAppModel {
 			'saveDir' => "optionallink",
 			'fields' => array(
 				'file' => array(
-					'type'			=> 'pdf',
+					'type'			=> 'all',
+					// TODO 保存されるファイル名のフォーマットを指定すると、管理側で、公開期間を指定したファイル名が保存されない
 					//'namefield'		=> 'id',
 					//'nameformat'	=> '%07d',
 					'nameadd'		=> false,
+					'imagecopy' => array(
+						'thumb'		=> array('prefix' => 'thumb_', 'width' => '150', 'height' => '150'),
+						'large'		=> array('prefix' => 'large_', 'width' => '1600', 'height' => '1600'),
+					),
 				),
-			)
+			),
 		),
 	);
 	
@@ -92,26 +97,52 @@ class OptionalLink extends BcPluginAppModel {
 	public function beforeSave($options = array()) {
 		parent::beforeSave($options);
 		
-		if (!empty($this->data['OptionalLink']['id'])) {
-			$savePath = WWW_ROOT . 'files' . DS . $this->actsAs['BcUpload']['saveDir'] . DS;
-			//$pathinfo = pathinfo($this->data['OptionalLink']['file']);
+		if (!empty($this->data[$this->alias]['id'])) {
+			$savePath		 = WWW_ROOT . 'files' . DS . $this->actsAs['BcUpload']['saveDir'] . DS; // ファイル保存パス
+			$savePathLimited = WWW_ROOT . 'files' . DS . $this->actsAs['BcUpload']['saveDir'] . DS . 'limited' . DS; // 公開制限ファイル保存パス
+			$uploadField	 = key($this->actsAs['BcUpload']['fields']); // ファイル保存フィールド名
+			$fileName		 = ''; // 保存ファイル名
+			if (isset($this->data[$this->alias][$uploadField])) {
+				//$pathinfo = pathinfo($this->data[$this->alias]['file']);
+				$fileName = $this->data[$this->alias][$uploadField];
+			}
 			
-			if (!empty($this->data['OptionalLink']['publish_begin']) || !empty($this->data['OptionalLink']['publish_end'])) {
+			if (!empty($this->data[$this->alias]['publish_begin']) || !empty($this->data[$this->alias]['publish_end'])) {
 				// 削除チェックを入れた場合、'file' にファイル名が入ってこない
-				if (empty($this->data['OptionalLink']['file_delete'])) {
-					if (file_exists($savePath . $this->data['OptionalLink']['file'])) {
-						rename($savePath . $this->data['OptionalLink']['file'], $savePath . 'limited' . DS . $this->data['OptionalLink']['file']);
+				if (empty($this->data[$this->alias]['file_delete'])) {
+					if ($fileName) {
+						if (file_exists($savePath . $fileName)) {
+							// オリジナルのファイルを処理
+							rename($savePath . $fileName, $savePathLimited . $fileName);
+							foreach ($this->actsAs['BcUpload']['fields'][$uploadField]['imagecopy'] as $keyCopyName => $valueCopy) {
+								if (file_exists($savePath . $valueCopy['prefix'] . $fileName)) {
+									rename($savePath . $valueCopy['prefix'] . $fileName, $savePathLimited . $valueCopy['prefix'] . $fileName);
+								}
+							}
+						}
 					}
 				} else {
-					$filePath = $savePath .'limited'. DS . $this->data['OptionalLink']['file_'];
-					if (file_exists($filePath)) {
-						return unlink($filePath);
+					if (file_exists($savePathLimited . $this->data[$this->alias]['file_'])) {
+						// オリジナルのファイルを処理
+						unlink($savePathLimited . $this->data[$this->alias]['file_']);
+						foreach ($this->actsAs['BcUpload']['fields'][$uploadField]['imagecopy'] as $keyCopyName => $valueCopy) {
+							if (file_exists($savePathLimited . $valueCopy['prefix'] . $this->data[$this->alias]['file_'])) {
+								unlink($savePathLimited . $valueCopy['prefix'] . $this->data[$this->alias]['file_']);
+							}
+						}
 					}
 				}
 			} else {
-				if (!empty($this->data['OptionalLink']['file'])) {
-					if (file_exists($savePath . 'limited' . DS . $this->data['OptionalLink']['file'])) {
-						rename($savePath . 'limited' . DS . $this->data['OptionalLink']['file'], $savePath . $this->data['OptionalLink']['file']);
+				// 公開期間指定がなされていない場合は、ファイルを通常領域に移動する
+				if ($fileName) {
+					if (file_exists($savePathLimited . $fileName)) {
+						// オリジナルのファイルを処理
+						rename($savePathLimited . $fileName, $savePath . $fileName);
+						foreach ($this->actsAs['BcUpload']['fields'][$uploadField]['imagecopy'] as $keyCopyName => $valueCopy) {
+							if (file_exists($savePathLimited . $valueCopy['prefix'] . $fileName)) {
+								rename($savePathLimited . $valueCopy['prefix'] . $fileName, $savePath . $valueCopy['prefix'] . $fileName);
+							}
+						}
 					}
 				}
 			}
