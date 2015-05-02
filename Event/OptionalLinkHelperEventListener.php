@@ -216,15 +216,8 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			}
 			
 			if ($this->judgeBlogArchivesUrl) {
-				if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
-					$OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
-				} else {
-					$OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
-				}
-				$optionalLinkConfig = $OptionalLinkConfigModel->find('first', array('conditions' => array(
-					'OptionalLinkConfig.blog_content_id' => $value['BlogContent']['id']
-				)));
-				if (!$optionalLinkConfig['OptionalLinkConfig']['status']) {
+				$this->modelInitializer($View);
+				if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
 					// オプショナルリンク設定が無効の場合はURL書き換えを行わない
 					return;
 				}
