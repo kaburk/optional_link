@@ -52,6 +52,18 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 	}
 	
 /**
+ * OptionalLinkConfig モデルを準備する
+ * 
+ */
+	private function setUpModel() {
+		if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
+			$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
+		} else {
+			$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
+		}
+	}
+	
+/**
  * startup
  * 
  * @param CakeEvent $event
@@ -60,11 +72,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 		$Controller = $event->subject();
 		if ($Controller->request->params['controller'] == 'blog_posts' || $Controller->request->params['controller'] == 'blog_contents') {
 			// ブログページ表示の際に実行
-			if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
-				$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
-			} else {
-				$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
-			}
+			$this->setUpModel();
 			// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
 			if (!empty($Controller->BlogContent->id)) {
 				$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
@@ -84,20 +92,18 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  * @param CakeEvent $event
  */
 	public function blogBlogStartup(CakeEvent $event) {
-		$Controller = $event->subject();
-		if(!BcUtil::isAdminSystem()) {
-			if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
-				$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
-			} else {
-				$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
-			}
-			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
-				'conditions' => array(
-					'OptionalLinkConfig.blog_content_id' => $Controller->BlogContent->id
-				),
-				'recursive' => -1
-			));
+		if(BcUtil::isAdminSystem()) {
+			return;
 		}
+		
+		$Controller = $event->subject();
+		$this->setUpModel();
+		$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
+			'conditions' => array(
+				'OptionalLinkConfig.blog_content_id' => $Controller->BlogContent->id
+			),
+			'recursive' => -1
+		));
 	}
 	
 /**
