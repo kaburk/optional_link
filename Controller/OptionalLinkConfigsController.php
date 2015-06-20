@@ -189,7 +189,7 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
  * @param array $data
  * @return array $conditions
  */
-	public function _createAdminIndexConditions($data) {
+	protected function _createAdminIndexConditions($data) {
 		
 		$conditions = array();
 		$blogContentId = '';
