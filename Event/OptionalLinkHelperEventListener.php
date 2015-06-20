@@ -24,21 +24,28 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * 
  * @var array
  */
-	public $optionalLinkConfigs = array();
+	private $optionalLinkConfigs = array();
+	
+/**
+ * OptionalLinkデータ
+ * 
+ * @var array
+ */
+	private $optionalLink = array();
 	
 /**
  * 判定するURL
  * 
  * @var array
  */
-	public $url = array();
+	private $url = array();
 	
 /**
  * ブログ記事詳細へのURLかどうかを判定
  * 
  * @var boolean
  */
-	public $judgeBlogArchivesUrl = false;
+	private $judgeBlogArchivesUrl = false;
 	
 /**
  * URL書換を機能させるかどうかを判定
@@ -46,14 +53,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * 
  * @var boolean
  */
-	public $judgeRewrite = false;
-	
-/**
- * OptionalLinkデータ
- * 
- * @var array
- */
-	public $optionalLink = array();
+	private $judgeRewrite = false;
 	
 /**
  * ブログデータ
@@ -138,7 +138,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * 
  * @param View $View
  */
-	public function modelInitializer($View) {
+	private function modelInitializer($View) {
 		if (ClassRegistry::isKeySet('OptionalLink.OptionalLinkConfig')) {
 			$this->OptionalLinkConfigModel = ClassRegistry::getObject('OptionalLink.OptionalLinkConfig');
 		} else {

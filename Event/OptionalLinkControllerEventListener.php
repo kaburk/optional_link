@@ -25,21 +25,35 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  * 
  * @var array
  */
-	public $optionalLinkConfigs = array();
+	private $optionalLinkConfigs = array();
 	
 /**
  * OptionalLinkモデル
  * 
  * @var Object
  */
-	public $OptionalLinkModel = null;
+	private $OptionalLinkModel = null;
 	
 /**
  * OptionalLink設定モデル
  * 
  * @var Object
  */
-	public $OptionalLinkConfigModel = null;
+	private $OptionalLinkConfigModel = null;
+	
+/**
+ * 処理対象とするコントローラー
+ * 
+ * @var array
+ */
+	private $targetController = array('blog_posts', 'blog_contents');
+	
+/**
+ * 処理対象とするアクション
+ * 
+ * @var array
+ */
+	private $targetAction = array('admin_edit', 'admin_add');
 	
 /**
  * initialize

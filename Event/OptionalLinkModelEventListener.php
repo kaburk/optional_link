@@ -27,27 +27,27 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
  * 
  * @var Object
  */
-	public $OptionalLink = null;
+	private $OptionalLink = null;
 	
 /**
  * オプショナルリンク設定モデル
  * 
  * @var Object
  */
-	public $OptionalLinkConfig = null;
+	private $OptionalLinkConfig = null;
 	
 /**
  * ブログ記事多重保存の判定
  * 
  * @var boolean
  */
-	public $throwBlogPost = false;
+	private $throwBlogPost = false;
 	
 /**
  * Construct
  * 
  */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
 		if (ClassRegistry::isKeySet('OptionalLink.OptionalLink')) {
 			$this->OptionalLink = ClassRegistry::getObject('OptionalLink.OptionalLink');
@@ -207,7 +207,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
  * @param int $contentId
  * @return array
  */
-	public function generateSaveData($Model, $contentId = '') {
+	private function generateSaveData($Model, $contentId = '') {
 		$params = Router::getParams();
 		$data = array();
 		$modelId = $oldModelId = null;
@@ -277,7 +277,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
  * @param int $contentId
  * @return array
  */
-	public function generateContentSaveData($Model, $contentId = '') {
+	private function generateContentSaveData($Model, $contentId = '') {
 		$params = Router::getParams();
 		$data = array();
 		if ($Model->alias == 'BlogContent') {
