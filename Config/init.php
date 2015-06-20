@@ -3,7 +3,7 @@
  * OptionalLink プラグイン用
  * データベース初期化
  */
-$this->Plugin->initDb('plugin', 'OptionalLink');	
+$this->Plugin->initDb('plugin', 'OptionalLink');
 /**
  * 必要フォルダ初期化
  */
