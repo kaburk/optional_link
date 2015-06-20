@@ -12,7 +12,12 @@
 
 <table cellpadding="0" cellspacing="0" class="list-table sort-table" id="ListTable">
 	<thead>
-		<tr><th style="width: 50px;">操作</th>
+		<tr>
+			<th class="list-tool" style="width: 50px;">
+				<div>
+					<?php $this->BcBaser->link($this->BcBaser->getImg('admin/btn_add.png', array('width' => 69, 'height' => 18, 'alt' => '新規追加', 'class' => 'btn')), array('action' => 'add')) ?>
+				</div>	
+			</th>
 			<th><?php echo $this->Paginator->sort('id', array(
 					'asc' => $this->BcBaser->getImg('admin/blt_list_down.png', array('alt' => '昇順', 'title' => '昇順')).' NO',
 					'desc' => $this->BcBaser->getImg('admin/blt_list_up.png', array('alt' => '降順', 'title' => '降順')).' NO'),
