@@ -221,6 +221,8 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		if ($this->judgeBlogArchivesUrl) {
 			$this->modelInitializer($View);
 			if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
+				// 設定値を初期化
+				$this->optionalLink = null;
 				// オプショナルリンク設定が無効の場合はURL書き換えを行わない
 				return;
 			}
