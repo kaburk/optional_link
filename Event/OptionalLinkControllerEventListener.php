@@ -83,20 +83,25 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  * @param CakeEvent $event
  */
 	public function startup(CakeEvent $event) {
+		if (!BcUtil::isAdminSystem()) {
+			return;
+		}
+		
 		$Controller = $event->subject();
-		if ($Controller->request->params['controller'] == 'blog_posts' || $Controller->request->params['controller'] == 'blog_contents') {
-			// ブログページ表示の際に実行
-			$this->setUpModel();
-			// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
-			if (!empty($Controller->BlogContent->id)) {
-				$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
-					'conditions' => array(
-						'OptionalLinkConfig.blog_content_id' => $Controller->BlogContent->id
-					),
-					'recursive' => -1
-				));
-				$this->OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
-			}
+		if (!in_array($Controller->request->params['controller'], $this->targetController)) {
+			return;
+		}
+		
+		$this->setUpModel();
+		// ブログ記事編集画面でタグの追加を行うと Undefined が発生するため判定
+		if (!empty($Controller->BlogContent->id)) {
+			$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
+				'conditions' => array(
+					'OptionalLinkConfig.blog_content_id' => $Controller->BlogContent->id
+				),
+				'recursive' => -1
+			));
+			$this->OptionalLinkModel = ClassRegistry::init('OptionalLink.OptionalLink');
 		}
 	}
 	
