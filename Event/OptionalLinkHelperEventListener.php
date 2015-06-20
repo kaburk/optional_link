@@ -243,59 +243,76 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		}
 		
 		// URLがブログ記事詳細へのリンクの場合、リンクの書換えを実施する
-		if ($this->judgeBlogArchivesUrl) {
-			$this->modelInitializer($View);
-			if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
-				// 設定値を初期化
-				$this->optionalLink = null;
-				// オプショナルリンク設定が無効の場合はURL書き換えを行わない
-				return;
-			}
-			// 現在の画面ではなく、ブログ記事のURLに対しての情報が必要なため取得する
-			if (ClassRegistry::isKeySet('Blog.BlogPost')) {
-				$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
-			} else {
-				$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-			}
-			$post = $BlogPostModel->find('first', array(
-				'conditions' => array(
-					'BlogPost.blog_content_id' => $value['BlogContent']['id'],
-					'BlogPost.no' => $this->url[0]
-				),
-				// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
-				'recursive' => 1
-			));
-			if ($post && !empty($post['OptionalLink'])) {
-				$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
-				if ($this->optionalLink['OptionalLink']['status']) {
-					$this->judgeRewrite = true;
-					if ($this->optionalLink['OptionalLink']['blank']) {
-						$event->data['options']['target'] = '_blank';
-					}
-				}
-				
-				switch ($this->optionalLink['OptionalLink']['status']) {
-					case '2':
-						// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
-						$optionalLink = $this->optionalLink['OptionalLink'];
-						if ($optionalLink['file']) {
-							// サムネイル側へのリンクになるため、imgsize => large を指定する
-							$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
-							$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
-							if ($result) {
-								$optionalLink['name'] = $match[1];
-								$event->data['options']['target'] = '_blank'; // 問答無用でblank
-							}
-						}
-						$this->optionalLink['OptionalLink'] = $optionalLink;
-						break;
-						
-					default:
-						break;
-				}
-			}
+		if (!$this->judgeBlogArchivesUrl) {
+			return;
 		}
 		
+		$this->modelInitializer($View);
+		
+		// URLに対するオプショナルリンク設定がない場合はURL書き換えを行わない
+		if (!$this->optionalLinkConfigs) {
+			// 設定値を初期化
+			$this->optionalLink = null;
+			return;
+		}
+		
+		// オプショナルリンク設定が無効の場合はURL書き換えを行わない
+		if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
+			// 設定値を初期化
+			$this->optionalLink = null;
+			return;
+		}
+		
+		// 現在の画面ではなく、ブログ記事のURLに対しての情報が必要なため取得する
+		if (ClassRegistry::isKeySet('Blog.BlogPost')) {
+			$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
+		} else {
+			$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+		}
+		$post = $BlogPostModel->find('first', array(
+			'conditions' => array(
+				'BlogPost.blog_content_id' => $value['BlogContent']['id'],
+				'BlogPost.no' => $this->url[0]
+			),
+			// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
+			'recursive' => 1
+		));
+		
+		if (!$post) {
+			// 設定値を初期化
+			$this->optionalLink = null;
+			return;
+		}
+		
+		if (!empty($post['OptionalLink'])) {
+			$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
+			if ($this->optionalLink['OptionalLink']['status']) {
+				$this->judgeRewrite = true;
+				if ($this->optionalLink['OptionalLink']['blank']) {
+					$event->data['options']['target'] = '_blank';
+				}
+			}
+
+			switch ($this->optionalLink['OptionalLink']['status']) {
+				case '2':
+					// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
+					$optionalLink = $this->optionalLink['OptionalLink'];
+					if ($optionalLink['file']) {
+						// サムネイル側へのリンクになるため、imgsize => large を指定する
+						$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
+						$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
+						if ($result) {
+							$optionalLink['name'] = $match[1];
+							$event->data['options']['target'] = '_blank'; // 問答無用でblank
+						}
+					}
+					$this->optionalLink['OptionalLink'] = $optionalLink;
+					break;
+
+				default:
+					break;
+			}
+		}
 	}
 	
 /**
@@ -320,14 +337,48 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * @return string
  */
 	private function _rewriteUrl($View, $out) {
-		if ($this->optionalLink) {
-			if ($this->optionalLink['OptionalLink']['status']) {
-				
-				switch ($this->optionalLink['OptionalLink']['status']) {
-					case '1':	// URLの場合
-						if (!$this->optionalLink['OptionalLink']['nolink']) {
-							$link = $this->optionalLink['OptionalLink']['name'];
-							if ($link) {
+		if (!$this->optionalLink) {
+			return $out;
+		}
+		
+		if ($this->optionalLink['OptionalLink']['status']) {
+
+			switch ($this->optionalLink['OptionalLink']['status']) {
+				case '1':	// URLの場合
+					if (!$this->optionalLink['OptionalLink']['nolink']) {
+						$link = $this->optionalLink['OptionalLink']['name'];
+						if ($link) {
+							// /files〜 の場合はドメインを付与して絶対指定扱いにする
+							$regexFiles = '/^\/files\/.+/';
+							if (preg_match($regexFiles, $link)) {
+								// /lib/Baser/basics.php
+								$link = topLevelUrl(false) . $link;
+								//$link = Configure::read('BcEnv.siteUrl') . $link;
+							}
+							// <a href="/URL">TEXT</a>
+							//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
+							$regex = '/href=\"(.+?)\"/';
+							$replacement = 'href="'. $link .'"';
+							$out = preg_replace($regex, $replacement, $out);
+						}
+					} else {
+						// リンクしない場合は文字列に置換する
+						// 例：<a href="/news/archives/2>(.)</a>
+						// \<a\ (.+)\>(.+)\<\/a\>
+						$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
+						preg_match($regex, $out, $matches);
+						if ($matches[1]) {
+							$out = $matches[1];
+						}
+					}
+					break;
+
+				case '2':	// ファイルの場合
+						$link = $this->optionalLink['OptionalLink']['name'];
+						if ($link) {
+							// ファイルの公開期間をチェックする
+							$checkPublish = $View->OptionalLink->allowPublishFile($this->optionalLink);
+							if ($checkPublish) {
 								// /files〜 の場合はドメインを付与して絶対指定扱いにする
 								$regexFiles = '/^\/files\/.+/';
 								if (preg_match($regexFiles, $link)) {
@@ -340,55 +391,23 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 								$regex = '/href=\"(.+?)\"/';
 								$replacement = 'href="'. $link .'"';
 								$out = preg_replace($regex, $replacement, $out);
-							}
-						} else {
-							// リンクしない場合は文字列に置換する
-							// 例：<a href="/news/archives/2>(.)</a>
-							// \<a\ (.+)\>(.+)\<\/a\>
-							$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
-							preg_match($regex, $out, $matches);
-							if ($matches[1]) {
-								$out = $matches[1];
-							}
-						}
-						break;
-
-					case '2':	// ファイルの場合
-							$link = $this->optionalLink['OptionalLink']['name'];
-							if ($link) {
-								// ファイルの公開期間をチェックする
-								$checkPublish = $View->OptionalLink->allowPublishFile($this->optionalLink);
-								if ($checkPublish) {
-									// /files〜 の場合はドメインを付与して絶対指定扱いにする
-									$regexFiles = '/^\/files\/.+/';
-									if (preg_match($regexFiles, $link)) {
-										// /lib/Baser/basics.php
-										$link = topLevelUrl(false) . $link;
-										//$link = Configure::read('BcEnv.siteUrl') . $link;
-									}
-									// <a href="/URL">TEXT</a>
-									//$regex = '/(<a href=[\'|"])(.*?)([\'|"].*</a>)/';
-									$regex = '/href=\"(.+?)\"/';
-									$replacement = 'href="'. $link .'"';
-									$out = preg_replace($regex, $replacement, $out);
-								} else {
-									// ファイルの公開期間が終了していれば、リンクしない文字列に置換する
-									$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
-									preg_match($regex, $out, $matches);
-									if ($matches[1]) {
-										$out = $matches[1];
-									}
+							} else {
+								// ファイルの公開期間が終了していれば、リンクしない文字列に置換する
+								$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
+								preg_match($regex, $out, $matches);
+								if ($matches[1]) {
+									$out = $matches[1];
 								}
 							}
-						break;
-					
-					default:
-						break;
-				}
-				
-				
+						}
+					break;
+
+				default:
+					break;
 			}
+			
 		}
+		
 		return $out;
 	}
 	
