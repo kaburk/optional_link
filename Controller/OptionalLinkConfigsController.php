@@ -46,6 +46,22 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
  */
 	public function beforeFilter() {		
 		parent::beforeFilter();
+		
+		$hasDir = true;
+		if (!$this->hasUploadFileFolder()) {
+			$filesPath = WWW_ROOT .'files';
+			$savePath = $filesPath .DS. 'optionallink';
+			$limitedPath = $savePath . DS . 'limited';
+			$fileHtaccess = $limitedPath . DS . '.htaccess';
+			
+			$message = 'ファイルアップロード用のフォルダが存在するか確認してください。<br />';
+			$message .= $savePath .'<br /><br />';
+			$message .= '公開制限ファイルアップロード用のフォルダとhtaccessファイルが存在するか確認してください。<br />';
+			$message .= $fileHtaccess;
+			$this->setMessage($message, true);
+			$hasDir = false;
+		}
+		$this->set('hasDir', $hasDir);
 	}
 	
 /**
@@ -181,6 +197,36 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 		$message = sprintf('フォルダの初期化処理を完了しました。<br />'. $limitedPath .' が作成されていることを確認してください。');
 		$this->setMessage($message);
 		$this->redirect(array('controller' => 'optional_link_configs', 'action' => 'index'));
+	}
+	
+/**
+ * 
+ */
+	protected function hasUploadFileFolder() {
+		$filesPath = WWW_ROOT .'files';
+		$savePath = $filesPath .DS. 'optionallink';
+		$limitedPath = $savePath . DS . 'limited';
+		$result = false;
+		
+		if (file_exists($savePath) && is_dir($savePath)) {
+			// ファイルアップのためのパスは存在し、ディレクトリである
+			$result = true;
+		}
+		
+		if (file_exists($limitedPath) && is_dir($limitedPath)) {
+			// 公開制限ファイルアップのためのパスは存在し、ディレクトリである
+			$result = true;
+		} else {
+			$result = false;
+		}
+		
+		if (file_exists($limitedPath . DS . '.htaccess')) {
+			// 公開制限ファイルアップのための htaccess は存在している
+			$result = true;
+		} else {
+			$result = false;
+		}
+		return $result;
 	}
 	
 /**
