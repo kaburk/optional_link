@@ -60,7 +60,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * 
  * @var array
  */
-	public $blogContents = array();
+	private $blogContents = array();
 	
 /**
  * 処理対象とするコントローラー
@@ -263,21 +263,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			return;
 		}
 		
-		// 現在の画面ではなく、ブログ記事のURLに対しての情報が必要なため取得する
-		if (ClassRegistry::isKeySet('Blog.BlogPost')) {
-			$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
-		} else {
-			$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-		}
-		$post = $BlogPostModel->find('first', array(
-			'conditions' => array(
-				'BlogPost.blog_content_id' => $value['BlogContent']['id'],
-				'BlogPost.no' => $this->url[0]
-			),
-			// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
-			'recursive' => 1
-		));
-		
+		$post = $this->getBlogPostData($value['BlogContent']['id'], $this->url[0]);		
 		if (!$post) {
 			// 設定値を初期化
 			$this->optionalLink = null;
@@ -409,6 +395,32 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		}
 		
 		return $out;
+	}
+	
+/**
+ * ブログコンテンツIDとブログ記事NOからブログ記事データを取得する
+ * 
+ * @param int $blogContentId
+ * @param int $blogPostNo
+ * @return array
+ */
+	private function getBlogPostData($blogContentId, $blogPostNo) {
+		// 現在の画面ではなく、ブログ記事のURLに対しての情報が必要なため取得する
+		if (ClassRegistry::isKeySet('Blog.BlogPost')) {
+			$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
+		} else {
+			$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+		}
+		$post = $BlogPostModel->find('first', array(
+			'conditions' => array(
+				'BlogPost.blog_content_id' => $blogContentId,
+				'BlogPost.no' => $blogPostNo,
+			),
+			// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
+			'recursive' => 1
+		));
+		
+		return $post;
 	}
 	
 }
