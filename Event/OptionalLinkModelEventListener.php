@@ -324,7 +324,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 					} else {
 						// コピー元データがない時
 						$data['OptionalLinkConfig']['blog_content_id'] = $modelId;
-						$data['OptionalLinkConfig']['status'] = true;
+						$data['OptionalLinkConfig']['status'] = false;
 					}
 				}
 				break;
