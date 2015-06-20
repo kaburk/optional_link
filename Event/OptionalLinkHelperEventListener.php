@@ -67,7 +67,14 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  * 
  * @var array
  */
-	public $judgeControllers = array('BlogPosts', 'BlogContents');
+	private $targetController = array('BlogPosts', 'BlogContents');
+	
+/**
+ * 処理対象とするアクション
+ * 
+ * @var array
+ */
+	private $targetAction = array('admin_edit', 'admin_add');
 	
 /**
  * formAfterCreate
