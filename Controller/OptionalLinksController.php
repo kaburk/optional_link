@@ -6,10 +6,7 @@
  * @author			arata
  * @license			MIT
  */
-/**
- * Include files
- */
-App::import('Controller', 'OptionalLink.OptionalLinkApp');
+App::uses('OptionalLinkApp', 'OptionalLink.Controller');
 class OptionalLinksController extends OptionalLinkAppController {
 /**
  * ControllerName
