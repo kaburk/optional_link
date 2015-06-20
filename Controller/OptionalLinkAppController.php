@@ -58,41 +58,10 @@ class OptionalLinkAppController extends BcPluginAppController {
  */
 	public function beforeFilter() {
 		parent::beforeFilter();
-		$judgeOptionalLinkConfigUse = false;
-		$judgeOptionalLinkUse = false;
-		$message = '';
 		
 		// ブログ情報を取得
 		$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
 		$this->blogContentDatas = $BlogContentModel->find('list', array('recursive' => -1));
-		// オプショナルリンク設定データを取得
-		$datas = $this->OptionalLinkConfig->find('all', array('recursive' => -1));
-		
-		// オプショナルリンク設定データ数よりブログ設定データの方が多ければ、メニューを表示する
-		if (count($this->blogContentDatas) > count($datas)) {
-			$message .= '「オプショナルリンク設定データ作成」にてオプショナルリンク設定用のデータを作成して下さい。';
-		} else {
-			$judgeOptionalLinkConfigUse = true;
-		}
-		
-		// ブログ設定データを取得
-		$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
-		$blogPostDatas = $BlogPostModel->find('list', array('recursive' => -1));
-		// オプショナルリンクデータを取得
-		$dataList = $this->OptionalLink->find('all', array('recursive' => -1));
-		// オプショナルリンクのデータ数よりブログ記事データの方が多ければ、メニューを表示する
-		if (count($blogPostDatas) > count($dataList)) {
-			$message .= '「オプショナルリンク一括設定」にてオプショナルリンク用のデータを作成して下さい。';
-		} else {
-			$judgeOptionalLinkUse = true;
-		}
-		
-		$this->set('judgeOptionalLinkConfigUse', $judgeOptionalLinkConfigUse);
-		$this->set('judgeOptionalLinkUse', $judgeOptionalLinkUse);
-		
-		if ($message) {
-			$this->setMessage($message, true);
-		}
 	}
 	
 /**
