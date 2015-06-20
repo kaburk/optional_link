@@ -72,6 +72,39 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 	}
 	
 /**
+ * [ADMIN] 追加
+ * 
+ * @param int $id
+ * @return void
+ */
+	public function admin_add() {
+		$this->pageTitle = $this->adminTitle . '追加';
+		
+		if ($this->request->is('post')) {
+			$this->{$this->modelClass}->create();
+			if ($this->{$this->modelClass}->save($this->request->data)) {
+				$this->setMessage('追加が完了しました。');
+				$this->redirect(array('action' => 'index'));
+			} else {
+				$this->setMessage('入力エラーです。内容を修正して下さい。', true);
+			}
+		} else {
+			$this->request->data = $this->{$this->modelClass}->getDefaultValue();
+		}
+		
+		// 設定データがあるブログは選択リストから除外する
+		$dataList = $this->{$this->modelClass}->find('all');
+		if ($dataList) {
+			foreach ($dataList as $data) {
+				unset($this->blogContentDatas[$data[$this->modelClass]['blog_content_id']]);
+			}
+		}
+		
+		$this->set('blogContentDatas', $this->blogContentDatas);
+		$this->render('form');
+	}
+	
+/**
  * [ADMIN] 削除
  *
  * @param int $id
