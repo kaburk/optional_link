@@ -149,16 +149,31 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  * @param CakeEvent $event
  */
 	public function blogBlogPostsBeforeRender(CakeEvent $event) {
+		if (!BcUtil::isAdminSystem()) {
+			return;
+		}
+		
+		// オプショナルリンク設定データがない場合は何もせず通常動作にする
+		if (!$this->optionalLinkConfigs) {
+			return;
+		}
+		
 		$Controller = $event->subject();
 		// ブログ記事編集・追加画面で実行
 		if ($Controller->request->params['action'] == 'admin_edit') {
-			$Controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
+			if (isset($Controller->request->data['OptionalLink'])) {
+				if (empty($Controller->request->data['OptionalLink']['id'])) {
+					$defalut = $this->OptionalLinkModel->getDefaultValue();
+					$Controller->request->data['OptionalLink'] = $defalut['OptionalLink'];
+				}
+			}
 		}
 		if ($Controller->request->params['action'] == 'admin_add') {
 			$defalut = $this->OptionalLinkModel->getDefaultValue();
 			$Controller->request->data['OptionalLink'] = $defalut['OptionalLink'];
-			$Controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
 		}
+		
+		$Controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
 	}
 	
 }

@@ -88,15 +88,26 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		}
 		
 		$View = $event->subject();
-		if ($View->request->params['controller'] == 'blog_posts') {
-			if ($View->request->params['action'] == 'admin_edit' || $View->request->params['action'] == 'admin_add') {
-				// ブログ記事追加・編集画面に編集欄を追加する
-				if ($event->data['id'] == 'BlogPostForm') {
-					$event->data['out'] = $event->data['out'] . $View->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
-					return $event->data['out'];
-				}
+		
+		if ($View->request->params['controller'] != 'blog_posts') {
+			return $event->data['out'];
+		}
+		
+		if (!in_array($View->request->params['action'], $this->targetAction)) {
+			return $event->data['out'];
+		}
+		
+		// ブログ記事追加・編集画面に編集欄を追加する
+		if ($event->data['id'] != 'BlogPostForm') {
+			return $event->data['out'];
+		}
+		
+		if (isset($View->request->data['OptionalLinkConfig'])) {
+			if (!empty($View->request->data['OptionalLinkConfig']['status'])) {
+				$event->data['out'] = $event->data['out'] . $View->element('OptionalLink.admin/optional_link_form', array('model'=>'BlogPost'));
 			}
 		}
+		
 		return $event->data['out'];
 	}
 	
@@ -113,23 +124,30 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		}
 		
 		$View = $event->subject();
-		if ($View->request->params['controller'] == 'blog_contents') {
-			if ($View->request->params['action'] == 'admin_edit') {
-				// ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
-				if ($event->data['id'] == 'BlogContentAdminEditForm') {
-					$this->modelInitializer($View);
-					$output = '<div id="OptionalLinkConfigBox">';
-					$output .= $View->BcBaser->getLink('≫オプショナルリンク設定', array(
-						'plugin' => 'optional_link',
-						'controller' => 'optional_link_configs',
-						'action' => 'edit', $this->optionalLinkConfigs['OptionalLinkConfig']['id']
-					));
-					$output .= '</div>';
-					$event->data['out'] = $event->data['out'] . $output;
-					return $event->data['out'];
-				}
+		
+		if ($View->request->params['controller'] != 'blog_contents') {
+			return $event->data['out'];
+		}
+		
+		if ($View->request->params['action'] != 'admin_edit') {
+			return $event->data['out'];
+		}
+		
+		// ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
+		if ($event->data['id'] == 'BlogContentAdminEditForm') {
+			if ($this->optionalLinkConfigs) {
+				$this->modelInitializer($View);
+				$output = '<div id="OptionalLinkConfigBox">';
+				$output .= $View->BcBaser->getLink('≫オプショナルリンク設定', array(
+					'plugin' => 'optional_link',
+					'controller' => 'optional_link_configs',
+					'action' => 'edit', $this->optionalLinkConfigs['OptionalLinkConfig']['id']
+				));
+				$output .= '</div>';
+				$event->data['out'] = $event->data['out'] . $output;
 			}
 		}
+		
 		return $event->data['out'];
 	}
 	

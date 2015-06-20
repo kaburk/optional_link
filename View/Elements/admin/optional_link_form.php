@@ -6,15 +6,18 @@
  * @author			arata
  * @license			MIT
  */
+$blogContentId = $this->BcForm->value('OptionalLink.blog_content_id');
+if (!$blogContentId) {
+	$blogContentId = $blogContent['BlogContent']['id'];
+}
 ?>
 <?php if($this->request->params['action'] != 'admin_add'): ?>
 	<?php echo $this->BcForm->input('OptionalLink.id', array('type' => 'hidden')) ?>
-	<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'hidden')) ?>
+	<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'hidden', 'value' => $blogContentId)) ?>
 <?php else: ?>
-	<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'hidden', 'value' => $blogContent['BlogContent']['id'])) ?>
+	<?php echo $this->BcForm->input('OptionalLink.blog_content_id', array('type' => 'hidden', 'value' => $blogContentId)) ?>
 <?php endif ?>
 
-<?php if($this->request->data['OptionalLinkConfig']['status']): ?>
 <?php $this->BcBaser->css('OptionalLink.admin/optional_link', array('inline' => false)); ?>
 <?php $this->BcBaser->js(array('OptionalLink.admin/optional_link'), array('inline' => true)) ?>
 <div id="OptionalLinkTable">
@@ -95,11 +98,4 @@
 	</tr>
 </table>
 <!-- /.section --></div>
-
 <!-- /#OptionalLinkTable --></div>
-<?php else: ?>
-	<?php echo $this->BcForm->input('OptionalLink.status', array('type' => 'hidden')) ?>
-	<?php echo $this->BcForm->input('OptionalLink.name', array('type' => 'hidden')) ?>
-	<?php echo $this->BcForm->input('OptionalLink.blank', array('type' => 'hidden')) ?>
-	<?php echo $this->BcForm->input('OptionalLink.nolink', array('type' => 'hidden')) ?>
-<?php endif ?>

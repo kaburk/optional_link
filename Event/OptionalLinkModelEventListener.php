@@ -117,6 +117,12 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
  */
 	public function blogBlogPostAfterSave(CakeEvent $event) {
 		$Model = $event->subject();
+		
+		// OptionalLinkのデータがない場合は save 処理を実施しない
+		if (!isset($Model->data['OptionalLink'])) {
+			return;
+		}
+		
 		$created = $event->data[0];
 		if ($created) {
 			$contentId = $Model->getLastInsertId();
@@ -172,6 +178,15 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		$created = $event->data[0];
 		if ($created) {
 			$contentId = $Model->getLastInsertId();
+		} else {
+			$contentId = $Model->data[$Model->alias]['id'];
+		}
+		
+		$data = $this->OptionalLinkConfig->find('first', array(
+				'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId)
+		));
+		
+		if ($data) {
 			$saveData = $this->generateContentSaveData($Model, $contentId);
 			// ブログ設定追加時に設定情報を保存する
 			$this->OptionalLinkConfig->create($saveData);
@@ -230,12 +245,12 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 				// 追加時
 				$data['OptionalLink'] = $Model->data['OptionalLink'];
 				$data['OptionalLink']['blog_post_id'] = $contentId;
-				$data['OptionalLink']['blog_content_id'] = $Model->BlogContent->id;
 				break;
 				
 			case 'admin_edit':
 				// 編集時
-				$data['OptionalLink'] = array_merge($data['OptionalLink'], $Model->data['OptionalLink']);
+				$data['OptionalLink'] = $Model->data['OptionalLink'];
+				$data['OptionalLink']['blog_post_id'] = $contentId;
 				break;
 				
 			case 'admin_ajax_copy':
