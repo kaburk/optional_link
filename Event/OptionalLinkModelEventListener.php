@@ -183,7 +183,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		}
 		
 		$data = $this->OptionalLinkConfig->find('first', array(
-				'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId)
+			'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId),
+			'recursive' => -1,
 		));
 		
 		if ($data) {
@@ -304,7 +305,8 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		
 		if ($contentId) {
 			$data = $this->OptionalLinkConfig->find('first', array(
-				'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId)
+				'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId),
+				'recursive' => -1,
 			));
 		}
 		
