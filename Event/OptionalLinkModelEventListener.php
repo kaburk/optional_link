@@ -17,7 +17,6 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		'Blog.BlogPost.afterSave',
 		'Blog.BlogPost.afterDelete',
 		'Blog.BlogPost.beforeFind',
-		'Blog.BlogContent.afterSave',
 		'Blog.BlogContent.afterDelete',
 		'Blog.BlogContent.beforeFind'
 	);
@@ -169,35 +168,6 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 	}
 	
 /**
- * blogBlogContentAfterSave
- * 
- * @param CakeEvent $event
- */
-	public function blogBlogContentAfterSave(CakeEvent $event) {
-		$Model = $event->subject();
-		$created = $event->data[0];
-		if ($created) {
-			$contentId = $Model->getLastInsertId();
-		} else {
-			$contentId = $Model->data[$Model->alias]['id'];
-		}
-		
-		$data = $this->OptionalLinkConfig->find('first', array(
-			'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId),
-			'recursive' => -1,
-		));
-		
-		if ($data) {
-			$saveData = $this->generateContentSaveData($Model, $contentId);
-			// ブログ設定追加時に設定情報を保存する
-			$this->OptionalLinkConfig->create($saveData);
-			if (!$this->OptionalLinkConfig->save()) {
-				$this->log(sprintf('ID：%s のオプショナルリンク設定の保存に失敗しました。', $Model->data['OptionalLinkConfig']['id']));
-			}
-		}
-	}
-	
-/**
  * blogBlogContentAfterDelete
  * 
  * @param CakeEvent $event
@@ -275,73 +245,6 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 						// コピー元データがない時
 						$data['OptionalLink']['blog_post_id'] = $modelId;
 						$data['OptionalLink']['blog_content_id'] = $params['pass'][0];
-					}
-				}
-				break;
-				
-			default:
-				break;
-		}
-		
-		return $data;
-	}
-	
-/**
- * 保存するデータの生成
- * 
- * @param Object $Model
- * @param int $contentId
- * @return array
- */
-	private function generateContentSaveData($Model, $contentId = '') {
-		$params = Router::getParams();
-		$data = array();
-		if ($Model->alias == 'BlogContent') {
-			$modelId = $contentId;
-			if (isset($params['pass'][0])) {
-				$oldModelId = $params['pass'][0];
-			}
-		}
-		
-		if ($contentId) {
-			$data = $this->OptionalLinkConfig->find('first', array(
-				'conditions' => array('OptionalLinkConfig.blog_content_id' => $contentId),
-				'recursive' => -1,
-			));
-		}
-		
-		switch ($params['action']) {
-			case 'admin_add':
-				// 追加時
-				if (!empty($Model->data['OptionalLinkConfig'])) {
-					$data['OptionalLinkConfig'] = $Model->data['OptionalLinkConfig'];
-				}
-				$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
-				break;
-				
-			case 'admin_edit':
-				// 編集時
-				$data['OptionalLinkConfig'] = array_merge($data['OptionalLinkConfig'], $Model->data['OptionalLinkConfig']);
-				break;
-				
-			case 'admin_ajax_copy':
-				// Ajaxコピー処理時に実行
-				// ブログコピー保存時にエラーがなければ保存処理を実行
-				if (empty($Model->validationErrors)) {
-					$_data = $this->OptionalLinkConfig->find('first', array(
-						'conditions' => array('OptionalLinkConfig.blog_content_id' => $oldModelId),
-						'recursive' => -1
-					));
-					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
-					if ($_data) {
-						// コピー元データがある時
-						$data = Hash::merge($data, $_data);
-						$data['OptionalLinkConfig']['blog_content_id'] = $contentId;
-						unset($data['OptionalLinkConfig']['id']);
-					} else {
-						// コピー元データがない時
-						$data['OptionalLinkConfig']['blog_content_id'] = $modelId;
-						$data['OptionalLinkConfig']['status'] = false;
 					}
 				}
 				break;
