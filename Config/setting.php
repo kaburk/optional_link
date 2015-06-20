@@ -6,6 +6,7 @@
  * @author			arata
  * @license			MIT
  */
+App::uses('OptionalLinkUtil', 'OptionalLink.Lib');
 /**
  * システムナビ
  */

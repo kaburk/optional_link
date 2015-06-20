@@ -49,10 +49,8 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 		
 		$hasDir = true;
 		if (!$this->hasUploadFileFolder()) {
-			$filesPath = WWW_ROOT .'files';
-			$savePath = $filesPath .DS. 'optionallink';
-			$limitedPath = $savePath . DS . 'limited';
-			$fileHtaccess = $limitedPath . DS . '.htaccess';
+			$savePath = OptionalLinkUtil::getSavePath();
+			$fileHtaccess = OptionalLinkUtil::getLimitedHtaccess();
 			
 			$message = 'ファイルアップロード用のフォルダが存在するか確認してください。<br />';
 			$message .= $savePath .'<br /><br />';
@@ -171,9 +169,9 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
  */
 	public function admin_init_folder () {
 		// 必要フォルダ初期化
-		$filesPath = WWW_ROOT .'files';
-		$savePath = $filesPath .DS. 'optionallink';
-		$limitedPath = $savePath . DS . 'limited';
+		$filesPath = OptionalLinkUtil::getFilePath();
+		$savePath = OptionalLinkUtil::getSavePath();
+		$limitedPath = OptionalLinkUtil::getLimitedPath();
 		
 		if (is_writable($filesPath) && !is_dir($savePath)) {
 			mkdir($savePath);
@@ -188,7 +186,7 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 			chmod($limitedPath, 0777);
 		}
 		if (is_writable($limitedPath)) {
-			$File = new File($limitedPath . DS . '.htaccess');
+			$File = new File(OptionalLinkUtil::getLimitedHtaccess());
 			$htaccess = "Order allow,deny\nDeny from all";
 			$File->write($htaccess);
 			$File->close();
@@ -200,12 +198,13 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 	}
 	
 /**
+ * ファイルアップロード用ディレクトリの存在チェックを行う
  * 
+ * @return boolean
  */
 	protected function hasUploadFileFolder() {
-		$filesPath = WWW_ROOT .'files';
-		$savePath = $filesPath .DS. 'optionallink';
-		$limitedPath = $savePath . DS . 'limited';
+		$savePath = OptionalLinkUtil::getSavePath();
+		$limitedPath = OptionalLinkUtil::getLimitedPath();
 		$result = false;
 		
 		if (file_exists($savePath) && is_dir($savePath)) {
@@ -220,7 +219,7 @@ class OptionalLinkConfigsController extends OptionalLinkAppController {
 			$result = false;
 		}
 		
-		if (file_exists($limitedPath . DS . '.htaccess')) {
+		if (file_exists(OptionalLinkUtil::getLimitedHtaccess())) {
 			// 公開制限ファイルアップのための htaccess は存在している
 			$result = true;
 		} else {
