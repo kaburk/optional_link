@@ -135,8 +135,8 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		
 		// ブログ設定編集画面にオプショナルリンク設定編集リンクを表示する
 		if ($event->data['id'] == 'BlogContentAdminEditForm') {
+			$this->modelInitializer($View);
 			if ($this->optionalLinkConfigs) {
-				$this->modelInitializer($View);
 				$output = '<div id="OptionalLinkConfigBox">';
 				$output .= $View->BcBaser->getLink('≫オプショナルリンク設定', array(
 					'plugin' => 'optional_link',
