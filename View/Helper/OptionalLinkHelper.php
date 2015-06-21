@@ -74,7 +74,7 @@ class OptionalLinkHelper extends AppHelper {
  * @param array $post
  * @return boolean
  */	
-	public function judgeStatus($post = array()) {
+	public function isStatus($post = array()) {
 		if(!empty($post['OptionalLinkConfig']['status'])) {
 			if($post['OptionalLinkConfig']['status']) {
 				return true;
