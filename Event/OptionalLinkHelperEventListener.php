@@ -245,39 +245,42 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			return;
 		}
 		
+		// URLが持つブログコンテンツとURLが持つ記事NOより、ブログ記事を特定する
 		$post = $this->getBlogPostData($blogContent['BlogContent']['id'], $this->url[0]);		
 		if (!$post) {
 			return;
 		}
 		
-		if (!empty($post['OptionalLink'])) {
-			$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
-			if ($this->optionalLink['OptionalLink']['status']) {
-				$this->isRewrite = true;
-				if ($this->optionalLink['OptionalLink']['blank']) {
-					$event->data['options']['target'] = '_blank';
-				}
-			}
-
-			switch ($this->optionalLink['OptionalLink']['status']) {
-				case '2':
-					// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
-					$optionalLink = $this->optionalLink['OptionalLink'];
-					if ($optionalLink['file']) {
-						// サムネイル側へのリンクになるため、imgsize => large を指定する
-						$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
-						$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
-						if ($result) {
-							$optionalLink['name'] = $match[1];
-							$event->data['options']['target'] = '_blank'; // 問答無用でblank
-						}
+		// URL書換えの実施判定。オプショナルリンク値の有無、ステータスにより判定する
+		$this->isRewrite = $this->isRewriteUrl($post);		
+		if (!$this->isRewrite) {
+			return;
+		}
+		
+		// URL書換えが有効な場合は、以降を実施する
+		$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
+		if ($this->optionalLink['OptionalLink']['blank']) {
+			$event->data['options']['target'] = '_blank';
+		}
+		
+		switch ($this->optionalLink['OptionalLink']['status']) {
+			case '2':
+				// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
+				$optionalLink = $this->optionalLink['OptionalLink'];
+				if ($optionalLink['file']) {
+					// サムネイル側へのリンクになるため、imgsize => large を指定する
+					$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
+					$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
+					if ($result) {
+						$optionalLink['name'] = $match[1];
+						$event->data['options']['target'] = '_blank'; // 問答無用でblank
 					}
-					$this->optionalLink['OptionalLink'] = $optionalLink;
-					break;
+				}
+				$this->optionalLink['OptionalLink'] = $optionalLink;
+				break;
 
-				default:
-					break;
-			}
+			default:
+				break;
 		}
 	}
 	
@@ -431,6 +434,29 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		));
 		
 		return $post;
+	}
+	
+/**
+ * 特定したブログ記事から、その記事のオプショナルリンク値を判定する
+ * - オプショナルリンク値を持つ場合、そのステータス値から、URL書換えの実施を判定する
+ * 
+ * @param array $post
+ * @return boolean
+ */
+	private function isRewriteUrl($post) {
+		$result = false;
+		
+		// 特定したブログ記事がオプショナルリンク値を持たない場合はURL書換えを行わない
+		if (!isset($post['OptionalLink'])) {
+			return false;
+		}
+		
+		// 特定したブログ記事のオプショナルリンク値のステータスが未使用 or 存在しない値の場合はURL書換えを行わない
+		if (!empty($post['OptionalLink']['status'])) {
+			$result = true;
+		}
+		
+		return $result;
 	}
 	
 }
