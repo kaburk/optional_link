@@ -57,4 +57,24 @@ class OptionalLinkUtil extends Object
 		return self::$limitedHtaccess;
 	}
 	
+	/**
+	 * URLをpathinfoで分割したextensionの値から、判定文字列を生成する
+	 * 
+	 * @param string $extension
+	 * @return string
+	 */
+	public static function getUrlExtension($extension) {
+		$str = '';
+		if ($extension == 'pdf') {
+			$str = 'pdf';
+		}
+		if ($extension == 'xls' || $extension == 'xlsx') {
+			$str = 'excel';
+		}
+		if ($extension == 'doc' || $extension == 'docx') {
+			$str = 'word';
+		}
+		return $str;
+	}
+	
 }

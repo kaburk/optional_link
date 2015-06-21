@@ -12,7 +12,7 @@ class OptionalLinkHelper extends AppHelper {
  *
  * @var array
  */
-	public $helpers = array('BcBaser', 'Blog', 'BcUpload', 'Html');
+	public $helpers = array('BcBaser', 'Blog', 'BcUpload');
 	
 /**
  * アップロードファイルの保存URL
@@ -105,15 +105,7 @@ class OptionalLinkHelper extends AppHelper {
 						$path = pathinfo($content);
 
 						if (!empty($path['extension'])) {
-							if ($path['extension'] == 'pdf') {
-								$str = 'pdf';
-							}
-							if ($path['extension'] == 'xls' || $path['extension'] == 'xlsx') {
-								$str = 'excel';
-							}
-							if ($path['extension'] == 'doc' || $path['extension'] == 'docx') {
-								$str = 'word';
-							}
+							$str = OptionalLinkUtil::getUrlExtension($path['extension']);
 						}
 						if ($str) {
 							return $str;
@@ -135,15 +127,7 @@ class OptionalLinkHelper extends AppHelper {
 						$path = pathinfo($content);
 
 						if (!empty($path['extension'])) {
-							if ($path['extension'] == 'pdf') {
-								$str = 'pdf';
-							}
-							if ($path['extension'] == 'xls' || $path['extension'] == 'xlsx') {
-								$str = 'excel';
-							}
-							if ($path['extension'] == 'doc' || $path['extension'] == 'docx') {
-								$str = 'word';
-							}
+							$str = OptionalLinkUtil::getUrlExtension($path['extension']);
 						}
 						if ($str) {
 							return $str;
