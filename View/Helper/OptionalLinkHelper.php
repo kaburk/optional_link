@@ -29,8 +29,8 @@ class OptionalLinkHelper extends AppHelper {
 	
 	public function __construct(View $View, $settings = array()) {
 		parent::__construct($View, $settings);
-		$this->savedUrl = '/files/optionallink/';
-		$this->savePath = WWW_ROOT . 'files' . DS . 'optionallink' . DS;
+		$this->savedUrl = baseUrl() .'files'. DS .'optionallink'. DS;
+		$this->savePath = OptionalLinkUtil::getSavePath() .DS;
 	}
 	
 /**
