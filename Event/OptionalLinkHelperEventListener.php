@@ -293,7 +293,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
  */
 	public function htmlAfterGetLink(CakeEvent $event) {
 		$View = $event->subject();
-		if ($this->isBlogArchivesUrl) {
+		if ($this->isRewrite) {
 			$event->data['out'] = $this->_rewriteUrl($View, $event->data['out']);
 		}
 		return $event->data['out'];
