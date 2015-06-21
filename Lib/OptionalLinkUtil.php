@@ -19,7 +19,8 @@ class OptionalLinkUtil extends Object
 	 * 
 	 * @return string
 	 */
-	public static function getFilePath() {
+	public static function getFilePath()
+	{
 		self::$filesPath = WWW_ROOT .'files';
 		return self::$filesPath;
 	}
@@ -30,7 +31,8 @@ class OptionalLinkUtil extends Object
 	 * 
 	 * @return string
 	 */
-	public static function getSavePath() {
+	public static function getSavePath()
+	{
 		self::$savePath = self::getFilePath() .DS. 'optionallink';
 		return self::$savePath;
 	}
@@ -41,7 +43,8 @@ class OptionalLinkUtil extends Object
 	 * 
 	 * @return string
 	 */
-	public static function getLimitedPath() {
+	public static function getLimitedPath()
+	{
 		self::$limitedPath = self::getSavePath() .DS. 'limited';
 		return self::$limitedPath;
 	}
@@ -52,7 +55,8 @@ class OptionalLinkUtil extends Object
 	 * 
 	 * @return string
 	 */
-	public static function getLimitedHtaccess() {
+	public static function getLimitedHtaccess()
+	{
 		self::$limitedHtaccess = self::getLimitedPath() .DS. '.htaccess';
 		return self::$limitedHtaccess;
 	}
@@ -63,7 +67,8 @@ class OptionalLinkUtil extends Object
 	 * @param string $extension
 	 * @return string
 	 */
-	public static function getUrlExtension($extension) {
+	public static function getUrlExtension($extension)
+	{
 		$str = '';
 		if ($extension == 'pdf') {
 			$str = 'pdf';

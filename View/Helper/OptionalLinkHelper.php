@@ -17,16 +17,23 @@ class OptionalLinkHelper extends AppHelper {
 /**
  * アップロードファイルの保存URL
  * 
- * @var		string
+ * @var string
  */
 	public $savedUrl = '';
+	
 /**
  * アップロードファイルの保存パス
  * 
- * @var		string
+ * @var string
  */
 	public $savePath = '';
 	
+/**
+ * constructer
+ * 
+ * @param View $View
+ * @param array $settings
+ */
 	public function __construct(View $View, $settings = array()) {
 		parent::__construct($View, $settings);
 		$this->savedUrl = baseUrl() .'files'. DS .'optionallink'. DS;
@@ -34,10 +41,10 @@ class OptionalLinkHelper extends AppHelper {
 	}
 	
 /**
- * 除外状態を取得する
+ * 公開状態を取得する
  * 
  * @param array $data
- * @return boolean 除外状態
+ * @return boolean 公開状態
  */
 	public function allowPublish($data){
 		if (isset($data['OptionalLink'])){
@@ -86,7 +93,7 @@ class OptionalLinkHelper extends AppHelper {
 /**
  * リンク文字列をチェックして判定する
  * 
- * @param type $post
+ * @param array $post
  * @return string
  */
 	public function judgeLinkKinds($post = array()) {
@@ -200,8 +207,8 @@ class OptionalLinkHelper extends AppHelper {
 /**
  * ファイルが保存されているURLを取得する
  *
- * @param	string	$fileName
- * @return	string
+ * @param string $fileName
+ * @return string
  */
 	public function getFileUrl ($fileName) {
 		if ($fileName) {
