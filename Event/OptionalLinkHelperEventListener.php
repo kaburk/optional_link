@@ -195,8 +195,10 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		}
 		
 		$View = $event->subject();
-		$this->isBlogArchivesUrl = false;
-		$this->isRewrite = false;
+		$this->isBlogArchivesUrl = false;		// URLが記事詳細へのURLかの判定を初期化
+		$this->isRewrite = false;				// URL書換を機能させるかの判定を初期化
+		$this->optionalLink = null;				// オプショナルリンク値を初期化
+		$blogContent = array();					// URLが持つブログコンテンツ値を初期化
 		
 		if (!is_array($event->data['url'])) {
 			$this->url = Router::parse($event->data['url']);
@@ -215,30 +217,15 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			}
 		}
 		
-		// URLがブログ記事詳細へのリンクかどうかを判定する
+		if (!isset($this->url['action'])) {
+			return;
+		}
+		
+		// URLが、ブログ記事詳細へのリンクかどうかを判定する
 		if (!$this->isBlogArchivesUrl) {
-			if (!isset($this->url['action'])) {
-				return;
-			}
-			
-			if ($this->url['action'] == 'archives') {
-				// 引数のURLが1つ（記事詳細）のときに有効とする
-				if (!empty($this->url[0]) && !isset($this->url[1])) {
-					if (!$this->blogContents) {
-						if (ClassRegistry::isKeySet('Blog.BlogContent')) {
-							$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
-						} else {
-							$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
-						}
-						$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
-					}
-					foreach ($this->blogContents as $value) {
-						if ($this->url['controller'] == $value['BlogContent']['name']) {
-							$this->isBlogArchivesUrl = true;
-							break;
-						}
-					}
-				}
+			$blogContent = $this->hasBlogContent($this->url);
+			if ($blogContent) {
+				$this->isBlogArchivesUrl = true;
 			}
 		}
 		
@@ -251,22 +238,16 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		
 		// URLに対するオプショナルリンク設定がない場合はURL書き換えを行わない
 		if (!$this->optionalLinkConfigs) {
-			// 設定値を初期化
-			$this->optionalLink = null;
 			return;
 		}
 		
 		// オプショナルリンク設定が無効の場合はURL書き換えを行わない
 		if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
-			// 設定値を初期化
-			$this->optionalLink = null;
 			return;
 		}
 		
-		$post = $this->getBlogPostData($value['BlogContent']['id'], $this->url[0]);		
+		$post = $this->getBlogPostData($blogContent['BlogContent']['id'], $this->url[0]);		
 		if (!$post) {
-			// 設定値を初期化
-			$this->optionalLink = null;
 			return;
 		}
 		
@@ -299,6 +280,36 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 					break;
 			}
 		}
+	}
+	
+/**
+ * URLがブログ記事詳細であることを判定し、そのURLが持つブログコンテンツを取得する
+ * 
+ * @param array $url
+ * @return array
+ */
+	private function hasBlogContent($url) {
+		$data = array();
+		if ($url['action'] == 'archives') {
+			// 引数のURLが1つ（記事詳細）のときに有効とする
+			if (!empty($url[0]) && !isset($url[1])) {
+				if (!$this->blogContents) {
+					if (ClassRegistry::isKeySet('Blog.BlogContent')) {
+						$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
+					} else {
+						$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
+					}
+					$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
+				}
+				foreach ($this->blogContents as $value) {
+					if ($url['controller'] == $value['BlogContent']['name']) {
+						$data = $value;
+						break;
+					}
+				}
+			}
+		}
+		return $data;
 	}
 	
 /**
