@@ -162,7 +162,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		} else {
 			$this->OptionalLinkConfigModel = ClassRegistry::init('OptionalLink.OptionalLinkConfig');
 		}
-		//$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->read(null, $View->Blog->blogContent['id']);
+		
 		$this->optionalLinkConfigs = $this->OptionalLinkConfigModel->find('first', array(
 			'conditions' => array(
 				'OptionalLinkConfig.blog_content_id' => $View->Blog->blogContent['id'],
@@ -205,7 +205,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		} else {
 			$this->url = $event->data['url'];
 		}
-
 		if (!$this->url) {
 			return;
 		}
