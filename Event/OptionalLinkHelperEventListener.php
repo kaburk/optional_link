@@ -209,7 +209,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		}
 		
 		if (isset($this->url['admin'])) {
-			// 管理システムへのURLの場合は書き換えを行わない
+			// URLが、管理システム側の場合は書き換えを行わない
 			if ($this->url['admin']) {
 				return;
 			}
@@ -242,7 +242,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 			}
 		}
 		
-		// URLがブログ記事詳細へのリンクの場合、リンクの書換えを実施する
+		// URLが、ブログ記事詳細へのリンクではない場合、リンクの書換えを行わない
 		if (!$this->isBlogArchivesUrl) {
 			return;
 		}
