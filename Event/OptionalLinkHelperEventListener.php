@@ -282,36 +282,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 	}
 	
 /**
- * URLがブログ記事詳細であることを判定し、そのURLが持つブログコンテンツを取得する
- * 
- * @param array $url
- * @return array
- */
-	private function hasBlogContent($url) {
-		$data = array();
-		if ($url['action'] == 'archives') {
-			// 引数のURLが1つ（記事詳細）のときに有効とする
-			if (!empty($url[0]) && !isset($url[1])) {
-				if (!$this->blogContents) {
-					if (ClassRegistry::isKeySet('Blog.BlogContent')) {
-						$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
-					} else {
-						$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
-					}
-					$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
-				}
-				foreach ($this->blogContents as $value) {
-					if ($url['controller'] == $value['BlogContent']['name']) {
-						$data = $value;
-						break;
-					}
-				}
-			}
-		}
-		return $data;
-	}
-	
-/**
  * htmlAfterGetLink
  * 
  * @param CakeEvent $event
@@ -405,6 +375,36 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		}
 		
 		return $out;
+	}
+	
+/**
+ * URLがブログ記事詳細であることを判定し、そのURLが持つブログコンテンツを取得する
+ * 
+ * @param array $url
+ * @return array
+ */
+	private function hasBlogContent($url) {
+		$data = array();
+		if ($url['action'] == 'archives') {
+			// 引数のURLが1つ（記事詳細）のときに有効とする
+			if (!empty($url[0]) && !isset($url[1])) {
+				if (!$this->blogContents) {
+					if (ClassRegistry::isKeySet('Blog.BlogContent')) {
+						$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
+					} else {
+						$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
+					}
+					$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
+				}
+				foreach ($this->blogContents as $value) {
+					if ($url['controller'] == $value['BlogContent']['name']) {
+						$data = $value;
+						break;
+					}
+				}
+			}
+		}
+		return $data;
 	}
 	
 /**
