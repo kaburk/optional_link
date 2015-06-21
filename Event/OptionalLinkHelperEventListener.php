@@ -259,21 +259,22 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener {
 		
 		// URL書換えが有効な場合は、以降を実施する
 		$this->optionalLink['OptionalLink'] = $post['OptionalLink'];
-		if ($this->optionalLink['OptionalLink']['blank']) {
-			$event->data['options']['target'] = '_blank';
-		}
-		
 		switch ($this->optionalLink['OptionalLink']['status']) {
-			case '2':
-				// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
+			case '1':	// ステータスがURLの場合
+				if ($this->optionalLink['OptionalLink']['blank']) {
+					$event->data['options']['target'] = '_blank';
+				}
+				break;
+			
+			case '2':	// ステータスがファイルの場合
 				$optionalLink = $this->optionalLink['OptionalLink'];
 				if ($optionalLink['file']) {
 					// サムネイル側へのリンクになるため、imgsize => large を指定する
 					$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
 					$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
 					if ($result) {
-						$optionalLink['name'] = $match[1];
-						$event->data['options']['target'] = '_blank'; // 問答無用でblank
+						$optionalLink['name'] = $match[1];				// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
+						$event->data['options']['target'] = '_blank';	// 問答無用でblank
 					}
 				}
 				$this->optionalLink['OptionalLink'] = $optionalLink;
