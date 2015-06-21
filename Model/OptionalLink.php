@@ -38,8 +38,8 @@ class OptionalLink extends BcPluginAppModel {
 					//'nameformat'	=> '%07d',
 					'nameadd'		=> false,
 					'imagecopy' => array(
-						'thumb'		=> array('prefix' => 'thumb_', 'width' => '150', 'height' => '150'),
 						'large'		=> array('prefix' => 'large_', 'width' => '1600', 'height' => '1600'),
+						'thumb'		=> array('prefix' => 'thumb_', 'width' => '150', 'height' => '150'),
 					),
 				),
 			),
