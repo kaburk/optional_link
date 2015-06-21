@@ -235,14 +235,15 @@ class OptionalLinkHelper extends AppHelper {
  * @return string リンクタグ
  */
 	public function file ($uploaderFile, $options = array()) {
-		if (isset($uploaderFile['OptionalLink'])) {
-			$uploaderFile = $uploaderFile['OptionalLink'];
-		}
 		$_options = array(
 			'alt' => $uploaderFile['file'],
 			'target' => '_blank',
 		);
 		$options = Hash::merge($_options, $options);
+		
+		if (isset($uploaderFile['OptionalLink'])) {
+			$uploaderFile = $uploaderFile['OptionalLink'];
+		}
 		
 		if (!empty($uploaderFile['file'])) {
 			$imgUrl = $this->getFileUrl($uploaderFile['file']);
