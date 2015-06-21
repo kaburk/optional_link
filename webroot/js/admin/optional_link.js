@@ -76,10 +76,12 @@ $(function () {
 					$(this).dialog("close");
 				},
 				'OK': function() {
-					$('#OptionalLinkPublishBeginDate').val('');
-					$('#OptionalLinkPublishBeginTime').val('');
-					$('#OptionalLinkPublishEndDate').val('');
-					$('#OptionalLinkPublishEndTime').val('');
+					$('#OptionalLinkPublishBeginDate').val('');		// フォーム表示値
+					$('#OptionalLinkPublishBeginTime').val('');		// フォーム表示値
+					$('#OptionalLinkPublishBegin').val('');			// フォームhiddenの実体値
+					$('#OptionalLinkPublishEndDate').val('');		// フォーム表示値
+					$('#OptionalLinkPublishEndTime').val('');		// フォーム表示値
+					$('#OptionalLinkPublishEnd').val('');			// フォームhiddenの実体値
 					$(this).dialog("close");
 				}
 			}
