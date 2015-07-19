@@ -60,7 +60,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
  * 
  * @param CakeEvent $event
  */
-	function initialize(CakeEvent $event) {
+	public function initialize(CakeEvent $event) {
 		$Controller = $event->subject();
 		$Controller->helpers[] = 'OptionalLink.OptionalLink';
 	}
