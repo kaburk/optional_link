@@ -122,6 +122,27 @@ class OptionalLinkAppController extends BcPluginAppController {
 	}
 	
 /**
+ * [ADMIN] 追加
+ * 
+ */
+	public function admin_add() {
+		$this->pageTitle = $this->adminTitle . '追加';
+		
+		if ($this->request->is('post')) {
+			if ($this->{$this->modelClass}->save($this->request->data)) {
+				$this->setMessage('追加が完了しました。');
+				$this->redirect(array('action' => 'index'));
+			} else {
+				$this->setMessage('入力エラーです。内容を修正して下さい。', true);
+			}
+		} else {
+			$this->request->data = $this->{$this->modelClass}->getDefaultValue();
+		}
+		
+		$this->render('form');
+	}
+	
+/**
  * [ADMIN] 削除
  *
  * @param int $id
