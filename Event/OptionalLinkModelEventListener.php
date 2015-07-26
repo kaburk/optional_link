@@ -118,27 +118,14 @@ class OptionalLinkModelEventListener extends BcModelEventListener {
 		$Model = $event->subject();
 		
 		// OptionalLinkのデータがない場合は save 処理を実施しない
-		if (!isset($Model->data['OptionalLink'])) {
+		if (!isset($Model->data['OptionalLink']) || empty($Model->data['OptionalLink'])) {
 			return;
 		}
 		
-		$created = $event->data[0];
-		if ($created) {
-			$contentId = $Model->getLastInsertId();
-		} else {
-			$contentId = $Model->data[$Model->alias]['id'];
-		}
-		$saveData = $this->generateSaveData($Model, $contentId);
+		$saveData = $this->generateSaveData($Model, $Model->id);
 		// 2周目では保存処理に渡らないようにしている
 		if (!$this->throwBlogPost) {
-			if (isset($saveData['OptionalLink']['id'])) {
-				// ブログ記事編集保存時に設定情報を保存する
-				$this->OptionalLink->set($saveData);
-			} else {
-				// ブログ記事追加時に設定情報を保存する
-				$this->OptionalLink->create($saveData);
-			}
-			if (!$this->OptionalLink->save()) {
+			if (!$this->OptionalLink->save($saveData)) {
 				$this->log(sprintf('ID：%s のオプショナルリンクの保存に失敗しました。', $Model->data['OptionalLink']['id']));
 			}
 		}
