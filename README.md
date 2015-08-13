@@ -37,3 +37,4 @@ OptionalLink プラグインは、ブログ記事に任意のURLを設定でき�
 - [http://basercms.net/](http://basercms.net/)
 - [http://wiki.basercms.net/](http://wiki.basercms.net/)
 - [http://cakephp.jp](http://cakephp.jp)
+- [Semantic Versioning 2.0.0](http://semver.org/lang/ja/)
