@@ -141,6 +141,114 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 				$Controller->viewVars['post']['OptionalLink'] = $Controller->data['OptionalLink'];
 			}
 		}
+		
+		if (!$this->isRedirect($Controller)) {
+			return;
+		}
+		
+		$this->redirectOptionalLinkUrl($Controller);
+	}
+	
+/**
+ * ブログ記事詳細へのアクセス時、オプショナルリンクの値でリダイレクトするか判定する
+ * - 記事プレビューは非対応
+ * 
+ * @param Opject $Controller
+ * @return boolean
+ */
+	private function isRedirect($Controller) {
+		if (!isset($Controller->viewVars['single'])) {
+			return false;
+		}
+		if (!$Controller->viewVars['single']) {
+			return false;
+		}
+		// プレビューの際はオプショナルリンク設定を取得しないため対応しない
+		if (!$this->optionalLinkConfigs) {
+			return false;
+		}
+		if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
+			return false;
+		}
+		if (empty($Controller->viewVars['post']['OptionalLink'])) {
+			return false;
+		}
+		if (!$Controller->viewVars['post']['OptionalLink']['status']) {
+			return false;
+		}
+		return true;
+	}
+	
+/**
+ * ブログ記事詳細へのアクセス時、オプショナルリンクの値でリダイレクトさせて、記事詳細画面を表示しないようにする
+ * - ViewEventHelperの処理と似ているが、動作の流れが異なるため共通メソッド化はしない
+ * 
+ * @param Opject $Controller
+ */
+	private function redirectOptionalLinkUrl($Controller) {
+		$optionalLinkData['OptionalLink'] = $Controller->viewVars['post']['OptionalLink'];
+		
+		switch ($optionalLinkData['OptionalLink']['status']) {
+			case '1':	// URLの場合
+				if (!$optionalLinkData['OptionalLink']['nolink']) {
+					$link = $optionalLinkData['OptionalLink']['name'];
+					if ($link) {
+						// /files〜 の場合はドメインを付与して絶対指定扱いにする
+						$regexFiles = '/^\/files\/.+/';
+						if (preg_match($regexFiles, $link)) {
+							// /lib/Baser/basics.php
+							$link = topLevelUrl(false) . $link;
+							//$link = Configure::read('BcEnv.siteUrl') . $link;
+						}
+						$Controller->redirect($link);
+					}
+				} else {
+					// リンクしない場合は文字列に置換する
+					// 例：<a href="/news/archives/2>(.)</a>
+					$Controller->notFound();
+				}
+				break;
+
+			case '2':	// ファイルの場合
+				$optionalLink = $optionalLinkData['OptionalLink'];
+
+				if ($optionalLink['file']) {
+					// サムネイル側へのリンクになるため、imgsize => large を指定する
+					App::uses('BcUploadHelper', 'View/Helper');
+					$View->BcUpload = new BcUploadHelper(new View());
+					$fileLink = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
+					$result = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
+					if ($result) {
+						$optionalLink['name'] = $match[1];				// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
+					}
+				}
+				$optionalLinkData['OptionalLink'] = $optionalLink;
+
+				$link = $optionalLinkData['OptionalLink']['name'];
+				if ($link) {
+					// ファイルの公開期間をチェックする
+					App::uses('OptionalLinkHelper', 'OptionalLink.View/Helper');
+					$View->OptionalLink = new OptionalLinkHelper(new View());
+					$checkPublish = $View->OptionalLink->allowPublishFile($optionalLinkData);
+					if ($checkPublish) {
+						// /files〜 の場合はドメインを付与して絶対指定扱いにする
+						$regexFiles = '/^\/files\/.+/';
+						if (preg_match($regexFiles, $link)) {
+							// /lib/Baser/basics.php
+							$link = topLevelUrl(false) . $link;
+							//$link = Configure::read('BcEnv.siteUrl') . $link;
+						}
+						$Controller->redirect($link);
+					} else {
+						// ファイルの公開期間が終了していれば、リンクしない文字列に置換する
+						$Controller->notFound();
+					}
+				}
+				break;
+
+			default:
+				break;
+		}
 	}
 	
 /**
