@@ -267,18 +267,20 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener {
 		}
 		
 		$Controller = $event->subject();
-		// ブログ記事編集・追加画面で実行
-		if ($Controller->request->params['action'] == 'admin_edit') {
-			if (isset($Controller->request->data['OptionalLink'])) {
-				if (empty($Controller->request->data['OptionalLink']['id'])) {
-					$defalut = $this->OptionalLinkModel->getDefaultValue();
-					$Controller->request->data['OptionalLink'] = $defalut['OptionalLink'];
-				}
-			}
+		if (!in_array($Controller->request->params['action'], $this->targetAction)) {
+			return;
 		}
+		
 		if ($Controller->request->params['action'] == 'admin_add') {
 			$defalut = $this->OptionalLinkModel->getDefaultValue();
 			$Controller->request->data['OptionalLink'] = $defalut['OptionalLink'];
+		}
+		
+		if (isset($Controller->request->data['OptionalLink'])) {
+			if (empty($Controller->request->data['OptionalLink']['id'])) {
+				$defalut = $this->OptionalLinkModel->getDefaultValue();
+				$Controller->request->data['OptionalLink'] = $defalut['OptionalLink'];
+			}
 		}
 		
 		$Controller->request->data['OptionalLinkConfig'] = $this->optionalLinkConfigs['OptionalLinkConfig'];
