@@ -99,7 +99,6 @@ $(function () {
 		
 		imgHeight = '';
 		imgHeight = $imageFile.height();
-		console.log(imgHeight);
 		if (imgHeight) {
 			if (imgHeight > 200) {
 				$imageFile.attr({'height': 200});
