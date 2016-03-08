@@ -251,5 +251,78 @@ class OptionalLinkHelper extends AppHelper {
 		}
 		return '';
 	}
-	
+
+
+/**
+ * $postからURLを返す
+ * 
+ * @param array $post
+ * @return string リンクURL
+ */
+
+	public function getPostUrl($post) {
+
+		$url = $this->Blog->getPostLinkUrl($post);
+		$target = '';
+		if ($post['OptionalLink']['status']) {
+		    if ($post['OptionalLink']['status'] == "1") {
+		        if ($post['OptionalLink']['nolink']) {
+		            $url = null;
+		        } else {
+		            if ($post['OptionalLink']['blank']) $target = 'target="_blank"';
+		            if ($post['OptionalLink']['name']) $url = $post['OptionalLink']['name'];
+		        }
+
+		    } elseif ($post['OptionalLink']['status'] == "2") {
+		        if ((!$post['OptionalLink']['publish_begin'] || strtotime($post['OptionalLink']['publish_begin']) < time()) &&
+		            (!$post['OptionalLink']['publish_end'] || strtotime($post['OptionalLink']['publish_end']) > time())
+		            ) {
+		            $target = 'target="_blank"';
+		            $url = "/files/optionallink/" . $post['OptionalLink']['file'];
+		        } else {
+		            $url = null;
+		        }
+		    }
+		}
+
+		return $url;
+	}
+
+/**
+ * $postからリンクターゲットの文字列を返す
+ * 
+ * @param array $post
+ * @return string ターゲット(target="_blank")
+ */
+
+	public function getPostTarget($post) {
+
+		$url = $this->Blog->getPostLinkUrl($post);
+		$target = '';
+		if ($post['OptionalLink']['status']) {
+		    if ($post['OptionalLink']['status'] == "1") {
+		        if ($post['OptionalLink']['nolink']) {
+		            $url = null;
+		        } else {
+		            if ($post['OptionalLink']['blank']) $target = 'target="_blank"';
+		            if ($post['OptionalLink']['name']) $url = $post['OptionalLink']['name'];
+		        }
+
+		    } elseif ($post['OptionalLink']['status'] == "2") {
+		        if ((!$post['OptionalLink']['publish_begin'] || strtotime($post['OptionalLink']['publish_begin']) < time()) &&
+		            (!$post['OptionalLink']['publish_end'] || strtotime($post['OptionalLink']['publish_end']) > time())
+		            ) {
+		            $target = 'target="_blank"';
+		            $url = "/files/optionallink/" . $post['OptionalLink']['file'];
+		        } else {
+		            $url = null;
+		        }
+		    }
+		}
+
+		return $target;
+	}
+
+
+
 }
