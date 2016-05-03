@@ -225,7 +225,8 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 				if ($optionalLink['file']) {
 					// サムネイル側へのリンクになるため、imgsize => large を指定する
 					App::uses('BcUploadHelper', 'View/Helper');
-					$View->BcUpload	 = new BcUploadHelper(new View());
+					$View			 = new View();
+					$View->BcUpload	 = new BcUploadHelper($View);
 					$fileLink		 = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
 					$result			 = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
 					if ($result) {
