@@ -45,20 +45,6 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 	private $OptionalLinkConfigModel = null;
 
 	/**
-	 * 処理対象とするコントローラー
-	 * 
-	 * @var array
-	 */
-	private $targetController = array('blog_posts', 'blog_contents');
-
-	/**
-	 * 処理対象とするアクション
-	 * 
-	 * @var array
-	 */
-	private $targetAction = array('admin_edit', 'admin_add');
-
-	/**
 	 * initialize
 	 * 
 	 * @param CakeEvent $event
@@ -94,7 +80,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 		}
 
 		$Controller = $event->subject();
-		if (!in_array($Controller->request->params['controller'], $this->targetController)) {
+		if (!in_array($Controller->request->params['controller'], array('blog_posts', 'blog_contents'))) {
 			return;
 		}
 
@@ -279,7 +265,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 		}
 
 		$Controller = $event->subject();
-		if (!in_array($Controller->request->params['action'], $this->targetAction)) {
+		if (!in_array($Controller->request->params['action'], array('admin_edit', 'admin_add'))) {
 			return;
 		}
 
