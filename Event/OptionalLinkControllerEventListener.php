@@ -126,21 +126,19 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 	public function blogBlogBeforeRender(CakeEvent $event)
 	{
 		$Controller = $event->subject();
-		if (!empty($Controller->blogContent['BlogContent'])) {
+		if (Hash::get($Controller->blogContent, 'BlogContent')) {
 			$Controller->set('OptionalLinkConfig', $this->optionalLinkConfigs);
 		}
 		// プレビューの際は編集欄の内容を送る
 		if ($Controller->preview) {
-			if (!empty($Controller->data['OptionalLink'])) {
+			if (Hash::get($Controller->data, 'OptionalLink')) {
 				$Controller->viewVars['post']['OptionalLink'] = $Controller->data['OptionalLink'];
 			}
 		}
 
-		if (!$this->isRedirect($Controller)) {
-			return;
+		if ($this->isRedirect($Controller)) {
+			$this->redirectOptionalLinkUrl($Controller);
 		}
-
-		$this->redirectOptionalLinkUrl($Controller);
 	}
 
 	/**
@@ -152,12 +150,10 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 	 */
 	private function isRedirect($Controller)
 	{
-		if (!isset($Controller->viewVars['single'])) {
+		if (!Hash::get($Controller->viewVars, 'single')) {
 			return false;
 		}
-		if (!$Controller->viewVars['single']) {
-			return false;
-		}
+
 		// プレビューの際はオプショナルリンク設定を取得しないため対応しない
 		if (!$this->optionalLinkConfigs) {
 			return false;
@@ -165,13 +161,12 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 		if (!$this->optionalLinkConfigs['OptionalLinkConfig']['status']) {
 			return false;
 		}
-		if (empty($Controller->viewVars['post']['OptionalLink'])) {
-			return false;
+
+		if (Hash::get($Controller->viewVars, 'post.OptionalLink.status')) {
+			return true;
 		}
-		if (!$Controller->viewVars['post']['OptionalLink']['status']) {
-			return false;
-		}
-		return true;
+
+		return false;
 	}
 
 	/**
@@ -216,7 +211,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 					$fileLink		 = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
 					$result			 = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
 					if ($result) {
-						$optionalLink['name'] = $match[1];	// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
+						$optionalLink['name'] = $match[1]; // ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
 					}
 				}
 				$optionalLinkData['OptionalLink'] = $optionalLink;
@@ -272,10 +267,8 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 		if ($Controller->request->params['action'] == 'admin_add') {
 			$defalut									 = $this->OptionalLinkModel->getDefaultValue();
 			$Controller->request->data['OptionalLink']	 = $defalut['OptionalLink'];
-		}
-
-		if (isset($Controller->request->data['OptionalLink'])) {
-			if (empty($Controller->request->data['OptionalLink']['id'])) {
+		} else {
+			if (!Hash::get($Controller->request->data, 'OptionalLink.id')) {
 				$defalut									 = $this->OptionalLinkModel->getDefaultValue();
 				$Controller->request->data['OptionalLink']	 = $defalut['OptionalLink'];
 			}
