@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OptionalLink Model
  *
@@ -6,78 +7,81 @@
  * @author			arata
  * @license			MIT
  */
-class OptionalLink extends BcPluginAppModel {
-/**
- * ModelName
- * 
- * @var string
- */
+class OptionalLink extends BcPluginAppModel
+{
+
+	/**
+	 * ModelName
+	 * 
+	 * @var string
+	 */
 	public $name = 'OptionalLink';
-	
-/**
- * PluginName
- * 
- * @var string
- */
+
+	/**
+	 * PluginName
+	 * 
+	 * @var string
+	 */
 	public $plugin = 'OptionalLink';
-	
-/**
- * Behavior
- * 
- * @var array
- */
+
+	/**
+	 * Behavior
+	 * 
+	 * @var array
+	 */
 	public $actsAs = array(
 		'BcCache',
 		'BcUpload' => array(
-			'saveDir' => "optionallink",
-			'fields' => array(
+			'saveDir'	 => "optionallink",
+			'fields'	 => array(
 				'file' => array(
-					'type'			=> 'all',
+					'type'		 => 'all',
 					// TODO 保存されるファイル名のフォーマットを指定すると、管理側で、公開期間を指定したファイル名が保存されない
 					//'namefield'		=> 'id',
 					//'nameformat'	=> '%07d',
-					'nameadd'		=> false,
-					'imagecopy' => array(
-						'large'		=> array('prefix' => 'large_', 'width' => '1600', 'height' => '1600'),
-						'thumb'		=> array('prefix' => 'thumb_', 'width' => '150', 'height' => '150'),
+					'nameadd'	 => false,
+					'imagecopy'	 => array(
+						'large'	 => array('prefix' => 'large_', 'width' => '1600', 'height' => '1600'),
+						'thumb'	 => array('prefix' => 'thumb_', 'width' => '150', 'height' => '150'),
 					),
 				),
 			),
 		),
 	);
-	
-/**
- * belongsTo
- * 
- * @var array
- */
+
+	/**
+	 * belongsTo
+	 * 
+	 * @var array
+	 */
 	public $belongsTo = array(
 		'BlogPost' => array(
-			'className'	=> 'Blog.BlogPost',
+			'className'	 => 'Blog.BlogPost',
 			'foreignKey' => 'blog_post_id'
 		)
 	);
-	
-/**
- * Validation
- *
- * @var array
- */
+
+	/**
+	 * Validation
+	 *
+	 * @var array
+	 */
 	public $validate = array(
 		'name' => array(
 			'maxLength' => array(
-				'rule'		=> array('maxLength', 255),
-				'message'	=> '255文字以内で入力してください。'
+				'rule'		 => array('maxLength', 255),
+				'message'	 => '255文字以内で入力してください。'
 			)
 		)
 	);
-	
-/**
- * 初期値を取得する
- *
- * @return array
- */
-	public function getDefaultValue() {
+
+	/**
+	 * 初期値を取得する
+	 *
+	 * @return array
+	 */
+	public function getDefaultValue()
+	{
 		$data = array(
 			'OptionalLink' => array(
 				'status' => 0
@@ -85,18 +89,19 @@ class OptionalLink extends BcPluginAppModel {
 		);
 		return $data;
 	}
-	
-/**
- * beforeSave
- * 公開期間指定がある場合、ファイルを limited に移動する
- * 公開期間指定がない場合、ファイルを limited から通常領域に移動する
- * 
- * @param array $options
- * @return boolean
- */
-	public function beforeSave($options = array()) {
+
+	/**
+	 * beforeSave
+	 * 公開期間指定がある場合、ファイルを limited に移動する
+	 * 公開期間指定がない場合、ファイルを limited から通常領域に移動する
+	 * 
+	 * @param array $options
+	 * @return boolean
+	 */
+	public function beforeSave($options = array())
+	{
 		parent::beforeSave($options);
-		
+
 		if (!empty($this->data[$this->alias]['id'])) {
 			$savePath		 = WWW_ROOT . 'files' . DS . $this->actsAs['BcUpload']['saveDir'] . DS; // ファイル保存パス
 			$savePathLimited = WWW_ROOT . 'files' . DS . $this->actsAs['BcUpload']['saveDir'] . DS . 'limited' . DS; // 公開制限ファイル保存パス
@@ -106,7 +111,7 @@ class OptionalLink extends BcPluginAppModel {
 				//$pathinfo = pathinfo($this->data[$this->alias]['file']);
 				$fileName = $this->data[$this->alias][$uploadField];
 			}
-			
+
 			if (!empty($this->data[$this->alias]['publish_begin']) || !empty($this->data[$this->alias]['publish_end'])) {
 				// 削除チェックを入れた場合、'file' にファイル名が入ってこない
 				if (empty($this->data[$this->alias]['file_delete'])) {
@@ -147,18 +152,19 @@ class OptionalLink extends BcPluginAppModel {
 				}
 			}
 		}
-		
+
 		return true;
 	}
-	
-/**
- * beforeDelete
- * 公開期間指定がある場合、削除前に保存場所のパスを limited を考慮して書換える
- * 
- * @param boolean $cascade
- * @return boolean
- */
-	public function beforeDelete($cascade = true) {
+
+	/**
+	 * beforeDelete
+	 * 公開期間指定がある場合、削除前に保存場所のパスを limited を考慮して書換える
+	 * 
+	 * @param boolean $cascade
+	 * @return boolean
+	 */
+	public function beforeDelete($cascade = true)
+	{
 		$data = $this->read(null, $this->id);
 		if (!empty($data['OptionalLink']['publish_begin']) || !empty($data['OptionalLink']['publish_end'])) {
 			$this->Behaviors->BcUpload->savePath .= 'limited' . DS;
@@ -166,8 +172,8 @@ class OptionalLink extends BcPluginAppModel {
 			$this->Behaviors->BcUpload->savePath = preg_replace('/' . preg_quote('limited' . DS, '/') . '$/', '', $this->Behaviors->BcUpload->savePath);
 		}
 		parent::beforeDelete($cascade);
-		
+
 		return true;
 	}
-	
+
 }

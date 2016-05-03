@@ -1,4 +1,5 @@
 <?php
+
 /**
  * [Lib] OptionalLink
  *
@@ -8,11 +9,12 @@
  */
 class OptionalLinkUtil extends Object
 {
-	public static $filesPath = '';
-	public static $savePath = '';
-	public static $limitedPath = '';
-	public static $limitedHtaccess = '';
-	
+
+	public static $filesPath		 = '';
+	public static $savePath			 = '';
+	public static $limitedPath		 = '';
+	public static $limitedHtaccess	 = '';
+
 	/**
 	 * アップロード用フォルダのパスを取得する
 	 * WWW_ROOT .'files';
@@ -21,10 +23,10 @@ class OptionalLinkUtil extends Object
 	 */
 	public static function getFilePath()
 	{
-		self::$filesPath = WWW_ROOT .'files';
+		self::$filesPath = WWW_ROOT . 'files';
 		return self::$filesPath;
 	}
-	
+
 	/**
 	 * オプショナルリンクのファイルアップロード用フォルダのパスを取得する
 	 * WWW_ROOT .'files'. DS .'optionallink';
@@ -33,10 +35,10 @@ class OptionalLinkUtil extends Object
 	 */
 	public static function getSavePath()
 	{
-		self::$savePath = self::getFilePath() .DS. 'optionallink';
+		self::$savePath = self::getFilePath() . DS . 'optionallink';
 		return self::$savePath;
 	}
-	
+
 	/**
 	 * オプショナルリンクの公開制限ファイルアップロード用フォルダのパスを取得する
 	 * WWW_ROOT .'files'. DS .'optionallink'. DS .'limited;
@@ -45,10 +47,10 @@ class OptionalLinkUtil extends Object
 	 */
 	public static function getLimitedPath()
 	{
-		self::$limitedPath = self::getSavePath() .DS. 'limited';
+		self::$limitedPath = self::getSavePath() . DS . 'limited';
 		return self::$limitedPath;
 	}
-	
+
 	/**
 	 * オプショナルリンクの公開制限ファイル用のhtaccessのパスを取得する
 	 * WWW_ROOT .'files'. DS .'optionallink'. DS .'limited'. DS .'.htaccess';
@@ -57,10 +59,10 @@ class OptionalLinkUtil extends Object
 	 */
 	public static function getLimitedHtaccess()
 	{
-		self::$limitedHtaccess = self::getLimitedPath() .DS. '.htaccess';
+		self::$limitedHtaccess = self::getLimitedPath() . DS . '.htaccess';
 		return self::$limitedHtaccess;
 	}
-	
+
 	/**
 	 * URLをpathinfoで分割したextensionの値から、判定文字列を生成する
 	 * 
@@ -81,5 +83,5 @@ class OptionalLinkUtil extends Object
 		}
 		return $str;
 	}
-	
+
 }
