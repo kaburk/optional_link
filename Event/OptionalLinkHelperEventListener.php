@@ -443,19 +443,11 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	 */
 	private function isRewriteUrl($post)
 	{
-		$result = false;
-
-		// 特定したブログ記事がオプショナルリンク値を持たない場合はURL書換えを行わない
-		if (!isset($post['OptionalLink'])) {
-			return false;
-		}
-
 		// 特定したブログ記事のオプショナルリンク値のステータスが未使用 or 存在しない値の場合はURL書換えを行わない
-		if (!empty($post['OptionalLink']['status'])) {
-			$result = true;
+		if (Hash::get($post, 'OptionalLink.status')) {
+			return true;
 		}
-
-		return $result;
+		return false;
 	}
 
 }
