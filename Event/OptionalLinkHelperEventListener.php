@@ -66,20 +66,6 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	private $blogContents = array();
 
 	/**
-	 * 処理対象とするコントローラー
-	 * 
-	 * @var array
-	 */
-	private $targetController = array('BlogPosts', 'BlogContents');
-
-	/**
-	 * 処理対象とするアクション
-	 * 
-	 * @var array
-	 */
-	private $targetAction = array('admin_edit', 'admin_add');
-
-	/**
 	 * formAfterCreate
 	 * - ブログ記事追加・編集画面に編集欄を追加する
 	 * 
@@ -97,7 +83,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 			return $event->data['out'];
 		}
 
-		if (!in_array($View->request->params['action'], $this->targetAction)) {
+		if (!in_array($View->request->params['action'], array('admin_edit', 'admin_add'))) {
 			return $event->data['out'];
 		}
 
@@ -204,9 +190,9 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 
 		$View					 = $event->subject();
 		$this->isBlogArchivesUrl = false;  // URLが記事詳細へのURLかの判定を初期化
-		$this->isRewrite		 = false;	// URL書換を機能させるかの判定を初期化
-		$this->optionalLink		 = null;	// オプショナルリンク値を初期化
-		$blogContent			 = array();	 // URLが持つブログコンテンツ値を初期化
+		$this->isRewrite		 = false; // URL書換を機能させるかの判定を初期化
+		$this->optionalLink		 = null; // オプショナルリンク値を初期化
+		$blogContent			 = array();  // URLが持つブログコンテンツ値を初期化
 
 		if (!is_array($event->data['url'])) {
 			$this->url = Router::parse($event->data['url']);
@@ -281,7 +267,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 					$fileLink	 = $View->BcUpload->uploadImage('OptionalLink.file', $optionalLink['file'], array('imgsize' => 'large'));
 					$result		 = preg_match('/.+<?\shref=[\'|"](.*?)[\'|"].*/', $fileLink, $match);
 					if ($result) {
-						$optionalLink['name']				 = $match[1];	// ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
+						$optionalLink['name']				 = $match[1]; // ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
 						$event->data['options']['target']	 = '_blank'; // 問答無用でblank
 					}
 				}
