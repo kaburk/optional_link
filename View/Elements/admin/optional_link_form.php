@@ -27,9 +27,11 @@ if (!$blogContentId) {
 			<?php echo $this->BcForm->label('OptionalLink.status', 'オプショナルリンク') ?>
 		</th>
 		<td class="col-input">
+			<?php $labelUrl = (Hash::get($this->request->data, 'OptionalLink.name')) ? 'URL<small>（指定アリ）</small>' : 'URL'; ?>
+			<?php $labelFile = (Hash::get($this->request->data, 'OptionalLink.file')) ? 'ファイル<small>（指定アリ）</small>' : 'ファイル'; ?>
 			<?php echo $this->BcForm->input('OptionalLink.status', array(
 					'type'		=> 'radio',
-					'options'	=> array(0 => '利用しない', 1 => 'URL', 2 => 'ファイル'),
+					'options'	=> array(0 => '利用しない', 1 => $labelUrl, 2 => $labelFile),
 					'legend'	=> false,
 					'class'		=> 'optionallink-status',
 					'separator'	=> '&nbsp;&nbsp;')) ?>
