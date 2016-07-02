@@ -19,7 +19,7 @@ if (!$blogContentId) {
 <?php endif ?>
 
 <?php $this->BcBaser->css('OptionalLink.admin/optional_link', array('inline' => false)); ?>
-<?php $this->BcBaser->js(array('OptionalLink.admin/optional_link'), array('inline' => true)) ?>
+<?php $this->BcBaser->js(array('OptionalLink.admin/optional_link'), false) ?>
 <div id="OptionalLinkTable">
 <table cellpadding="0" cellspacing="0" class="form-table section" style="margin-bottom: 10px;">
 	<tr>
@@ -40,7 +40,7 @@ if (!$blogContentId) {
 	</tr>
 </table>
 
-<div class="section">
+<div class="section" style="display: none;">
 <table cellpadding="0" cellspacing="0" class="form-table section">
 	<tr>
 		<th class="col-head">
@@ -67,7 +67,7 @@ if (!$blogContentId) {
 </table>
 <!-- /.section --></div>
 
-<div class="section">
+<div class="section" style="display: none;">
 <table cellpadding="0" cellspacing="0" class="form-table section">
 	<tr>
 		<th class="col-head">
