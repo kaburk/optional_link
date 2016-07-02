@@ -201,10 +201,10 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 		$this->optionalLink		 = null; // オプショナルリンク値を初期化
 		$blogContent			 = array();  // URLが持つブログコンテンツ値を初期化
 
-		if (!is_array($event->data['url'])) {
-			$this->url = Router::parse($event->data['url']);
-		} else {
+		if (is_array($event->data['url'])) {
 			$this->url = $event->data['url'];
+		} else {
+			$this->url = Router::parse($event->data['url']);
 		}
 		if (!$this->url) {
 			return;
