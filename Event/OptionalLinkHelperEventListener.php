@@ -66,6 +66,13 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	private $blogContents = array();
 
 	/**
+	 * ブログ記事データ
+	 * 
+	 * @var array
+	 */
+	private $blogPostList = array();
+
+	/**
 	 * formAfterCreate
 	 * - ブログ記事追加・編集画面に編集欄を追加する
 	 * 
@@ -416,20 +423,37 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	 */
 	private function getBlogPostData($blogContentId, $blogPostNo)
 	{
-		// 現在の画面ではなく、ブログ記事のURLに対しての情報が必要なため取得する
-		if (ClassRegistry::isKeySet('Blog.BlogPost')) {
-			$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
-		} else {
-			$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+		$post = array();
+
+		if (!$this->blogPostList) {
+			// 現在の画面ではなく、ブログ記事のURLに対しての情報が必要なため取得する
+			if (ClassRegistry::isKeySet('Blog.BlogPost')) {
+				$BlogPostModel = ClassRegistry::getObject('Blog.BlogPost');
+			} else {
+				$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
+			}
+
+			$conditions			 = $BlogPostModel->getConditionAllowPublish();
+			$this->blogPostList	 = $BlogPostModel->find('all', array(
+				'conditions' => $conditions,
+				'fields'	 => array(
+					'id', 'blog_content_id', 'no', 'name', 'blog_category_id', 'user_id', 'status', 'posts_date',
+				),
+				'order'		 => 'BlogPost.id DESC',
+				'recursive'	 => 2,
+			));
 		}
-		$post = $BlogPostModel->find('first', array(
-			'conditions' => array(
-				'BlogPost.blog_content_id'	 => $blogContentId,
-				'BlogPost.no'				 => $blogPostNo,
-			),
-			// recursiveを設定しないと「最近の投稿」で OptionalLink が取得できない
-			'recursive'	 => 1
-		));
+
+		$target = Hash::extract($this->blogPostList, "{n}.BlogPost[blog_content_id={$blogContentId}][no={$blogPostNo}]");
+		if ($target) {
+			$blogPostId = $target[0]['id'];
+			foreach ($this->blogPostList as $key => $blogPost) {
+				if ($blogPostId == $blogPost['BlogPost']['id']) {
+					$post = $this->blogPostList[$key];
+					break;
+				}
+			}
+		}
 
 		return $post;
 	}
