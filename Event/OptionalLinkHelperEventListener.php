@@ -63,7 +63,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	 * 
 	 * @var array
 	 */
-	private $blogContents = array();
+	private $blogContentList = array();
 
 	/**
 	 * ブログ記事データ
@@ -178,7 +178,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	 */
 	public function htmlBeforeGetLink(CakeEvent $event)
 	{
-		$this->_judgeRewriteUrl($event);
+		$this->judgeRewriteUrl($event);
 		return $event->data['options'];
 	}
 
@@ -188,7 +188,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	 * @param CakeEvent $event
 	 * @return
 	 */
-	private function _judgeRewriteUrl(CakeEvent $event)
+	private function judgeRewriteUrl(CakeEvent $event)
 	{
 		// 管理システム側でのアクセスではURL変換を行わない
 		if (BcUtil::isAdminSystem()) {
@@ -296,7 +296,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	{
 		$View = $event->subject();
 		if ($this->isRewrite) {
-			$event->data['out'] = $this->_rewriteUrl($View, $event->data['out']);
+			$event->data['out'] = $this->rewriteUrl($View, $event->data['out']);
 		}
 		return $event->data['out'];
 	}
@@ -308,7 +308,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 	 * @param string $out
 	 * @return string
 	 */
-	private function _rewriteUrl($View, $out)
+	private function rewriteUrl($View, $out)
 	{
 		if (!$this->optionalLink) {
 			return $out;
@@ -395,17 +395,17 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 		if ($url['action'] == 'archives') {
 			// 引数のURLが1つ（記事詳細）のときに有効とする
 			if (!empty($url[0]) && !isset($url[1])) {
-				if (!$this->blogContents) {
+				if (!$this->blogContentList) {
 					if (ClassRegistry::isKeySet('Blog.BlogContent')) {
 						$BlogContentModel = ClassRegistry::getObject('Blog.BlogContent');
 					} else {
 						$BlogContentModel = ClassRegistry::init('Blog.BlogContent');
 					}
-					$this->blogContents = $BlogContentModel->find('all', array('recursive' => -1));
+					$this->blogContentList = $BlogContentModel->find('all', array('recursive' => -1));
 				}
-				foreach ($this->blogContents as $value) {
-					if ($url['controller'] == $value['BlogContent']['name']) {
-						$data = $value;
+				foreach ($this->blogContentList as $blogContent) {
+					if ($url['controller'] == $blogContent['BlogContent']['name']) {
+						$data = $blogContent;
 						break;
 					}
 				}
