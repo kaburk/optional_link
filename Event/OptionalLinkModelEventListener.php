@@ -236,7 +236,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
 					if ($_data) {
 						// コピー元データがある時
-						unset($data['OptionalLink']['id']);
+						$_data['OptionalLink']['id'] = null;
 						$data['OptionalLink']					 = $_data['OptionalLink'];
 						$data['OptionalLink']['blog_post_id']	 = $contentId;
 					} else {
