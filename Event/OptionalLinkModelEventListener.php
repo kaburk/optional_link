@@ -16,12 +16,14 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 	 * @var array
 	 */
 	public $events = array(
+		'Blog.BlogPost.beforeFind',
 		'Blog.BlogPost.beforeValidate',
+		'Blog.BlogPost.beforeSave',
+		'Blog.BlogPost.beforeDelete',
 		'Blog.BlogPost.afterSave',
 		'Blog.BlogPost.afterDelete',
-		'Blog.BlogPost.beforeFind',
+		'Blog.BlogContent.beforeFind',
 		'Blog.BlogContent.afterDelete',
-		'Blog.BlogContent.beforeFind'
 	);
 
 	/**
@@ -118,6 +120,34 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 
 	/**
 	 * blogBlogPostAfterSave
+	 * - ブログ記事を削除する場合、関連付くオプショナルリンクのデータを削除するが、
+	 *   同一ファイルに対して複数の記事設定がなされているかどうかをチェックし、
+	 *   対象ファイルの実体を削除して良いかどうかをチェックしている
+	 * 
+	 * @param CakeEvent $event
+	 */
+	public function blogBlogPostBeforeSave(CakeEvent $event)
+	{
+		$Model = $event->subject();
+
+		if (Hash::get($Model->data, 'OptionalLink.id')) {
+			if ($this->OptionalLink->isFileDelete($Model->data)) {
+				$this->OptionalLink->fileDelete = true;
+			} else {
+				$this->OptionalLink->fileDelete = false;
+			}
+			if ($this->OptionalLink->hasDuplicateFile($Model->data)) {
+				$this->OptionalLink->hasDuplicateFileDate = true;
+			} else {
+				$this->OptionalLink->hasDuplicateFileDate = false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * blogBlogPostAfterSave
 	 * 
 	 * @param CakeEvent $event
 	 */
@@ -133,6 +163,10 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 		$saveData = $this->generateSaveData($Model, $Model->id);
 		// 2周目では保存処理に渡らないようにしている
 		if (!$this->throwBlogPost) {
+			if ($this->OptionalLink->fileDelete && $this->OptionalLink->hasDuplicateFileDate) {
+				$saveData['OptionalLink']['file'] = '';
+				$this->OptionalLink->Behaviors->disable('BcUpload');
+			}
 			if (!$this->OptionalLink->save($saveData)) {
 				$this->log(sprintf('ID：%s のオプショナルリンクの保存に失敗しました。', $Model->data['OptionalLink']['id']));
 			}
@@ -141,6 +175,27 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 		// ブログ記事コピー保存時、アイキャッチが入っていると処理が2重に行われるため、1周目で処理通過を判定し、
 		// 2周目では保存処理に渡らないようにしている
 		$this->throwBlogPost = true;
+	}
+
+	/**
+	 * blogBlogPostBeforeDelete
+	 * - ブログ記事削除前に、そのブログ記事が持っているオプショナルリンクデータがファイルを持っていて、
+	 *   ファイルが複数記事に設定されている場合は実ファイルを削除させない
+	 * - 同一ファイル名のファイルが複数記事に存在する場合、BcUpload の削除処理（ファイルの削除）を実行させない
+	 * 
+	 * @param CakeEvent $event
+	 */
+	public function blogBlogPostBeforeDelete(CakeEvent $event)
+	{
+		$Model = $event->subject();
+		if (Hash::get($Model->data, 'OptionalLink.id')) {
+			if ($Model->OptionalLink->hasDuplicateFile($Model->data)) {
+				// ビヘイビアにモデルのコールバックを処理させない
+				// unload は OptionalLink モデル側の beforeDelete 処理に影響するため使えない
+				// $Model->OptionalLink->Behaviors->unload('BcUpload');
+				$Model->OptionalLink->Behaviors->disable('BcUpload');
+			}
+		}
 	}
 
 	/**
@@ -224,6 +279,10 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 
 			case 'admin_ajax_copy':
 				// Ajaxコピー処理時に実行
+				// データを手動で調整した場合等、既存データ内に同一の blog_post_id がある場合はそのデータを返す
+				if ($data) {
+					return $data;
+				}
 				// ブログコピー保存時にエラーがなければ保存処理を実行
 				if (empty($Model->validationErrors)) {
 					$_data = array();
@@ -236,7 +295,7 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 					// もしオプショナルリンク設定の初期データ作成を行ってない事を考慮して判定している
 					if ($_data) {
 						// コピー元データがある時
-						$_data['OptionalLink']['id'] = null;
+						$_data['OptionalLink']['id']			 = null;
 						$data['OptionalLink']					 = $_data['OptionalLink'];
 						$data['OptionalLink']['blog_post_id']	 = $contentId;
 					} else {

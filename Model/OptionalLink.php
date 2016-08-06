@@ -91,6 +91,20 @@ class OptionalLink extends BcPluginAppModel
 	}
 
 	/**
+	 * ファイル削除の指定がなされているかどうかの値
+	 * 
+	 * @var boolean
+	 */
+	public $fileDelete = true;
+
+	/**
+	 * 同一ファイル名を持つデータが複数存在するかどうかの値
+	 * 
+	 * @var boolean
+	 */
+	public $hasDuplicateFileDate = false;
+
+	/**
 	 * beforeSave
 	 * 公開期間指定がある場合、ファイルを limited に移動する
 	 * 公開期間指定がない場合、ファイルを limited から通常領域に移動する
@@ -101,6 +115,10 @@ class OptionalLink extends BcPluginAppModel
 	public function beforeSave($options = array())
 	{
 		parent::beforeSave($options);
+
+		if (!$this->Behaviors->enabled('BcUpload')) {
+			return true;
+		}
 
 		if (!empty($this->data[$this->alias]['id'])) {
 			$savePath		 = WWW_ROOT . 'files' . DS . $this->actsAs['BcUpload']['saveDir'] . DS; // ファイル保存パス
@@ -139,7 +157,7 @@ class OptionalLink extends BcPluginAppModel
 				}
 			} else {
 				// 公開期間指定がなされていない場合は、ファイルを通常領域に移動する
-				if ($fileName) {
+				if ($fileName && is_string($fileName)) {
 					if (file_exists($savePathLimited . $fileName)) {
 						// オリジナルのファイルを処理
 						rename($savePathLimited . $fileName, $savePath . $fileName);
@@ -165,8 +183,7 @@ class OptionalLink extends BcPluginAppModel
 	 */
 	public function beforeDelete($cascade = true)
 	{
-		$data = $this->read(null, $this->id);
-		if (!empty($data['OptionalLink']['publish_begin']) || !empty($data['OptionalLink']['publish_end'])) {
+		if (Hash::get($this->data, $this->alias . '.publish_begin') || Hash::get($this->data, $this->alias . '.publish_end')) {
 			$this->Behaviors->BcUpload->savePath .= 'limited' . DS;
 		} else {
 			$this->Behaviors->BcUpload->savePath = preg_replace('/' . preg_quote('limited' . DS, '/') . '$/', '', $this->Behaviors->BcUpload->savePath);
@@ -174,6 +191,50 @@ class OptionalLink extends BcPluginAppModel
 		parent::beforeDelete($cascade);
 
 		return true;
+	}
+
+	/**
+	 * 同一ファイル名のファイルが複数記事に存在するかどうかを判別する
+	 * 
+	 * @param array $data
+	 * @return boolean | array
+	 */
+	public function hasDuplicateFile($data)
+	{
+		$duplicate = array();
+		if (Hash::get($data, $this->alias . '.file')) {
+			$fileName = '';
+			// 削除チェックを入れた場合、file は配列で入り、file_ にファイル名が入ってくる
+			if ($this->isFileDelete($data)) {
+				$fileName = $data[$this->alias]['file_'];
+			} else {
+				$fileName = $data[$this->alias]['file'];
+			}
+
+			$duplicate = $this->find('all', array(
+				'conditions' => array(
+					$this->alias . '.file'	 => $fileName,
+					'NOT'					 => array($this->alias . '.id' => array($data[$this->alias]['id'])),
+				),
+				'recursive'	 => -1,
+				'callbacks'	 => false,
+			));
+		}
+		return $duplicate;
+	}
+
+	/**
+	 * ファイルが削除指定されているかどうかを判別する
+	 * 
+	 * @param array $data
+	 * @return boolean
+	 */
+	public function isFileDelete($data)
+	{
+		if (Hash::get($data, $this->alias . '.file_delete')) {
+			return true;
+		}
+		return false;
 	}
 
 }
