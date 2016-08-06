@@ -106,7 +106,6 @@ class OptionalLinkHelper extends AppHelper
 	public function judgeLinkKinds($post = array())
 	{
 		$str = '';
-
 		if ($post['OptionalLink']['status']) {
 			switch ($post['OptionalLink']['status']) {
 				case '1':
