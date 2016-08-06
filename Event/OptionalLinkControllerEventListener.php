@@ -196,7 +196,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 					}
 					$Controller->redirect($link);
 				} else {
-					$this->log('URL指定のURLが未入力の記事に対してアクセスがありました。記事ID: ' . $optionalLinkData['OptionalLink']['blog_post_id']);
+					$this->log('URL指定のURLが未入力の記事に対してアクセスがありました。記事ID: ' . $optionalLinkData['OptionalLink']['blog_post_id'], LOG_OPTIONAL_LINK);
 					$Controller->notFound();
 				}
 
@@ -215,7 +215,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 						$optionalLink['name'] = $match[1]; // ファイルの場合はnameにファイルへのURLを入れる - modify by gondoh
 					}
 				} else {
-					$this->log('ファイル指定のファイルが未入力の記事に対してアクセスがありました。記事ID: ' . $optionalLinkData['OptionalLink']['blog_post_id']);
+					$this->log('ファイル指定のファイルが未入力の記事に対してアクセスがありました。記事ID: ' . $optionalLinkData['OptionalLink']['blog_post_id'], LOG_OPTIONAL_LINK);
 					$Controller->notFound();
 				}
 				$optionalLinkData['OptionalLink'] = $optionalLink;
@@ -236,7 +236,7 @@ class OptionalLinkControllerEventListener extends BcControllerEventListener
 						}
 						$Controller->redirect($link);
 					} else {
-						$this->log('ファイル指定の公開期間が終了している記事に対してアクセスがありました。記事ID: ' . $optionalLinkData['OptionalLink']['blog_post_id']);
+						$this->log('ファイル指定の公開期間が終了している記事に対してアクセスがありました。記事ID: ' . $optionalLinkData['OptionalLink']['blog_post_id'], LOG_OPTIONAL_LINK);
 						$Controller->notFound();
 					}
 				}
