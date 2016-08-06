@@ -318,7 +318,16 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 
 			switch ($this->optionalLink['OptionalLink']['status']) {
 				case '1': // URLの場合
-					if (!$this->optionalLink['OptionalLink']['nolink']) {
+					if ($this->optionalLink['OptionalLink']['nolink']) {
+						// リンクしない場合は文字列に置換する
+						// 例：<a href="/news/archives/2>(.)</a>
+						// \<a\ (.+)\>(.+)\<\/a\>
+						$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
+						preg_match($regex, $out, $matches);
+						if ($matches[1]) {
+							$out = $matches[1];
+						}
+					} else {
 						$link = $this->optionalLink['OptionalLink']['name'];
 						if ($link) {
 							// /files〜 の場合はドメインを付与して絶対指定扱いにする
@@ -334,26 +343,21 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 							$replacement = 'href="' . $link . '"';
 							$out		 = preg_replace($regex, $replacement, $out);
 						}
-					} else {
-						// リンクしない場合は文字列に置換する
-						// 例：<a href="/news/archives/2>(.)</a>
-						// \<a\ (.+)\>(.+)\<\/a\>
-						$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
-						preg_match($regex, $out, $matches);
-						if ($matches[1]) {
-							$out = $matches[1];
-						}
 					}
 					break;
 
 				case '2': // ファイルの場合
-					$link = $this->optionalLink['OptionalLink']['name'];
-					if ($link) {
+					$isFileLink = false;
+					if (Hash::get($this->optionalLink, 'OptionalLink.file')) {
+						$isFileLink = true;
+					}
+
+					if ($isFileLink) {
 						// ファイルの公開期間をチェックする
-						$checkPublish = $View->OptionalLink->allowPublishFile($this->optionalLink);
-						if ($checkPublish) {
+						if ($View->OptionalLink->allowPublishFile($this->optionalLink)) {
+							$link		 = $this->optionalLink['OptionalLink']['name'];
 							// /files〜 の場合はドメインを付与して絶対指定扱いにする
-							$regexFiles = '/^\/files\/.+/';
+							$regexFiles	 = '/^\/files\/.+/';
 							if (preg_match($regexFiles, $link)) {
 								// /lib/Baser/basics.php
 								$link = topLevelUrl(false) . $link;
@@ -365,12 +369,18 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 							$replacement = 'href="' . $link . '"';
 							$out		 = preg_replace($regex, $replacement, $out);
 						} else {
-							// ファイルの公開期間が終了していれば、リンクしない文字列に置換する
-							$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
-							preg_match($regex, $out, $matches);
-							if ($matches[1]) {
-								$out = $matches[1];
-							}
+							$isFileLink = false;
+						}
+					}
+
+					if (!$isFileLink) {
+						// リンクしない文字列に置換する
+						// - ファイルの公開期間が終了している場合
+						// - file にデータがない場合
+						$regex = '/^\<a\ .+\>(.+)\<\/a\>/';
+						preg_match($regex, $out, $matches);
+						if ($matches[1]) {
+							$out = $matches[1];
 						}
 					}
 					break;
