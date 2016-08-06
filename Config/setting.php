@@ -23,3 +23,13 @@ $config['BcApp.adminNavi.optional_link'] = array(
 		)
 	)
 );
+
+/**
+ * 専用ログ
+ */
+define('LOG_OPTIONAL_LINK', 'log_optional_link');
+CakeLog::config('log_optional_link', array(
+	'engine' => 'FileLog',
+	'types'	 => array('log_optional_link'),
+	'file'	 => 'log_optional_link',
+));
