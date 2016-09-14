@@ -189,11 +189,16 @@ class OptionalLinkModelEventListener extends BcModelEventListener
 	{
 		$Model = $event->subject();
 		if (Hash::get($Model->data, 'OptionalLink.id')) {
-			if ($Model->OptionalLink->hasDuplicateFile($Model->data)) {
+			if (ClassRegistry::isKeySet('OptionalLink')) {
+				$OptionalLinkModel = ClassRegistry::getObject('OptionalLink');
+			} else {
+				$OptionalLinkModel = ClassRegistry::init('OptionalLink');
+			}
+			if ($OptionalLinkModel->hasDuplicateFile($Model->data)) {
 				// ビヘイビアにモデルのコールバックを処理させない
 				// unload は OptionalLink モデル側の beforeDelete 処理に影響するため使えない
 				// $Model->OptionalLink->Behaviors->unload('BcUpload');
-				$Model->OptionalLink->Behaviors->disable('BcUpload');
+				$OptionalLinkModel->Behaviors->disable('BcUpload');
 			}
 		}
 	}
