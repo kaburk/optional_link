@@ -451,6 +451,7 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 				),
 				'order'		 => 'BlogPost.id DESC',
 				'recursive'	 => 2,
+				'cache'		 => false,
 			));
 		}
 
