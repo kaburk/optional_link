@@ -442,7 +442,19 @@ class OptionalLinkHelperEventListener extends BcHelperEventListener
 			} else {
 				$BlogPostModel = ClassRegistry::init('Blog.BlogPost');
 			}
-
+			$BlogPostModel->unbindModel(array(
+				'belongsTo' => array(
+					'BlogCategory',
+					'BlogContent',
+					'User',
+				),
+				'hasMany' => array(
+					'BlogComment',
+				),
+				'hasAndBelongsToMany' => array(
+					'BlogTag',
+				),
+			));
 			$conditions			 = $BlogPostModel->getConditionAllowPublish();
 			$this->blogPostList	 = $BlogPostModel->find('all', array(
 				'conditions' => $conditions,
